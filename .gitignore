@@ -1,0 +1,17 @@
+node_modules
+build
+.vscode
+*.log
+.DS_Store
+Thumbs.db
+.npm
+package-lock.json.bak
+test/tmp
+.dev-server
+*.enc
+obsidian.md
+devServerCli.md
+.commitinfo
+.env
+.env.local
+.env.*.local

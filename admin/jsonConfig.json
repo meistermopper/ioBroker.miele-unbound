@@ -1,0 +1,309 @@
+{
+  "i18n": true,
+  "type": "tabs",
+  "items": {
+    "tabPairing": {
+      "type": "panel",
+      "label": "Login & Pairing",
+      "items": {
+        "headerPairing": {
+          "type": "header",
+          "size": 3,
+          "text": "Miele Account Pairing (One-time Setup)"
+        },
+        "infoPairing": {
+          "type": "staticText",
+          "text": "pairing_instruction"
+        },
+        "country": {
+          "type": "select",
+          "label": "Country",
+          "sm": 12,
+          "md": 4,
+          "options": [
+            { "label": "Germany", "value": "de" },
+            { "label": "Austria", "value": "at" },
+            { "label": "Switzerland", "value": "ch" },
+            { "label": "Netherlands", "value": "nl" },
+            { "label": "United Kingdom", "value": "gb" },
+            { "label": "France", "value": "fr" },
+            { "label": "Italy", "value": "it" },
+            { "label": "Spain", "value": "es" },
+            { "label": "Other", "value": "other" }
+          ]
+        },
+        "btnOpenLogin": {
+          "type": "sendTo",
+          "label": "Open Login Page",
+          "command": "getAuthorizeUrl",
+          "openUrl": true,
+          "variant": "contained",
+          "color": "primary",
+          "jsonData": "{ \"country\": \"${data.country}\" }",
+          "sm": 12,
+          "md": 4
+        },
+        "step1Header": {
+          "type": "header",
+          "size": 5,
+          "text": "step1_header",
+          "newLine": true,
+          "sm": 12,
+          "md": 12
+        },
+        "step1Text": {
+          "type": "staticText",
+          "text": "step1_text",
+          "newLine": true,
+          "sm": 12,
+          "md": 12
+        },
+        "step2Header": {
+          "type": "header",
+          "size": 5,
+          "text": "step2_header",
+          "newLine": true,
+          "sm": 12,
+          "md": 12
+        },
+        "step2Text": {
+          "type": "staticText",
+          "text": "step2_text",
+          "newLine": true,
+          "sm": 12,
+          "md": 12
+        },
+        "step3Header": {
+          "type": "header",
+          "size": 5,
+          "text": "step3_header",
+          "newLine": true,
+          "sm": 12,
+          "md": 12
+        },
+        "step3Text": {
+          "type": "staticText",
+          "text": "step3_text",
+          "newLine": true,
+          "sm": 12,
+          "md": 12
+        },
+        "redirectUrl": {
+          "type": "text",
+          "label": "miele:// redirect URL",
+          "help": "Paste the captured miele:// or redirect URL here",
+          "newLine": true,
+          "sm": 12,
+          "md": 8
+        },
+        "btnFetchKey": {
+          "type": "sendTo",
+          "label": "Fetch GroupKey",
+          "command": "fetchGroupKey",
+          "variant": "contained",
+          "color": "primary",
+          "useNative": true,
+          "jsonData": "{ \"redirectUrl\": \"${data.redirectUrl}\" }",
+          "sm": 12,
+          "md": 4
+        },
+        "dividerPairing": {
+          "type": "divider"
+        },
+        "pairingStatus": {
+          "type": "staticText",
+          "text": "pairing_status_info"
+        },
+        "groupId": {
+          "type": "text",
+          "label": "Household GroupID",
+          "readOnly": true,
+          "copyToClipboard": true,
+          "sm": 12,
+          "md": 6
+        }
+      }
+    },
+    "tabBackup": {
+      "type": "panel",
+      "label": "Credentials & Backup",
+      "items": {
+        "headerCredentials": {
+          "type": "header",
+          "size": 3,
+          "text": "Household Credentials (GroupId & GroupKey)"
+        },
+        "credentialsDesc": {
+          "type": "staticText",
+          "text": "credentials_desc"
+        },
+        "manualGroupId": {
+          "type": "text",
+          "label": "Household GroupID",
+          "sm": 12,
+          "md": 6
+        },
+        "manualGroupKey": {
+          "type": "password",
+          "label": "Household GroupKey (64 Bytes Hex)",
+          "sm": 12,
+          "md": 6
+        },
+        "dividerBackup": {
+          "type": "divider"
+        },
+        "headerBackup": {
+          "type": "header",
+          "size": 3,
+          "text": "Encrypted Export & Import (AES-256-GCM)"
+        },
+        "backupDesc": {
+          "type": "staticText",
+          "text": "backup_desc"
+        },
+        "backupPassphrase": {
+          "type": "password",
+          "label": "Master Passphrase for Encryption/Decryption",
+          "sm": 12,
+          "md": 6
+        },
+        "btnExportBackup": {
+          "type": "sendTo",
+          "label": "Export Encrypted Backup",
+          "command": "exportBackup",
+          "variant": "contained",
+          "color": "primary",
+          "jsonData": "{ \"passphrase\": \"${data.backupPassphrase}\" }",
+          "sm": 12,
+          "md": 3
+        },
+        "backupPayload": {
+          "type": "text",
+          "label": "Encrypted Backup Data (Paste here to restore)",
+          "sm": 12,
+          "md": 9
+        },
+        "btnImportBackup": {
+          "type": "sendTo",
+          "label": "Import / Restore",
+          "command": "importBackup",
+          "variant": "contained",
+          "color": "primary",
+          "jsonData": "{ \"backup\": \"${data.backupPayload}\", \"passphrase\": \"${data.backupPassphrase}\" }",
+          "sm": 12,
+          "md": 3
+        }
+      }
+    },
+    "tabDevices": {
+      "type": "panel",
+      "label": "Appliances",
+      "items": {
+        "headerDevices": {
+          "type": "header",
+          "size": 3,
+          "text": "Network & Appliances"
+        },
+        "autoDiscovery": {
+          "type": "checkbox",
+          "label": "Auto-Discovery via mDNS (_mieleathome._tcp)",
+          "help": "Enable automatic detection on the local network (may not work across Docker bridge)",
+          "sm": 12
+        },
+        "manualDevices": {
+          "type": "table",
+          "label": "Static IP Addresses (e.g. for Docker / VLAN)",
+          "sm": 12,
+          "items": [
+            {
+              "type": "text",
+              "attr": "ip",
+              "title": "IP Address (e.g. 192.168.1.127)",
+              "width": "200px"
+            },
+            {
+              "type": "text",
+              "attr": "name",
+              "title": "Appliance Name / Notes (optional)",
+              "width": "250px"
+            },
+            {
+              "type": "checkbox",
+              "attr": "enabled",
+              "title": "Active",
+              "width": "80px",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "tabSettings": {
+      "type": "panel",
+      "label": "Settings",
+      "items": {
+        "headerSettings": {
+          "type": "header",
+          "size": 3,
+          "text": "Polling & Intervals"
+        },
+        "pollIntervalActive": {
+          "type": "number",
+          "label": "Active Poll Interval (Seconds)",
+          "help": "Interval when a machine is running or programmed (Recommended: 5)",
+          "min": 2,
+          "max": 60,
+          "sm": 12,
+          "md": 4
+        },
+        "pollIntervalIdle": {
+          "type": "number",
+          "label": "Idle Poll Interval (Seconds)",
+          "help": "Interval when machines are switched off or on standby (Recommended: 20-30)",
+          "min": 5,
+          "max": 300,
+          "sm": 12,
+          "md": 4
+        },
+        "language": {
+          "type": "select",
+          "label": "Text State Language",
+          "sm": 12,
+          "md": 4,
+          "options": [
+            { "label": "German (Deutsch)", "value": "de" },
+            { "label": "English", "value": "en" }
+          ]
+        },
+        "dividerSettings1": {
+          "type": "divider"
+        },
+        "headerEco": {
+          "type": "header",
+          "size": 3,
+          "text": "EcoFeedback & Measurement"
+        },
+        "ecoFeedback": {
+          "type": "checkbox",
+          "label": "Enable EcoFeedback readings (Water & Energy)",
+          "help": "Reads targeted DOP2 registers where supported without brute-force scanning",
+          "sm": 12
+        },
+        "dividerSettings2": {
+          "type": "divider"
+        },
+        "headerControl": {
+          "type": "header",
+          "size": 3,
+          "text": "Remote Appliance Control"
+        },
+        "allowControl": {
+          "type": "checkbox",
+          "label": "Allow remote control commands (Start, Stop, Pause, Power, Light)",
+          "help": "WARNING: Only works if MobileStart is physically enabled on the machine",
+          "sm": 12
+        }
+      }
+    }
+  }
+}

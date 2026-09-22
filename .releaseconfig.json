@@ -1,0 +1,15 @@
+{
+	"plugins": [
+		"manual-review",
+		"iobroker",
+		"changelog",
+		"license",
+		"package",
+		"version",
+		"git"
+	],
+	"exec": {
+		"before_check": "npm run release-before-check",
+		"before_commit": "npm run release-before-commit"
+	}
+}

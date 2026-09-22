@@ -1,0 +1,249 @@
+const fs = require('node:fs');
+const path = require('node:path');
+
+const readmePath = path.join(__dirname, '../README.md');
+const readmeDePath = path.join(__dirname, '../README_de.md');
+const changelogOldPath = path.join(__dirname, '../CHANGELOG_OLD.md');
+
+function migrateToChangelogOld(moveBlocks) {
+	if (!fs.existsSync(changelogOldPath)) {
+		console.error('CHANGELOG_OLD.md not found!');
+		return;
+	}
+
+	let oldContent = fs.readFileSync(changelogOldPath, 'utf8');
+	const originalLineEndings = oldContent.includes('\r\n') ? '\r\n' : '\n';
+	oldContent = oldContent.replace(/\r\n/g, '\n');
+
+	// CHANGELOG_OLD.md starts with `# Older changes`
+	const insertAfterMarker = '# Older changes';
+	const insertIndex = oldContent.indexOf(insertAfterMarker);
+	if (insertIndex === -1) {
+		console.error(
+			`Marker "${insertAfterMarker}" not found in CHANGELOG_OLD.md`,
+		);
+		return;
+	}
+
+	const insertPosition = insertIndex + insertAfterMarker.length;
+	let newEntriesText = '';
+
+	for (const block of moveBlocks) {
+		const version = block.version;
+		// Check if this version is already in CHANGELOG_OLD.md
+		const escapedVersion = version.replace(/\./g, '\\.');
+		const versionRegex = new RegExp(`^##\\s+v?${escapedVersion}\\b`, 'm');
+		if (versionRegex.test(oldContent)) {
+			console.log(
+				`Version ${version} is already present in CHANGELOG_OLD.md. Skipping duplication.`,
+			);
+			continue;
+		}
+
+		// Convert the block text's header line to H2 (e.g. ### 1.0.0 -> ## 1.0.0)
+		const headerIndex = block.lines.findIndex((l) => l.startsWith('###'));
+		if (headerIndex !== -1) {
+			block.lines[headerIndex] = block.lines[headerIndex].replace(
+				/^###/,
+				'##',
+			);
+		}
+
+		newEntriesText += `\n${block.lines.join('\n').trim()}\n`;
+	}
+
+	if (newEntriesText) {
+		const updatedOldContent =
+			oldContent.substring(0, insertPosition) +
+			'\n' +
+			newEntriesText.trim() +
+			'\n' +
+			oldContent.substring(insertPosition);
+		fs.writeFileSync(
+			changelogOldPath,
+			updatedOldContent.replace(/\n/g, originalLineEndings),
+			'utf8',
+		);
+		console.log('Migrated older version(s) to CHANGELOG_OLD.md.');
+	}
+}
+
+function processReadme(filePath, startRegex, endRegex, isEnglish) {
+	if (!fs.existsSync(filePath)) {
+		console.warn(`File not found: ${filePath}`);
+		return;
+	}
+	let content = fs.readFileSync(filePath, 'utf8');
+
+	// Standardize line endings to LF for internal processing
+	const originalLineEndings = content.includes('\r\n') ? '\r\n' : '\n';
+	content = content.replace(/\r\n/g, '\n');
+
+	const startMatch = content.match(startRegex);
+	if (!startMatch) {
+		console.error(`Start marker not found in ${path.basename(filePath)}`);
+		return;
+	}
+	const startIndex = startMatch.index;
+	const searchFrom = startIndex + startMatch[0].length;
+
+	const endMatch = content.substring(searchFrom).match(endRegex);
+	if (!endMatch) {
+		console.error(`End marker not found in ${path.basename(filePath)}`);
+		return;
+	}
+	const endIndex = searchFrom + endMatch.index;
+
+	const changelogSection = content.substring(searchFrom, endIndex);
+	const lines = changelogSection.split('\n');
+	const versionHeaderRegex =
+		/^###\s+(v?\d+\.\d+\.\d+(?:-\w+\.\d+)?|\*\*WORK IN PROGRESS\*\*)/i;
+
+	const blocks = [];
+	let currentBlock = null;
+
+	for (const line of lines) {
+		const match = line.match(versionHeaderRegex);
+		if (match) {
+			if (currentBlock) {
+				blocks.push(currentBlock);
+			}
+			currentBlock = {
+				header: line,
+				version: match[1],
+				isWip: match[1].includes('WORK IN PROGRESS'),
+				lines: [line],
+			};
+		} else {
+			if (currentBlock) {
+				currentBlock.lines.push(line);
+			} else {
+				if (line.trim()) {
+					blocks.push({
+						header: '',
+						version: '',
+						isWip: false,
+						lines: [line],
+					});
+				}
+			}
+		}
+	}
+	if (currentBlock) {
+		blocks.push(currentBlock);
+	}
+
+	const versionBlocks = blocks.filter((b) => b.version && !b.isWip);
+
+	if (versionBlocks.length <= 5) {
+		console.log(
+			`${path.basename(filePath)} has ${versionBlocks.length} versions. No rotation needed.`,
+		);
+		return;
+	}
+
+	console.log(
+		`Rotating changelog in ${path.basename(filePath)}: total ${versionBlocks.length} versions found (limit: 5).`,
+	);
+
+	const keepBlocks = [];
+	const moveBlocks = [];
+
+	let keptVersionsCount = 0;
+	for (const block of blocks) {
+		if (!block.version) {
+			keepBlocks.push(block);
+		} else if (block.isWip) {
+			keepBlocks.push(block);
+		} else {
+			if (keptVersionsCount < 5) {
+				keepBlocks.push(block);
+				keptVersionsCount++;
+			} else {
+				moveBlocks.push(block);
+			}
+		}
+	}
+
+	const olderLink = isEnglish
+		? '[Older changelog entries](CHANGELOG_OLD.md)'
+		: '[Ältere Einträge](CHANGELOG_OLD.md)';
+
+	const keptText =
+		'\n\n' +
+		keepBlocks
+			.map((b) => b.lines.join('\n').trim())
+			.filter(Boolean)
+			.join('\n\n') +
+		`\n\n${olderLink}\n\n`;
+
+	const newContent =
+		content.substring(0, searchFrom) +
+		keptText +
+		content.substring(endIndex);
+
+	fs.writeFileSync(
+		filePath,
+		newContent.replace(/\n/g, originalLineEndings),
+		'utf8',
+	);
+
+	if (isEnglish && moveBlocks.length > 0) {
+		migrateToChangelogOld(moveBlocks);
+	}
+}
+
+function updateGermanWipHeader() {
+	const packageJsonPath = path.join(__dirname, '../package.json');
+	if (!fs.existsSync(packageJsonPath)) return;
+	const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+	const version = packageJson.version;
+
+	if (!fs.existsSync(readmeDePath)) return;
+	let content = fs.readFileSync(readmeDePath, 'utf8');
+
+	const wipMarker = '### **WORK IN PROGRESS**';
+	const wipIndex = content.indexOf(wipMarker);
+	if (wipIndex === -1) {
+		return;
+	}
+
+	const today = new Date();
+	const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+	const originalLineEndings = content.includes('\r\n') ? '\r\n' : '\n';
+
+	// Check if version is already present immediately after WIP marker to prevent double-insert
+	const remainingContent = content.substring(wipIndex + wipMarker.length);
+	const escapedVersion = version.replace(/\./g, '\\.');
+	const versionRegex = new RegExp(`^\\s*###\\s+v?${escapedVersion}\\b`, 'm');
+	if (versionRegex.test(remainingContent.substring(0, 200))) {
+		console.log(
+			`Version ${version} header is already present in README_de.md under WIP. Skipping replacement.`,
+		);
+		return;
+	}
+
+	const newHeader = `### **WORK IN PROGRESS**${originalLineEndings}${originalLineEndings}### ${version} (${dateStr})`;
+	content = content.replace(wipMarker, newHeader);
+	fs.writeFileSync(readmeDePath, content, 'utf8');
+	console.log(`Updated README_de.md WIP header to version ${version} (${dateStr}).`);
+}
+
+// Update the German WIP header with the current version from package.json
+updateGermanWipHeader();
+
+// 1. Process README.md (English)
+processReadme(
+	readmePath,
+	/^##\s+Changelog\b/im,
+	/^(?:\[Older changelog entries|##\s+License)/im,
+	true,
+);
+
+// 2. Process README_de.md (German)
+processReadme(
+	readmeDePath,
+	/^##\s+(?:Changelog|Änderungsprotokoll)\b/im,
+	/^(?:\[Ältere Einträge|##\s+Lizenz)/im,
+	false,
+);

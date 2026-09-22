@@ -1,0 +1,144 @@
+{
+  "common": {
+    "name": "miele-unbound",
+    "version": "1.0.0",
+    "news": {
+      "1.0.0": {
+        "en": "Initial release of miele-unbound: Local-First Miele@Home adapter with enriched device profiles",
+        "de": "Erstveröffentlichung von miele-unbound: Lokaler Miele@Home-Adapter mit umfassenden Geräteprofilen",
+        "ru": "Первоначальный выпуск miele-unbound: локальный адаптер Miele@Home с расширенными профилями устройств",
+        "pt": "Lançamento inicial de miele-unbound: adaptador Miele@Home local com perfis de dispositivos aprimorados",
+        "nl": "Eerste uitgave van miele-unbound: lokale Miele@Home-adapter met verrijkte apparaatprofielen",
+        "fr": "Version initiale de miele-unbound : adaptateur Miele@Home local avec profils d'appareils enrichis",
+        "it": "Versione iniziale di miele-unbound: adattatore locale Miele@Home con profili dispositivo arricchiti",
+        "es": "Versión inicial de miele-unbound: adaptador local Miele@Home con perfiles de dispositivos enriquecidos",
+        "pl": "Początkowe wydanie miele-unbound: lokalny adapter Miele@Home z rozszerzonymi profilami urządzeń",
+        "uk": "Початковий випуск miele-unbound: локальний адаптер Miele@Home із розширеними профілями пристроїв",
+        "zh-cn": "miele-unbound 的初始版本：具有丰富设备配置文件的本地优先 Miele@Home 适配器"
+      }
+    },
+    "title": "Miele Unbound",
+    "titleLang": {
+      "en": "Miele Unbound",
+      "de": "Miele Unbound",
+      "ru": "Miele Unbound",
+      "pt": "Miele Unbound",
+      "nl": "Miele Unbound",
+      "fr": "Miele Unbound",
+      "it": "Miele Unbound",
+      "es": "Miele Unbound",
+      "pl": "Miele Unbound",
+      "uk": "Miele Unbound",
+      "zh-cn": "Miele Unbound"
+    },
+    "desc": {
+      "en": "Connect modern Miele@Home appliances locally over LAN without cloud dependence, featuring rich device profiles",
+      "de": "Moderne Miele@Home-Geräte lokal über das LAN ohne Cloud-Abhängigkeit anbinden, mit umfassenden Geräteprofilen",
+      "ru": "Подключайте современные приборы Miele@Home локально через LAN без облака с расширенными профилями устройств",
+      "pt": "Conecte aparelhos Miele@Home modernos localmente via LAN sem dependência de nuvem, com perfis avançados",
+      "nl": "Verbind moderne Miele@Home-apparaten lokaal via LAN zonder cloud-afhankelijkheid, met verrijkte profielen",
+      "fr": "Connectez les appareils Miele@Home modernes localement via LAN sans dépendance au cloud",
+      "it": "Collega i moderni elettrodomestici Miele@Home localmente tramite LAN senza dipendenza dal cloud",
+      "es": "Conecte electrodomésticos Miele@Home modernos localmente a través de LAN sin dependencia de la nube",
+      "pl": "Podłącz nowoczesne urządzenia Miele@Home lokalnie przez LAN bez zależności od chmury",
+      "uk": "Підключайте сучасні прилади Miele@Home локально через LAN без хмари з розширеними профілями",
+      "zh-cn": "通过 LAN 本地连接现代 Miele@Home 电器，无需依赖云，具有丰富的设备配置文件"
+    },
+    "authors": [
+      "meistermopper <meister.mopper@gmail.com>"
+    ],
+    "keywords": [
+      "miele",
+      "smarthome",
+      "local",
+      "dop2",
+      "h256",
+      "iobroker"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "main": "build/main.js",
+    "icon": "miele-unbound.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/meistermopper/ioBroker.miele-unbound/main/admin/miele-unbound.png",
+    "readme": "https://github.com/meistermopper/ioBroker.miele-unbound/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "household",
+    "compact": true,
+    "messagebox": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
+    ]
+  },
+  "encryptedNative": [
+    "groupKey",
+    "manualGroupKey"
+  ],
+  "protectedNative": [
+    "groupKey",
+    "manualGroupKey"
+  ],
+  "native": {
+    "country": "de",
+    "groupId": "",
+    "groupKey": "",
+    "manualGroupId": "",
+    "manualGroupKey": "",
+    "redirectUrl": "",
+    "pollIntervalActive": 5,
+    "pollIntervalIdle": 20,
+    "ecoFeedback": true,
+    "allowControl": false,
+    "autoDiscovery": true,
+    "language": "de",
+    "manualDevices": []
+  },
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Adapter is connected to at least one appliance",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.discoveredDevices",
+      "type": "state",
+      "common": {
+        "role": "json",
+        "name": "Discovered devices via mDNS",
+        "type": "string",
+        "read": true,
+        "write": false,
+        "def": "[]"
+      },
+      "native": {}
+    }
+  ]
+}
