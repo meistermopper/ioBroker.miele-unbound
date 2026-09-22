@@ -238,6 +238,7 @@
           "variant": "contained",
           "color": "primary",
           "newLine": true,
+          "useNative": true,
           "disabled": "!data.backupPassphrase || data.backupPassphrase.length < 4",
           "data": {
             "passphrase": "${data.backupPassphrase}"
@@ -252,6 +253,7 @@
           "type": "text",
           "label": "Encrypted Backup Data (Paste here to restore)",
           "newLine": true,
+          "copyToClipboard": true,
           "xs": 12,
           "sm": 12,
           "md": 9,
@@ -264,6 +266,7 @@
           "command": "importBackup",
           "variant": "contained",
           "color": "primary",
+          "useNative": true,
           "disabled": "!data.backupPayload || !data.backupPassphrase",
           "data": {
             "backup": "${data.backupPayload}",

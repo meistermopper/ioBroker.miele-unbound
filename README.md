@@ -117,6 +117,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Auto-populate encrypted backup to UI field with one-click copy to clipboard
 - Require password confirmation for backupPassphrase with repeat and visibility toggle
 - Remove rounded corners from adapter logo to provide seamless solid background
 - Expand setup guide with detailed step-by-step browser DevTools and Docker instructions

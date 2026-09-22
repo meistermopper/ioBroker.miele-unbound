@@ -102,6 +102,7 @@
     "manualGroupId": "",
     "manualGroupKey": "",
     "backupPassphrase": "",
+    "backupPayload": "",
     "redirectUrl": "",
     "pollIntervalActive": 5,
     "pollIntervalIdle": 20,

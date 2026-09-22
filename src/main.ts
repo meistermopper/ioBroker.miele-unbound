@@ -715,7 +715,15 @@ export class MieleUnbound extends utils.Adapter {
 							passphrase,
 						);
 
-						respond({ success: true, backup: backupStr, result: backupStr });
+						respond({
+							success: true,
+							backup: backupStr,
+							result: 'Encrypted backup generated and filled into field below!',
+							toast: 'Backup exported successfully!',
+							native: {
+								backupPayload: backupStr,
+							},
+						});
 					} catch (err) {
 						respond({ success: false, error: (err as Error).message });
 					}
@@ -741,7 +749,19 @@ export class MieleUnbound extends utils.Adapter {
 						});
 
 						this.log.info('Successfully restored configuration from backup');
-						respond({ success: true, groupId: data.groupId, result: 'Backup successfully restored!' });
+						respond({
+							success: true,
+							groupId: data.groupId,
+							result: `Backup successfully restored! (GroupID: ${data.groupId})`,
+							toast: 'Backup successfully restored!',
+							native: {
+								manualGroupId: data.groupId,
+								manualGroupKey: data.groupKey,
+								groupId: data.groupId,
+								groupKey: data.groupKey,
+								manualDevices: data.manualDevices || (this.config as unknown as AdapterConfig).manualDevices,
+							},
+						});
 					} catch (err) {
 						respond({ success: false, error: (err as Error).message });
 					}
