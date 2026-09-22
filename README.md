@@ -58,12 +58,25 @@ The final redirect address uses the `miele://` mobile app scheme. Desktop web br
 
 The household GroupID and GroupKey are stored in the instance configuration (with the GroupKey safely encrypted). This pairing process is only required once.
 
-### Alternative: Backup & Manual Credentials
+### Alternative: Encrypted Backup & Manual Credentials
 
-If migrating an existing setup or restoring from a backup:
-- Open the **Credentials & Backup** tab.
-- Enter your saved **Household GroupID** and **GroupKey** directly.
-- Or use **Encrypted Backup**: enter your passphrase, click **Export Backup**, and save the file. You can restore your configuration on any new instance with a single click.
+In the **Credentials & Backup** tab, the adapter provides two flexible options for server migrations, fresh installs, or disaster recovery:
+
+#### What does "Encrypted Backup" do?
+The local `GroupKey` is the master cryptographic key granting local LAN access to all Miele appliances in your household. With the encrypted backup feature, you can safely export your credentials and migrate them to another system **without ever needing to repeat the Miele cloud login or DevTools token capture**:
+* **What is included in the backup?**
+  * The household **GroupID** and the secret **GroupKey**.
+  * All manually configured appliances and IP addresses (**Appliances table**).
+  * Creation timestamp.
+* **How is it encrypted?**
+  * Strong industry-standard **AES-256-GCM** (authenticated encryption with built-in tampering protection).
+  * Key derivation from your chosen **Passphrase** via **PBKDF2** with 100,000 rounds (SHA-256) and a cryptographically random 16-byte salt.
+  * This guarantees that your sensitive local LAN key is never exported or stored in plain text and can safely be stored in external notes or backups.
+* **Exporting:** Enter a strong passphrase ➔ click **Export Backup** ➔ copy and store the generated backup string safely.
+* **Restoring:** On a new or reinstalled instance, simply paste the backup string and enter your passphrase ➔ click **Import Backup** ➔ your credentials and manual appliance IPs are immediately restored.
+
+#### Manual Entry
+Alternatively, if you already have your household GroupID and 64-character hexadecimal GroupKey saved from a previous installation, you can paste them directly into the respective fields.
 
 ## Network: Ports & Docker
 

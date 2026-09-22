@@ -58,12 +58,25 @@ Die letzte Zieladresse nutzt das `miele://`-Schema der offiziellen Miele-App. De
 
 GroupID und GroupKey werden anschließend in der Konfiguration gespeichert (der GroupKey sicher verschlüsselt). Dieser Vorgang ist nur ein einziges Mal notwendig.
 
-### Alternative: Backup & Manuelle Zugangsdaten
+### Alternative: Verschlüsseltes Backup & Manuelle Zugangsdaten
 
-Wenn du von einer früheren Instanz migrierst oder neu aufsetzt:
-- Öffne den Reiter **Zugangsdaten & Sicherung**.
-- Trage deine gesicherte **Haushalts-GroupID** und den **GroupKey** direkt von Hand ein.
-- Oder nutze das **verschlüsselte Backup**: Passphrase vergeben, auf **Backup exportieren** klicken und die Datei sichern. Auf einer neuen Instanz lässt sich das Backup mit einem Klick wiederherstellen.
+Im Reiter **Zugangsdaten & Sicherung** bietet der Adapter zwei flexible Wege für Server-Umzüge, Neuinstallationen oder Sicherheitskopien:
+
+#### Was bewirkt das „Verschlüsselte Backup“?
+Der lokale `GroupKey` ist der kryptografische Generalschlüssel für die Steuerung und Statusabfrage aller Miele-Geräte in deinem Haushalt. Mit der Backup-Funktion kannst du deine Konfiguration sichern und auf ein anderes System übertragen, **ohne den Miele-Login jemals wiederholen zu müssen**:
+* **Was wird gesichert?** 
+  * Die Haushalts-**GroupID** und der geheime **GroupKey**.
+  * Alle manuell eingepflegten Geräte und IP-Adressen (**Geräte-Tabelle**).
+  * Zeitstempel der Sicherung.
+* **Wie wird verschlüsselt?** 
+  * Sicherer Industriestandard **AES-256-GCM** (authentifizierte Verschlüsselung mit Manipulationsschutz).
+  * Schlüsselableitung aus deiner gewählten **Passphrase** via **PBKDF2** mit 100.000 Runden (SHA-256) und zufälligem 16-Byte Salt.
+  * Dadurch kann der erzeugte Backup-String bedenkenlos extern abgespeichert werden, ohne dass der geheime LAN-Schlüssel im Klartext vorliegt.
+* **Exportieren:** Eigene Passphrase vergeben ➔ Klick auf **Backup exportieren** ➔ Den generierten Backup-Text kopieren und sicher aufbewahren.
+* **Wiederherstellen:** Auf der neuen oder zurückgesetzten Instanz einfach den Backup-Text und die Passphrase eingeben ➔ Klick auf **Backup importieren** ➔ Alle Zugangsdaten und manuellen IPs sind sofort wieder aktiv.
+
+#### Manuelle Eingabe
+Alternativ kannst du die Haushalts-GroupID und den 64-stelligen hexadezimalen GroupKey auch direkt aus einer Textnotiz oder einer früheren Instanz von Hand in die entsprechenden Felder eintragen.
 
 ## Netzwerk & Docker
 
