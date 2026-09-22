@@ -74,6 +74,7 @@ Jedes Gerät wird durch seine Seriennummer als Device im Objektbaum abgebildet:
 - .gitignore um Verzeichnisse, IDE- und Logdateien erweitert
 - Redundante Test-Dependencies bereinigt und Abhängigkeiten aktualisiert
 - Responsive Breakpoint-Größen in jsonConfig ergänzt und Abhängigkeiten dedupliziert
+- Standard-Integrationstest hinzugefügt und in CI reaktiviert
 - GitHub Actions CI/CD-Workflows für Multi-OS-Tests und Auto-Übersetzung ergänzt
 - Dependabot-Konfiguration und Auto-Merge-Workflow für Updates integriert
 - GitHub Issue-Templates für Fehlerberichte und Feature-Wünsche eingerichtet

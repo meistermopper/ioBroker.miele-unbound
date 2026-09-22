@@ -73,6 +73,7 @@ Each appliance is represented by its serial number as the device object:
 - Expand .gitignore with IDE, OS, and package manager log exclusions
 - Clean redundant test devDependencies and update io-package dependencies
 - Add responsive breakpoint sizes in jsonConfig and deduplicate dependencies
+- Add standard integration test and re-enable integration testing in CI
 - Add release config, check-wip and manage-changelogs scripts for release automation
 - Add GitHub Actions CI/CD workflows for multi-OS testing and auto-translation
 - Add Dependabot configuration and auto-merge workflow for dependency updates
