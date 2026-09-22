@@ -1,4 +1,6 @@
-![Logo](../../admin/miele-unbound.png)
+<p align="center">
+  <img src="admin/miele-unbound.png" alt="Logo" width="200" />
+</p>
 
 # ioBroker.miele-unbound
 
@@ -66,6 +68,9 @@ Each appliance is represented by its serial number as the device object:
 - Add comprehensive program mappings for all Miele appliances and modern 200-series
 - Add automated i18n translation script and full 11-language admin dictionaries
 - Add automated documentation sync script mirroring READMEs into docs/ directory
+- Redesign adapter logo featuring Miele red background and unchained emblem
+- Adjust logo display size and centering in README files
+- Expand .gitignore with IDE, OS, and package manager log exclusions
 - Add release config, check-wip and manage-changelogs scripts for release automation
 - Add GitHub Actions CI/CD workflows for multi-OS testing and auto-translation
 - Add Dependabot configuration and auto-merge workflow for dependency updates

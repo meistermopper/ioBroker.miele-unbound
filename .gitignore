@@ -1,17 +1,43 @@
-node_modules
-build
-.vscode
+# Dependencies
+node_modules/
+.npm/
+
+# Build & Cache
+build/
+*.tsbuildinfo
+
+# Dev Server & Test
+.dev-server/
+test/tmp/
+tmp/
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS Junk
 .DS_Store
 Thumbs.db
-.npm
-package-lock.json.bak
-test/tmp
-.dev-server
-*.enc
-obsidian.md
-devServerCli.md
-.commitinfo
+Desktop.ini
+ehthumbs.db
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets & Local Environment
 .env
 .env.local
 .env.*.local
+*.enc
+
+# Project Specific & Temp Docs
+obsidian.md
+devServerCli.md
+.commitinfo
+package-lock.json.bak

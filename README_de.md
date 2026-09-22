@@ -1,4 +1,6 @@
-![Logo](admin/miele-unbound.png)
+<p align="center">
+  <img src="admin/miele-unbound.png" alt="Logo" width="200" />
+</p>
 
 # ioBroker.miele-unbound
 
@@ -67,6 +69,9 @@ Jedes Gerät wird durch seine Seriennummer als Device im Objektbaum abgebildet:
 - Automatischer Übersetzungs-Workflow und 11 ioBroker-Sprachdateien ergänzt
 - Automatischer sync-docs Workflow spiegelt README-Dateien in docs/ Verzeichnis
 - Release-Konfiguration, check-wip und manage-changelogs Skripte ergänzt
+- Adapter-Logo mit Miele-Roten Hintergrund und Kettenglied-Emblem überarbeitet
+- Anzeigegröße und Zentrierung des Logos in den README-Dateien angepasst
+- .gitignore um Verzeichnisse, IDE- und Logdateien erweitert
 - GitHub Actions CI/CD-Workflows für Multi-OS-Tests und Auto-Übersetzung ergänzt
 - Dependabot-Konfiguration und Auto-Merge-Workflow für Updates integriert
 - GitHub Issue-Templates für Fehlerberichte und Feature-Wünsche eingerichtet
