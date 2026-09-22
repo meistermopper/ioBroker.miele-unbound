@@ -48,11 +48,11 @@
     ],
     "keywords": [
       "miele",
-      "smarthome",
+      "mieleathome",
       "local",
       "dop2",
       "h256",
-      "iobroker"
+      "lan"
     ],
     "licenseInformation": {
       "type": "free",
@@ -87,11 +87,13 @@
   },
   "encryptedNative": [
     "groupKey",
-    "manualGroupKey"
+    "manualGroupKey",
+    "backupPassphrase"
   ],
   "protectedNative": [
     "groupKey",
-    "manualGroupKey"
+    "manualGroupKey",
+    "backupPassphrase"
   ],
   "native": {
     "country": "de",
@@ -99,6 +101,7 @@
     "groupKey": "",
     "manualGroupId": "",
     "manualGroupKey": "",
+    "backupPassphrase": "",
     "redirectUrl": "",
     "pollIntervalActive": 5,
     "pollIntervalIdle": 20,

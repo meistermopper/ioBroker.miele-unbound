@@ -13,13 +13,21 @@
         },
         "infoPairing": {
           "type": "staticText",
-          "text": "pairing_instruction"
+          "text": "pairing_instruction",
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "country": {
           "type": "select",
           "label": "Country",
+          "xs": 12,
           "sm": 12,
           "md": 4,
+          "lg": 4,
+          "xl": 4,
           "options": [
             { "label": "Germany", "value": "de" },
             { "label": "Austria", "value": "at" },
@@ -40,61 +48,85 @@
           "variant": "contained",
           "color": "primary",
           "jsonData": "{ \"country\": \"${data.country}\" }",
+          "xs": 12,
           "sm": 12,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "step1Header": {
           "type": "header",
           "size": 5,
           "text": "step1_header",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 12
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "step1Text": {
           "type": "staticText",
           "text": "step1_text",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 12
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "step2Header": {
           "type": "header",
           "size": 5,
           "text": "step2_header",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 12
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "step2Text": {
           "type": "staticText",
           "text": "step2_text",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 12
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "step3Header": {
           "type": "header",
           "size": 5,
           "text": "step3_header",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 12
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "step3Text": {
           "type": "staticText",
           "text": "step3_text",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 12
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "redirectUrl": {
           "type": "text",
           "label": "miele:// redirect URL",
           "help": "Paste the captured miele:// or redirect URL here",
           "newLine": true,
+          "xs": 12,
           "sm": 12,
-          "md": 8
+          "md": 8,
+          "lg": 8,
+          "xl": 8
         },
         "btnFetchKey": {
           "type": "sendTo",
@@ -104,23 +136,34 @@
           "color": "primary",
           "useNative": true,
           "jsonData": "{ \"redirectUrl\": \"${data.redirectUrl}\" }",
+          "xs": 12,
           "sm": 12,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "dividerPairing": {
           "type": "divider"
         },
         "pairingStatus": {
           "type": "staticText",
-          "text": "pairing_status_info"
+          "text": "pairing_status_info",
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "groupId": {
           "type": "text",
           "label": "Household GroupID",
           "readOnly": true,
           "copyToClipboard": true,
+          "xs": 12,
           "sm": 12,
-          "md": 6
+          "md": 6,
+          "lg": 6,
+          "xl": 6
         }
       }
     },
@@ -135,19 +178,30 @@
         },
         "credentialsDesc": {
           "type": "staticText",
-          "text": "credentials_desc"
+          "text": "credentials_desc",
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "manualGroupId": {
           "type": "text",
           "label": "Household GroupID",
+          "xs": 12,
           "sm": 12,
-          "md": 6
+          "md": 6,
+          "lg": 6,
+          "xl": 6
         },
         "manualGroupKey": {
           "type": "password",
           "label": "Household GroupKey (64 Bytes Hex)",
+          "xs": 12,
           "sm": 12,
-          "md": 6
+          "md": 6,
+          "lg": 6,
+          "xl": 6
         },
         "dividerBackup": {
           "type": "divider"
@@ -159,13 +213,21 @@
         },
         "backupDesc": {
           "type": "staticText",
-          "text": "backup_desc"
+          "text": "backup_desc",
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "backupPassphrase": {
           "type": "password",
           "label": "Master Passphrase for Encryption/Decryption",
+          "xs": 12,
           "sm": 12,
-          "md": 6
+          "md": 6,
+          "lg": 6,
+          "xl": 6
         },
         "btnExportBackup": {
           "type": "sendTo",
@@ -174,14 +236,20 @@
           "variant": "contained",
           "color": "primary",
           "jsonData": "{ \"passphrase\": \"${data.backupPassphrase}\" }",
+          "xs": 12,
           "sm": 12,
-          "md": 3
+          "md": 3,
+          "lg": 3,
+          "xl": 3
         },
         "backupPayload": {
           "type": "text",
           "label": "Encrypted Backup Data (Paste here to restore)",
+          "xs": 12,
           "sm": 12,
-          "md": 9
+          "md": 9,
+          "lg": 9,
+          "xl": 9
         },
         "btnImportBackup": {
           "type": "sendTo",
@@ -190,8 +258,11 @@
           "variant": "contained",
           "color": "primary",
           "jsonData": "{ \"backup\": \"${data.backupPayload}\", \"passphrase\": \"${data.backupPassphrase}\" }",
+          "xs": 12,
           "sm": 12,
-          "md": 3
+          "md": 3,
+          "lg": 3,
+          "xl": 3
         }
       }
     },
@@ -208,12 +279,20 @@
           "type": "checkbox",
           "label": "Auto-Discovery via mDNS (_mieleathome._tcp)",
           "help": "Enable automatic detection on the local network (may not work across Docker bridge)",
-          "sm": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "manualDevices": {
           "type": "table",
           "label": "Static IP Addresses (e.g. for Docker / VLAN)",
+          "xs": 12,
           "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12,
           "items": [
             {
               "type": "text",
@@ -253,8 +332,11 @@
           "help": "Interval when a machine is running or programmed (Recommended: 5)",
           "min": 2,
           "max": 60,
+          "xs": 12,
           "sm": 12,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "pollIntervalIdle": {
           "type": "number",
@@ -262,14 +344,20 @@
           "help": "Interval when machines are switched off or on standby (Recommended: 20-30)",
           "min": 5,
           "max": 300,
+          "xs": 12,
           "sm": 12,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "language": {
           "type": "select",
           "label": "Text State Language",
+          "xs": 12,
           "sm": 12,
           "md": 4,
+          "lg": 4,
+          "xl": 4,
           "options": [
             { "label": "German (Deutsch)", "value": "de" },
             { "label": "English", "value": "en" }
@@ -287,7 +375,11 @@
           "type": "checkbox",
           "label": "Enable EcoFeedback readings (Water & Energy)",
           "help": "Reads targeted DOP2 registers where supported without brute-force scanning",
-          "sm": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "dividerSettings2": {
           "type": "divider"
@@ -301,7 +393,11 @@
           "type": "checkbox",
           "label": "Allow remote control commands (Start, Stop, Pause, Power, Light)",
           "help": "WARNING: Only works if MobileStart is physically enabled on the machine",
-          "sm": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         }
       }
     }
