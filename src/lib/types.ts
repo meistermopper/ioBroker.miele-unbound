@@ -4,6 +4,7 @@ export interface AdapterConfig {
 	groupKey: string;
 	manualGroupId?: string;
 	manualGroupKey?: string;
+	backupPassphrase?: string;
 	redirectUrl?: string;
 	pollIntervalActive: number;
 	pollIntervalIdle: number;

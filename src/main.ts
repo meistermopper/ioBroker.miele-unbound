@@ -697,44 +697,54 @@ export class MieleUnbound extends utils.Adapter {
 				}
 
 				case 'exportBackup': {
-					const passphrase = (obj.message as { passphrase?: string })?.passphrase;
+					const msg = obj.message as { passphrase?: string };
+					const passphrase = msg?.passphrase || (this.config as unknown as AdapterConfig).backupPassphrase;
 					if (!passphrase) {
 						respond({ success: false, error: 'Passphrase is required' });
 						return;
 					}
 
-					const cfg = this.config as unknown as AdapterConfig;
-					const backupStr = MieleBackup.encrypt(
-						{
-							groupId: cfg.groupId || cfg.manualGroupId || '',
-							groupKey: cfg.groupKey || cfg.manualGroupKey || '',
-							manualDevices: cfg.manualDevices,
-						},
-						passphrase,
-					);
+					try {
+						const cfg = this.config as unknown as AdapterConfig;
+						const backupStr = MieleBackup.encrypt(
+							{
+								groupId: cfg.groupId || cfg.manualGroupId || '',
+								groupKey: cfg.groupKey || cfg.manualGroupKey || '',
+								manualDevices: cfg.manualDevices,
+							},
+							passphrase,
+						);
 
-					respond({ success: true, backup: backupStr });
+						respond({ success: true, backup: backupStr, result: backupStr });
+					} catch (err) {
+						respond({ success: false, error: (err as Error).message });
+					}
 					break;
 				}
 
 				case 'importBackup': {
 					const msg = obj.message as { backup?: string; passphrase?: string };
-					if (!msg?.backup || !msg?.passphrase) {
+					const passphrase = msg?.passphrase || (this.config as unknown as AdapterConfig).backupPassphrase;
+					if (!msg?.backup || !passphrase) {
 						respond({ success: false, error: 'Backup data and passphrase are required' });
 						return;
 					}
 
-					const data = MieleBackup.decrypt(msg.backup, msg.passphrase);
-					await this.updateConfig({
-						manualGroupId: data.groupId,
-						manualGroupKey: data.groupKey,
-						groupId: data.groupId,
-						groupKey: data.groupKey,
-						manualDevices: data.manualDevices || (this.config as unknown as AdapterConfig).manualDevices,
-					});
+					try {
+						const data = MieleBackup.decrypt(msg.backup, passphrase);
+						await this.updateConfig({
+							manualGroupId: data.groupId,
+							manualGroupKey: data.groupKey,
+							groupId: data.groupId,
+							groupKey: data.groupKey,
+							manualDevices: data.manualDevices || (this.config as unknown as AdapterConfig).manualDevices,
+						});
 
-					this.log.info('Successfully restored configuration from backup');
-					respond({ success: true, groupId: data.groupId });
+						this.log.info('Successfully restored configuration from backup');
+						respond({ success: true, groupId: data.groupId, result: 'Backup successfully restored!' });
+					} catch (err) {
+						respond({ success: false, error: (err as Error).message });
+					}
 					break;
 				}
 

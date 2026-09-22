@@ -96,6 +96,16 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			const encrypted = MieleBackup.encrypt(sampleData, passphrase);
 			expect(() => MieleBackup.decrypt(encrypted, 'WrongPassword')).to.throw(/Decryption failed/);
 		});
+
+		it('should handle complex passphrases with special characters, quotes, backslashes and umlauts', () => {
+			const complexPass = 'P@$$w0rd"\'§$%&/{([)]=}?\\äöüß 🔒🎉';
+			const encrypted = MieleBackup.encrypt(sampleData, complexPass);
+			const restored = MieleBackup.decrypt(encrypted, complexPass);
+
+			expect(restored.groupId).to.equal(sampleData.groupId);
+			expect(restored.groupKey).to.equal(sampleData.groupKey);
+			expect(restored.manualDevices).to.deep.equal(sampleData.manualDevices);
+		});
 	});
 
 	describe('Definitions & Helpers', () => {

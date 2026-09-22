@@ -235,7 +235,9 @@
           "command": "exportBackup",
           "variant": "contained",
           "color": "primary",
-          "jsonData": "{ \"passphrase\": \"${data.backupPassphrase}\" }",
+          "data": {
+            "passphrase": "${data.backupPassphrase}"
+          },
           "xs": 12,
           "sm": 12,
           "md": 3,
@@ -257,7 +259,10 @@
           "command": "importBackup",
           "variant": "contained",
           "color": "primary",
-          "jsonData": "{ \"backup\": \"${data.backupPayload}\", \"passphrase\": \"${data.backupPassphrase}\" }",
+          "data": {
+            "backup": "${data.backupPayload}",
+            "passphrase": "${data.backupPassphrase}"
+          },
           "xs": 12,
           "sm": 12,
           "md": 3,
