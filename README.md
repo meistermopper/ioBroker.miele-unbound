@@ -71,6 +71,7 @@ Each appliance is represented by its serial number as the device object:
 - Redesign adapter logo featuring Miele red background and unchained emblem
 - Adjust logo display size and centering in README files
 - Expand .gitignore with IDE, OS, and package manager log exclusions
+- Clean redundant test devDependencies and update io-package dependencies
 - Add release config, check-wip and manage-changelogs scripts for release automation
 - Add GitHub Actions CI/CD workflows for multi-OS testing and auto-translation
 - Add Dependabot configuration and auto-merge workflow for dependency updates
@@ -79,7 +80,13 @@ Each appliance is represented by its serial number as the device object:
 - Add commitlint configuration, husky Git hooks and AI commit message helper
 - Document async robustness, hardware protection and lifecycle rules in AGENTS.md
 
+Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
+
 ## License
 
-MIT License - Copyright (c) 2026 meistermopper <meister.mopper@gmail.com>
+MIT License
+
+Copyright (c) 2026 meistermopper <meister.mopper@gmail.com>
+
+See [LICENSE](LICENSE) for more details.
 

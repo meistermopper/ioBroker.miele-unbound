@@ -17,7 +17,6 @@
         "zh-cn": "miele-unbound 的初始版本：具有丰富设备配置文件的本地优先 Miele@Home 适配器"
       }
     },
-    "title": "Miele Unbound",
     "titleLang": {
       "en": "Miele Unbound",
       "de": "Miele Unbound",
@@ -60,7 +59,6 @@
       "license": "MIT"
     },
     "platform": "Javascript/Node.js",
-    "main": "build/main.js",
     "icon": "miele-unbound.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/meistermopper/ioBroker.miele-unbound/main/admin/miele-unbound.png",
@@ -78,7 +76,12 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=5.0.19"
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.20"
       }
     ]
   },

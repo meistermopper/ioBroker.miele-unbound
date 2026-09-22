@@ -72,6 +72,7 @@ Jedes Gerät wird durch seine Seriennummer als Device im Objektbaum abgebildet:
 - Adapter-Logo mit Miele-Roten Hintergrund und Kettenglied-Emblem überarbeitet
 - Anzeigegröße und Zentrierung des Logos in den README-Dateien angepasst
 - .gitignore um Verzeichnisse, IDE- und Logdateien erweitert
+- Redundante Test-Dependencies bereinigt und Abhängigkeiten aktualisiert
 - GitHub Actions CI/CD-Workflows für Multi-OS-Tests und Auto-Übersetzung ergänzt
 - Dependabot-Konfiguration und Auto-Merge-Workflow für Updates integriert
 - GitHub Issue-Templates für Fehlerberichte und Feature-Wünsche eingerichtet
@@ -79,6 +80,12 @@ Jedes Gerät wird durch seine Seriennummer als Device im Objektbaum abgebildet:
 - Commitlint-Konfiguration, Husky Git-Hooks und KI-Commit-Helfer ergänzt
 - Regeln für asynchrone Robustheit, Hardware-Schutz und Lifecycle in AGENTS.md
 
+Ältere Changelog-Einträge sind in [CHANGELOG_OLD.md](../../CHANGELOG_OLD.md) zu finden.
+
 ## Lizenz
 
-MIT License - Copyright (c) 2026 meistermopper <meister.mopper@gmail.com>
+MIT License
+
+Copyright (c) 2026 meistermopper <meister.mopper@gmail.com>
+
+Weitere Details siehe [LICENSE](../../LICENSE).
