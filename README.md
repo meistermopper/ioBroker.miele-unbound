@@ -117,6 +117,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Remove rounded corners from adapter logo to provide seamless solid background
 - Expand setup guide with detailed step-by-step browser DevTools and Docker instructions
 - Initial development combining local MieleH256 LAN engine with device profiles
 - Added AES-256-GCM encrypted backup and restore for migrations and scratch installs

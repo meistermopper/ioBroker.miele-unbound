@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Runde Ecken aus Adapter-Logo entfernt für vollflächigen Miele-Rot-Hintergrund
 - Ausführliche Schritt-für-Schritt-Anleitung mit DevTools und Docker-Hinweisen ergänzt
 - Erstentwicklung des Crossover-Adapters mit MieleH256-Engine und Profilen
 - Verschlüsselte Sicherung und Wiederherstellung via AES-256-GCM
