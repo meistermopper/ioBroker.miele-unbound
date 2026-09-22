@@ -223,11 +223,13 @@
         "backupPassphrase": {
           "type": "password",
           "label": "Master Passphrase for Encryption/Decryption",
+          "repeat": true,
+          "visible": true,
           "xs": 12,
           "sm": 12,
-          "md": 6,
-          "lg": 6,
-          "xl": 6
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "btnExportBackup": {
           "type": "sendTo",
@@ -235,18 +237,21 @@
           "command": "exportBackup",
           "variant": "contained",
           "color": "primary",
+          "newLine": true,
+          "disabled": "!data.backupPassphrase || data.backupPassphrase.length < 4",
           "data": {
             "passphrase": "${data.backupPassphrase}"
           },
           "xs": 12,
           "sm": 12,
-          "md": 3,
+          "md": 4,
           "lg": 3,
           "xl": 3
         },
         "backupPayload": {
           "type": "text",
           "label": "Encrypted Backup Data (Paste here to restore)",
+          "newLine": true,
           "xs": 12,
           "sm": 12,
           "md": 9,
@@ -259,6 +264,7 @@
           "command": "importBackup",
           "variant": "contained",
           "color": "primary",
+          "disabled": "!data.backupPayload || !data.backupPassphrase",
           "data": {
             "backup": "${data.backupPayload}",
             "passphrase": "${data.backupPassphrase}"
