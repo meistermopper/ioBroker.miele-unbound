@@ -27,18 +27,63 @@ exakte Datenpunkte für über 30 Geräteklassen.
 - **Einfache Migration:** Verschlüsselter Export/Import und Direkteingabe für Neuinstallationen.
 - **Gerätesteuerung (Opt-in):** Start, Stopp, Pause, Ein-/Ausschalten und Lichtsteuerung via DOP2.
 
-## Schnelleinrichtung
+## Schnellstart & Einrichtung
 
 1. Adapter installieren und eine Instanz anlegen.
-2. Im Reiter **Anmeldung & Pairing**:
-   - Land auswählen.
-   - Auf **Login-Seite öffnen** klicken (im Browser DevTools F12 / Netzwerk-Tab geöffnet halten).
-   - Mit den regulären Zugangsdaten der Miele-App anmelden.
-   - Die Zieladresse kopieren, die mit `miele://` oder `.../redirect?...` beginnt.
-   - Adresse in das Feld einfügen und auf **GroupKey abrufen** klicken.
-3. Alternativ bei Migration von einer früheren Installation im Reiter **Zugangsdaten & Sicherung**
-   GroupID und den GroupKey direkt einfügen oder ein verschlüsseltes Backup importieren.
+2. Im Reiter **Anmeldung & Pairing** das Land wählen und der folgenden Schritt-für-Schritt-Anleitung folgen.
+3. Die abgefangene `miele://...`-Adresse in das Feld **miele://-Redirect-URL** einfügen und auf **GroupKey abrufen** klicken.
 4. Speichern. Der Adapter findet die Geräte im LAN und legt die Datenpunkte an.
+
+Läuft ioBroker in einem Docker-Container mit Bridge-Netzwerk, werden Multicast-Pakete nicht durchgeleitet — in diesem Fall die IP-Adressen der Geräte im Reiter **Geräte** manuell eintragen. Siehe [Netzwerk & Docker](#netzwerk--docker).
+
+### Die Anmeldung, Schritt für Schritt
+
+Die letzte Zieladresse nutzt das `miele://`-Schema der offiziellen Miele-App. Desktop-Browser können dieses Schema nicht öffnen, weshalb der Vorgang bei einem drehenden Ladekreis oder einer Fehlermeldung stehen bleibt. **Genau das ist das erwartete Zeichen für einen erfolgreichen Login.**
+
+1. **Entwicklertools vorbereiten:**
+   - Auf **Login-Seite öffnen** klicken (ein neuer Browser-Tab öffnet sich).
+   - **F12** drücken (oder Rechtsklick ➔ *Untersuchen*), um die Entwicklertools zu öffnen.
+   - Auf den Tab **Netzwerk** (Network) wechseln.
+   - Sicherstellen, dass das Netzwerkprotokoll erhalten bleibt:
+     - **Chrome / Edge / Brave:** Haken bei **Log beibehalten** (*Preserve log*) setzen.
+     - **Firefox:** Zahnrad-Symbol ⚙️ ➔ **Protokolle dauerhaft anzeigen** (*Persist Logs*) aktivieren.
+2. **Anmelden:**
+   - E-Mail-Adresse und Passwort des gewohnten Miele-App-Kontos eingeben und anmelden.
+   - Nach dem Absenden bleibt die Seite bei einem Ladekreis stehen oder meldet einen Ladefehler.
+3. **Redirect-URL kopieren:**
+   - Im Netzwerk-Tab ganz nach unten zur letzten erfassten Zeile scrollen (oft rot markiert).
+   - Nach einem Eintrag suchen, der mit `redirect?redirect_uri=miele...` oder `miele://oauth2-code/...` beginnt.
+   - Zeile mit der rechten Maustaste anklicken ➔ **Adresse kopieren** (*Copy* ➔ *Copy URL*).
+   - Die kopierte Adresse im ioBroker-Admin in das Feld **miele://-Redirect-URL** einfügen und auf **GroupKey abrufen** klicken.
+
+GroupID und GroupKey werden anschließend in der Konfiguration gespeichert (der GroupKey sicher verschlüsselt). Dieser Vorgang ist nur ein einziges Mal notwendig.
+
+### Alternative: Backup & Manuelle Zugangsdaten
+
+Wenn du von einer früheren Instanz migrierst oder neu aufsetzt:
+- Öffne den Reiter **Zugangsdaten & Sicherung**.
+- Trage deine gesicherte **Haushalts-GroupID** und den **GroupKey** direkt von Hand ein.
+- Oder nutze das **verschlüsselte Backup**: Passphrase vergeben, auf **Backup exportieren** klicken und die Datei sichern. Auf einer neuen Instanz lässt sich das Backup mit einem Klick wiederherstellen.
+
+## Netzwerk & Docker
+
+| Richtung | Port | Zweck | Erforderlich |
+|---|---|---|---|
+| Ein-/Ausgehend | UDP 5353 (mDNS) | Automatische Geräteerkennung im LAN | Für Auto-Discovery |
+| Ausgehend | TCP 80 ➔ Geräte | Lokale DOP2/H256-Abfragen und Steuerbefehle | Ja |
+| Ausgehend | TCP 443 ➔ miele-iot.com | Einmaliger Abruf des GroupKeys | Nur beim Login |
+
+**Docker & Container:**
+In Containern mit Bridge-Netzwerk werden Multicast-Pakete (mDNS) nicht durchgeleitet. Die automatische Gerätesuche findet dort keine Geräte. Es gibt zwei Lösungen:
+1. Den Container mit `network_mode: host` betreiben, damit mDNS direkt funktioniert.
+2. Oder die IP-Adressen der Miele-Geräte im Reiter **Geräte** manuell eintragen.
+
+## Datenschutz & Lokaler Betrieb
+
+Der Adapter arbeitet **vollständig lokal** (*local-first*). Die einmalige Anmeldung dient ausschließlich dazu, den haushaltsweiten Verschlüsselungsschlüssel (`GroupKey`) abzurufen. Im laufenden Normalbetrieb:
+- Kommuniziert der Adapter mit keinem externen Cloud-Dienst.
+- Werden weder Passwörter noch Tokens gespeichert oder übertragen.
+- Bleiben alle Gerätezustände, Energiedaten und Steuerbefehle ausschließlich in deinem Heimnetzwerk.
 
 ## Objektstruktur
 
@@ -50,9 +95,16 @@ Jedes Gerät wird durch seine Seriennummer als Device im Objektbaum abgebildet:
 - **`<seriennummer>.eco`**: Gezieltes EcoFeedback für Energie (kWh/Wh), Wasserverbrauch und Heizdauer.
 - **`<seriennummer>.control`**: Steuerbefehle (Start, Stopp, Pause, Power, Licht), falls aktiviert.
 
+## Rechtliche Hinweise / Disclaimer
+
+Dies ist ein **inoffizielles, privat entwickeltes Community-Projekt** und steht in **keiner Verbindung zu der [Miele & Cie. KG](https://www.miele.com/)**. „Miele“, „Miele@home“ und zugehörige Markennamen sind eingetragene Warenzeichen der Miele & Cie. KG und werden hier ausschließlich beschreibend zur Kennzeichnung der Kompatibilität verwendet.
+
+Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll. Die Nutzung erfolgt auf eigene Verantwortung. Die Software wird unter der MIT-Lizenz ohne jede Mängelgewähr bereitgestellt.
+
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Ausführliche Schritt-für-Schritt-Anleitung mit DevTools und Docker-Hinweisen ergänzt
 - Erstentwicklung des Crossover-Adapters mit MieleH256-Engine und Profilen
 - Verschlüsselte Sicherung und Wiederherstellung via AES-256-GCM
 - Geräteprofile für Waschmaschinen, Trockner, Spülmaschinen und Backöfen

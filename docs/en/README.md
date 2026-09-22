@@ -27,18 +27,63 @@ definitions for over 30 appliance classes.
 - **Painless Credential Migration:** Encrypted export/import and manual entry for scratch installs.
 - **Remote Control (Opt-in):** Start, stop, pause, power, and lighting controls via DOP2 opcodes.
 
-## Setup Guide
+## Quick Start & Setup Guide
 
 1. Install the adapter and create an instance.
-2. In the **Login & Pairing** tab:
-   - Select your country.
-   - Click **Open Login Page** (keep browser DevTools F12 open on the Network tab).
-   - Sign in with your regular Miele app account.
-   - Copy the destination address starting with `miele://` or `.../redirect?...`.
-   - Paste the address into the redirect URL field and click **Fetch GroupKey**.
-3. Alternatively, if migrating from a previous installation, use the **Credentials & Backup** tab to
-   paste your saved GroupID and GroupKey directly, or import an encrypted backup.
+2. In the **Login & Pairing** tab, select your country and follow the step-by-step login below.
+3. Paste the captured `miele://...` address into the **miele:// Redirect URL** field and click **Fetch GroupKey**.
 4. Save settings. The adapter discovers your appliances and creates their states.
+
+If running in Docker with bridge networking, auto-discovery cannot receive multicast packets — enter appliance IP addresses manually on the **Appliances** tab. See [Network & Docker](#network-ports--docker).
+
+### The Login, Step by Step
+
+The final redirect address uses the `miele://` mobile app scheme. Desktop web browsers cannot handle this custom scheme, causing the browser to halt on a spinning wheel or a loading error. **This interruption is expected and indicates success.**
+
+1. **Prepare Browser DevTools:**
+   - Click **Open Login Page** (a new browser tab opens).
+   - Press **F12** (or right-click and select *Inspect*) to open Developer Tools.
+   - Switch to the **Network** tab.
+   - Ensure network requests are retained:
+     - **Chrome / Edge / Brave:** Check **Preserve log**.
+     - **Firefox:** Click the gear icon ⚙️ and check **Persist Logs**.
+2. **Sign In:**
+   - Enter your standard Miele app account email and password.
+   - Complete the sign-in. The browser will halt on a spinning circle or display a navigation error.
+3. **Copy Redirect URL:**
+   - In the DevTools **Network** tab, scroll to the last recorded request (often highlighted in red).
+   - Look for an entry starting with `redirect?redirect_uri=miele...` or `miele://oauth2-code/...`.
+   - Right-click the request ➔ **Copy** ➔ **Copy URL**.
+   - Paste the copied address into the adapter's **miele:// Redirect URL** field and click **Fetch GroupKey**.
+
+The household GroupID and GroupKey are stored in the instance configuration (with the GroupKey safely encrypted). This pairing process is only required once.
+
+### Alternative: Backup & Manual Credentials
+
+If migrating an existing setup or restoring from a backup:
+- Open the **Credentials & Backup** tab.
+- Enter your saved **Household GroupID** and **GroupKey** directly.
+- Or use **Encrypted Backup**: enter your passphrase, click **Export Backup**, and save the file. You can restore your configuration on any new instance with a single click.
+
+## Network: Ports & Docker
+
+| Direction | Port | Purpose | Required |
+|---|---|---|---|
+| In/Out | UDP 5353 (mDNS) | Automatic LAN device discovery | For auto-discovery |
+| Outbound | TCP 80 ➔ appliances | Local DOP2/H256 polling and controls | Yes |
+| Outbound | TCP 443 ➔ miele-iot.com | Fetch initial GroupKey pairing token | One-time login only |
+
+**Docker & Bridge Networking:**
+Containers with bridge networking do not forward multicast UDP traffic. In this configuration, automatic mDNS discovery will not find appliances. You can either:
+1. Run the container with `network_mode: host` to enable multicast auto-discovery.
+2. Or enter the IP addresses of your Miele appliances manually in the **Appliances** tab.
+
+## Privacy & Local Operation
+
+The adapter operates **strictly local-first**. The one-time Miele account login only serves to retrieve the household encryption key (`GroupKey`). During normal day-to-day operation:
+- The adapter does not communicate with any cloud service.
+- No user passwords or access tokens are stored or sent anywhere.
+- Device state changes, energy metrics, and telemetry remain entirely inside your local network.
 
 ## Object Hierarchy
 
@@ -50,9 +95,16 @@ Each appliance is represented by its serial number as the device object:
 - **`<serial>.eco`**: Targeted EcoFeedback energy (kWh/Wh), water consumption, and heating metrics.
 - **`<serial>.control`**: Remote actions (start, stop, pause, power, lighting) when enabled.
 
+## Legal Disclaimer
+
+This is an **unofficial, community-developed** project and is **not affiliated with or endorsed by [Miele & Cie. KG](https://www.miele.com/)**. "Miele", "Miele@home", and related trademarks belong to Miele & Cie. KG and are used solely for identification and compatibility purposes.
+
+The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
+
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Expand setup guide with detailed step-by-step browser DevTools and Docker instructions
 - Initial development combining local MieleH256 LAN engine with device profiles
 - Added AES-256-GCM encrypted backup and restore for migrations and scratch installs
 - Implemented device profile engine covering washers, dryers, dishwashers, and ovens
