@@ -42,7 +42,7 @@ function extractVersionChangelog(version) {
 					break;
 				}
 			} else if (capturing) {
-				if (line.match(/^#{1,3}\s+/) || line.startsWith('[Older changelog entries')) {
+				if (line.match(/^#{1,3}\s+/) || line.includes('Older changelog entries')) {
 					break;
 				}
 				captured.push(line);

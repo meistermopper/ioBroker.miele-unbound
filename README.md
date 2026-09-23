@@ -117,6 +117,8 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.0.0 (2026-09-23)
 - Fix auto-translate GitHub workflow by granting contents write permission
 - Add dedicated read-only backup export field with copy to clipboard button
 - Do not persist transient backup credentials on save and restore clear button adornment
