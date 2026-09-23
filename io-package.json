@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.1.1",
+		"version": "1.1.2",
 		"news": {
+			"1.1.2": {
+				"en": "Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195",
+				"de": "ÖkoFeedback rückgängig machen, da DOP2 Leaf 2/6195 nicht aussetzt",
+				"ru": "Отмените систему EcoFeedback для посудомоечной машины, поскольку посудомоечные машины не подвергают воздействию DOP2 leaf 2/6195",
+				"pt": "Reverta o EcoFeedback, pois as lava-louças não expõem DOP2, folha 2/6195",
+				"nl": "De EcoFeedback van de vaatwasser terugdraaien, want vaatwassers stellen DOP2-blad 2/6195 niet bloot",
+				"fr": "Révertissez l'EcoFeedback car les lave-vaisselle n'exposent pas la feuille DOP2 2/6195",
+				"it": "Revert EcoFeedback poiché le lavastoviglie non espongono la foglia DOP2 2/6195",
+				"es": "Revertir el EcoFeedback del lavavajillas, ya que no exponen la hoja DOP2 2/6195",
+				"pl": "Odwróć zmywarkę EcoFeedback, ponieważ zmywarki nie odsłaniają listwy DOP2 2/6195",
+				"uk": "Поверніть посудомийну машину EcoFeedback, оскільки посудомийні машини не оголюють DOP2 лист 2/6195",
+				"zh-cn": "恢复洗碗机的生态反馈，因为洗碗机不会暴露 DOP2 叶子 2/6195"
+			},
 			"1.1.1": {
 				"en": "Enable EcoFeedback query and states for dishwashers (device types 7 and 8)",
 				"de": "ÖkoFeedback-Abfrage und -Status für Spülmaschinen (7 und 8) aktivieren",
