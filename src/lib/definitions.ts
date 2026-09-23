@@ -705,7 +705,7 @@ export const PHASES: Record<
 		3: { en: 'Anti-crease', de: 'Knitterschutz' },
 		4: { en: 'Finished', de: 'Fertig' },
 	},
-	// Dishwasher (7, 8)
+	// Dishwasher (7, 8) - generic indices 0-6
 	7: {
 		0: { en: 'Not running', de: 'Nicht aktiv' },
 		1: { en: 'Pre-wash', de: 'Vorspülen' },
@@ -714,6 +714,15 @@ export const PHASES: Record<
 		4: { en: 'Final rinse', de: 'Klarspülen' },
 		5: { en: 'Drying', de: 'Trocknen' },
 		6: { en: 'Finished', de: 'Fertig' },
+		// Miele API raw phase IDs (local-unbound protocol)
+		1793: { en: 'Pre-wash', de: 'Vorspülen' },
+		1794: { en: 'Soaking', de: 'Einweichen' },
+		1795: { en: 'Main wash', de: 'Hauptwäsche' },
+		1796: { en: 'Interim rinse', de: 'Zwischenspülen' },
+		1797: { en: 'Final rinse', de: 'Klarspülen' },
+		1798: { en: 'Drying', de: 'Trocknen' },
+		1799: { en: 'Finished', de: 'Fertig' },
+		1800: { en: 'Finished', de: 'Fertig' },
 	},
 	// Oven (12)
 	12: {
