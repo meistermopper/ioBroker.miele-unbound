@@ -115,6 +115,10 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+- Keep backup export and restore buttons active to prevent UI locking in jsonConfig
+
 ### 1.0.1 (2026-09-23)
 - Only update sensor states supported by appliance profile to prevent missing object warnings
 

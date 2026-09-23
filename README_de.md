@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Backup-Buttons in jsonConfig immer aktiv halten gegen UI-Sperren bei Eingabefeldern
 
 ### 1.0.1 (2026-09-23)
 - Nur vom Geräteprofil unterstützte Sensor-States schreiben gegen ungültige Objektwarnungen
