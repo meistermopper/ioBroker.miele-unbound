@@ -52,9 +52,12 @@ export class MieleBackup {
 			throw new Error('Passphrase is required to decrypt backup');
 		}
 
-		const parts = backupString.trim().split(':');
+		const clean = backupString.trim().replace(/^["']|["']$/g, '');
+		const parts = clean.split(':');
 		if (parts.length !== 5 || parts[0] !== MieleBackup.PREFIX) {
-			throw new Error('Invalid backup format or unsupported version');
+			throw new Error(
+				`Invalid backup format or unsupported version (expected 5 parts with prefix "${MieleBackup.PREFIX}")`,
+			);
 		}
 
 		const salt = Buffer.from(parts[1], 'base64');

@@ -225,6 +225,7 @@
           "label": "Master Passphrase for Encryption/Decryption",
           "repeat": true,
           "visible": true,
+          "doNotSave": true,
           "xs": 12,
           "sm": 12,
           "md": 12,
@@ -240,20 +241,51 @@
           "newLine": true,
           "useNative": true,
           "disabled": "!data.backupPassphrase || data.backupPassphrase.length < 4",
-          "data": {
-            "passphrase": "${data.backupPassphrase}"
-          },
+          "jsonData": "{\"passphrase\": \"${data.backupPassphrase}\", \"groupId\": \"${data.groupId}\", \"manualGroupId\": \"${data.manualGroupId}\", \"groupKey\": \"${data.groupKey}\", \"manualGroupKey\": \"${data.manualGroupKey}\"}",
           "xs": 12,
           "sm": 12,
           "md": 4,
           "lg": 3,
           "xl": 3
         },
+        "backupExportPayload": {
+          "type": "text",
+          "label": "Exported Backup String (Click icon to copy to clipboard)",
+          "readOnly": true,
+          "copyToClipboard": true,
+          "trim": true,
+          "doNotSave": true,
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "backupNote": {
+          "type": "staticText",
+          "text": "backup_note",
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "dividerRestore": {
+          "type": "divider"
+        },
+        "headerRestore": {
+          "type": "header",
+          "size": 4,
+          "text": "Restore Backup"
+        },
         "backupPayload": {
           "type": "text",
           "label": "Encrypted Backup Data (Paste here to restore)",
           "newLine": true,
-          "copyToClipboard": true,
+          "trim": true,
+          "doNotSave": true,
           "xs": 12,
           "sm": 12,
           "md": 9,
@@ -268,10 +300,7 @@
           "color": "primary",
           "useNative": true,
           "disabled": "!data.backupPayload || !data.backupPassphrase",
-          "data": {
-            "backup": "${data.backupPayload}",
-            "passphrase": "${data.backupPassphrase}"
-          },
+          "jsonData": "{\"backup\": \"${data.backupPayload}\", \"passphrase\": \"${data.backupPassphrase}\"}",
           "xs": 12,
           "sm": 12,
           "md": 3,

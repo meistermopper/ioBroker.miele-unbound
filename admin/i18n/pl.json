@@ -42,5 +42,8 @@
   "step2_header": "Krok 2: Zaloguj się w Miele",
   "step2_text": "1. Wprowadź adres e-mail i hasło do konta aplikacji Miele i kliknij „Zaloguj się”.\n2. Uwaga: po zalogowaniu strona zawiesza się na obracającym się kole ładującym (lub wyświetla błąd). Jest to całkowicie normalne i oznacza sukces!",
   "step3_header": "Krok 3: Skopiuj adres URL przekierowania i pobierz GroupKey",
-  "step3_text": "1. W zakładce Sieć (F12) przewiń do ostatniego (często czerwonego) żądania zaczynającego się od „redirect?redirect_uri=miele...” lub „miele://oauth2-code/...”.\n2. Kliknij prawym przyciskiem myszy ten wpis ➔ „Kopiuj adres URL” / „Kopiuj adres łącza”.\n3. Wklej przechwycony adres w polu poniżej i kliknij „Pobierz klucz grupy”."
+  "step3_text": "1. W zakładce Sieć (F12) przewiń do ostatniego (często czerwonego) żądania zaczynającego się od „redirect?redirect_uri=miele...” lub „miele://oauth2-code/...”.\n2. Kliknij prawym przyciskiem myszy ten wpis ➔ „Kopiuj adres URL” / „Kopiuj adres łącza”.\n3. Wklej przechwycony adres w polu poniżej i kliknij „Pobierz klucz grupy”.",
+  "backup_note": "⚠️ WAŻNE: Zapisz ten ciąg kopii zapasowej w menedżerze haseł! Ze względów bezpieczeństwa nie jest on przechowywany na stałe i zniknie po zapisaniu i zamknięciu.",
+  "Exported Backup String (Click icon to copy to clipboard)": "Wyeksportowany ciąg kopii zapasowej (Kliknij ikonę, aby skopiować do schowka)",
+  "Restore Backup": "Przywróć kopię zapasową"
 }

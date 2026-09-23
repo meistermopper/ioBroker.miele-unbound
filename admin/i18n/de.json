@@ -42,5 +42,8 @@
   "step2_header": "Schritt 2: Bei Miele anmelden",
   "step2_text": "1. E-Mail und Passwort deines Miele-App-Kontos eingeben und auf „Anmelden“ klicken.\n2. Wichtig: Nach dem Login bleibt die Seite bei einem sich drehenden Laderad stehen (oder meldet einen Fehler). Das ist völlig normal und bedeutet, dass die Anmeldung erfolgreich war!",
   "step3_header": "Schritt 3: Weiterleitungs-URL kopieren & GroupKey abrufen",
-  "step3_text": "1. Im Netzwerk-Tab (F12) ganz nach unten zur letzten (meist rot markierten) Zeile scrollen. Sie beginnt mit „redirect?redirect_uri=miele...“ oder „miele://oauth2-code/...“.\n2. Rechtsklick auf diese Zeile ➔ „URL kopieren“ (bzw. „Adresse des Links kopieren“).\n3. Die kopierte Adresse unten in das Feld einfügen und auf „GroupKey abrufen“ klicken."
+  "step3_text": "1. Im Netzwerk-Tab (F12) ganz nach unten zur letzten (meist rot markierten) Zeile scrollen. Sie beginnt mit „redirect?redirect_uri=miele...“ oder „miele://oauth2-code/...“.\n2. Rechtsklick auf diese Zeile ➔ „URL kopieren“ (bzw. „Adresse des Links kopieren“).\n3. Die kopierte Adresse unten in das Feld einfügen und auf „GroupKey abrufen“ klicken.",
+  "backup_note": "⚠️ WICHTIG: Sichere die Backup-Zeichenkette in deinem Passwortmanager! Aus Sicherheitsgründen wird sie nach dem Speichern und Schließen hier nicht mehr angezeigt.",
+  "Exported Backup String (Click icon to copy to clipboard)": "Exportierte Backup-Zeichenkette (Icon zum Kopieren anklicken)",
+  "Restore Backup": "Backup wiederherstellen"
 }

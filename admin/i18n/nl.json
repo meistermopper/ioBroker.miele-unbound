@@ -42,5 +42,8 @@
   "step2_header": "Stap 2: Meld u aan met Miele",
   "step2_text": "1. Voer het e-mailadres en wachtwoord van uw Miele-app-account in en klik op 'Aanmelden'.\n2. Let op: Na het inloggen blijft de pagina hangen aan een draaiend laadwiel (of geeft een foutmelding weer). Dit is volkomen normaal en duidt op succes!",
   "step3_header": "Stap 3: Kopieer de omleidings-URL en haal GroupKey op",
-  "step3_text": "1. Scroll op het tabblad Netwerk (F12) naar het allerlaatste (vaak rode) verzoek dat begint met 'redirect?redirect_uri=miele...' of 'miele://oauth2-code/...'.\n2. Klik met de rechtermuisknop op dat item ➔ 'URL kopiëren' / 'Linkadres kopiëren'.\n3. Plak het vastgelegde adres in het onderstaande veld en klik op 'Fetch GroupKey'."
+  "step3_text": "1. Scroll op het tabblad Netwerk (F12) naar het allerlaatste (vaak rode) verzoek dat begint met 'redirect?redirect_uri=miele...' of 'miele://oauth2-code/...'.\n2. Klik met de rechtermuisknop op dat item ➔ 'URL kopiëren' / 'Linkadres kopiëren'.\n3. Plak het vastgelegde adres in het onderstaande veld en klik op 'Fetch GroupKey'.",
+  "backup_note": "⚠️ BELANGRIJK: Sla deze back-upreeks direct op in je wachtwoordbeheerder! Om veiligheidsredenen wordt deze niet permanent opgeslagen en verdwijnt na opslaan en sluiten.",
+  "Exported Backup String (Click icon to copy to clipboard)": "Geëxporteerde back-uptekenreeks (Klik op het pictogram om naar het klembord te kopiëren)",
+  "Restore Backup": "Back-up herstellen"
 }

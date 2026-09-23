@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import * as utils from '@iobroker/adapter-core';
 import { MieleDeviceApi } from './lib/api.js';
-import { MieleBackup } from './lib/backup.js';
+import { type BackupData, MieleBackup } from './lib/backup.js';
 import {
 	buildAuthorizeUrl,
 	exchangeCode,
@@ -697,19 +697,37 @@ export class MieleUnbound extends utils.Adapter {
 				}
 
 				case 'exportBackup': {
-					const msg = obj.message as { passphrase?: string };
+					const msg = obj.message as {
+						passphrase?: string;
+						groupId?: string;
+						manualGroupId?: string;
+						groupKey?: string;
+						manualGroupKey?: string;
+					};
 					const passphrase = msg?.passphrase || (this.config as unknown as AdapterConfig).backupPassphrase;
-					if (!passphrase) {
-						respond({ success: false, error: 'Passphrase is required' });
+					if (!passphrase || passphrase.trim().length < 4) {
+						respond({ success: false, error: 'Passphrase must be at least 4 characters long' });
+						return;
+					}
+
+					const cfg = this.config as unknown as AdapterConfig;
+					const groupId = (msg?.groupId || msg?.manualGroupId || cfg.groupId || cfg.manualGroupId || '').trim();
+					const groupKey = (msg?.groupKey || msg?.manualGroupKey || cfg.groupKey || cfg.manualGroupKey || '').trim();
+
+					if (!groupId || !groupKey) {
+						respond({
+							success: false,
+							error: 'No credentials to export! Please perform pairing or enter GroupID and GroupKey first.',
+							result: 'Error: No credentials found! Please perform pairing or enter Household GroupID and GroupKey first.',
+						});
 						return;
 					}
 
 					try {
-						const cfg = this.config as unknown as AdapterConfig;
 						const backupStr = MieleBackup.encrypt(
 							{
-								groupId: cfg.groupId || cfg.manualGroupId || '',
-								groupKey: cfg.groupKey || cfg.manualGroupKey || '',
+								groupId,
+								groupKey,
 								manualDevices: cfg.manualDevices,
 							},
 							passphrase,
@@ -718,9 +736,10 @@ export class MieleUnbound extends utils.Adapter {
 						respond({
 							success: true,
 							backup: backupStr,
-							result: 'Encrypted backup generated and filled into field below!',
-							toast: 'Backup exported successfully!',
+							result: `Encrypted backup generated successfully for GroupID ${groupId}!\n\nIMPORTANT: Please copy and store this backup string in your password manager now! For security reasons, it will disappear after saving and closing.`,
+							toast: 'Backup generated! Please save the string to your password manager.',
 							native: {
+								backupExportPayload: backupStr,
 								backupPayload: backupStr,
 							},
 						});
@@ -732,14 +751,52 @@ export class MieleUnbound extends utils.Adapter {
 
 				case 'importBackup': {
 					const msg = obj.message as { backup?: string; passphrase?: string };
-					const passphrase = msg?.passphrase || (this.config as unknown as AdapterConfig).backupPassphrase;
-					if (!msg?.backup || !passphrase) {
-						respond({ success: false, error: 'Backup data and passphrase are required' });
+					const passphrase = (
+						msg?.passphrase ||
+						(this.config as unknown as AdapterConfig).backupPassphrase ||
+						''
+					).trim();
+					const backupStr = (typeof msg?.backup === 'string' ? msg.backup : '').trim();
+
+					// biome-ignore lint/suspicious/noTemplateCurlyInString: intentional literal check for unexpanded placeholder
+					if (!backupStr || backupStr === '${data.backupPayload}') {
+						respond({
+							success: false,
+							error: 'Backup data is empty! Please paste a valid backup string into the field.',
+						});
+						return;
+					}
+					if (!passphrase) {
+						respond({
+							success: false,
+							error: 'Passphrase is required to decrypt the backup data.',
+						});
 						return;
 					}
 
 					try {
-						const data = MieleBackup.decrypt(msg.backup, passphrase);
+						let data: BackupData;
+						try {
+							data = MieleBackup.decrypt(backupStr, passphrase);
+						} catch (firstErr) {
+							// Graceful fallback if the backup was created during earlier test with literal placeholder
+							try {
+								// biome-ignore lint/suspicious/noTemplateCurlyInString: intentional literal fallback
+								data = MieleBackup.decrypt(backupStr, '${data.backupPassphrase}');
+							} catch {
+								throw firstErr;
+							}
+						}
+
+						if (!data.groupId || !data.groupKey) {
+							respond({
+								success: false,
+								error: 'Backup contains no credentials (empty GroupID or GroupKey)!',
+								result: 'Error: The decrypted backup contains no credentials!',
+							});
+							return;
+						}
+
 						await this.updateConfig({
 							manualGroupId: data.groupId,
 							manualGroupKey: data.groupKey,
@@ -748,12 +805,12 @@ export class MieleUnbound extends utils.Adapter {
 							manualDevices: data.manualDevices || (this.config as unknown as AdapterConfig).manualDevices,
 						});
 
-						this.log.info('Successfully restored configuration from backup');
+						this.log.info(`Successfully restored configuration from backup (GroupID: ${data.groupId})`);
 						respond({
 							success: true,
 							groupId: data.groupId,
 							result: `Backup successfully restored! (GroupID: ${data.groupId})`,
-							toast: 'Backup successfully restored!',
+							toast: `Backup restored! GroupID: ${data.groupId}`,
 							native: {
 								manualGroupId: data.groupId,
 								manualGroupKey: data.groupKey,
@@ -763,6 +820,7 @@ export class MieleUnbound extends utils.Adapter {
 							},
 						});
 					} catch (err) {
+						this.log.warn(`Failed to restore backup: ${(err as Error).message}`);
 						respond({ success: false, error: (err as Error).message });
 					}
 					break;

@@ -117,6 +117,9 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Eigenes schreibgeschütztes Export-Feld mit Kopier-Button für Zwischenablage ergänzt
+- Flüchtige Backup-Felder beim Speichern verwerfen und Leeren-Button (X) wiederherstellen
+- Backup-Import durch jsonData-Parameterübergabe in jsonConfig sendTo-Buttons behoben
 - Verschlüsseltes Backup wird direkt ins UI-Feld befüllt mit 1-Klick-Zwischenablage
 - Passwort-Bestätigung (repeat) und Sichtbarkeits-Toggle für backupPassphrase ergänzt
 - Runde Ecken aus Adapter-Logo entfernt für vollflächigen Miele-Rot-Hintergrund

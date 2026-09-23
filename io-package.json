@@ -103,6 +103,7 @@
     "manualGroupKey": "",
     "backupPassphrase": "",
     "backupPayload": "",
+    "backupExportPayload": "",
     "redirectUrl": "",
     "pollIntervalActive": 5,
     "pollIntervalIdle": 20,

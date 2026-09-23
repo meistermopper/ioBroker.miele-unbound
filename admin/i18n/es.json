@@ -42,5 +42,8 @@
   "step2_header": "Paso 2: Inicia sesión con Miele",
   "step2_text": "1. Ingrese el correo electrónico y la contraseña de su cuenta de la aplicación Miele y haga clic en \"Iniciar sesión\".\n2. Nota: Después de iniciar sesión, la página se colgará en una rueda de carga giratoria (o mostrará un error). ¡Esto es completamente normal e indica éxito!",
   "step3_header": "Paso 3: copie la URL de redireccionamiento y obtenga GroupKey",
-  "step3_text": "1. En la pestaña Red (F12), desplácese hasta la última solicitud (a menudo roja) que comienza con 'redirect?redirect_uri=miele...' o 'miele://oauth2-code/...'.\n2. Haga clic derecho en esa entrada ➔ 'Copiar URL' / 'Copiar dirección de enlace'.\n3. Pegue la dirección capturada en el campo siguiente y haga clic en 'Obtener clave de grupo'."
+  "step3_text": "1. En la pestaña Red (F12), desplácese hasta la última solicitud (a menudo roja) que comienza con 'redirect?redirect_uri=miele...' o 'miele://oauth2-code/...'.\n2. Haga clic derecho en esa entrada ➔ 'Copiar URL' / 'Copiar dirección de enlace'.\n3. Pegue la dirección capturada en el campo siguiente y haga clic en 'Obtener clave de grupo'.",
+  "backup_note": "⚠️ IMPORTANTE: ¡Guarde esta cadena de copia de seguridad en su gestor de contraseñas! Por razones de seguridad, no se almacena de forma permanente y desaparecerá después de guardar y cerrar.",
+  "Exported Backup String (Click icon to copy to clipboard)": "Cadena de copia de seguridad exportada (Haga clic en el icono para copiar al portapapeles)",
+  "Restore Backup": "Restaurar copia de seguridad"
 }

@@ -42,5 +42,8 @@
   "step2_header": "Étape 2 : Connectez-vous avec Miele",
   "step2_text": "1. Saisissez l'e-mail et le mot de passe de votre compte d'application Miele et cliquez sur « Se connecter ».\n2. Remarque : Après la connexion, la page se bloquera sur une roue de chargement en rotation (ou affichera une erreur). C'est tout à fait normal et cela indique un succès !",
   "step3_header": "Étape 3 : Copiez l'URL de redirection et récupérez GroupKey",
-  "step3_text": "1. Dans l'onglet Réseau (F12), faites défiler jusqu'à la toute dernière requête (souvent rouge) commençant par 'redirect?redirect_uri=miele...' ou 'miele://oauth2-code/...'.\n2. Cliquez avec le bouton droit sur cette entrée ➔ « Copier l'URL » / « Copier l'adresse du lien ».\n3. Collez l'adresse capturée dans le champ ci-dessous et cliquez sur « Récupérer la clé de groupe »."
+  "step3_text": "1. Dans l'onglet Réseau (F12), faites défiler jusqu'à la toute dernière requête (souvent rouge) commençant par 'redirect?redirect_uri=miele...' ou 'miele://oauth2-code/...'.\n2. Cliquez avec le bouton droit sur cette entrée ➔ « Copier l'URL » / « Copier l'adresse du lien ».\n3. Collez l'adresse capturée dans le champ ci-dessous et cliquez sur « Récupérer la clé de groupe ».",
+  "backup_note": "⚠️ IMPORTANT : Enregistrez cette chaîne de sauvegarde dans votre gestionnaire de mots de passe ! Pour des raisons de sécurité, elle n'est pas conservée de manière permanente et disparaîtra après l'enregistrement et la fermeture.",
+  "Exported Backup String (Click icon to copy to clipboard)": "Chaîne de sauvegarde exportée (Cliquez sur l'icône pour copier dans le presse-papiers)",
+  "Restore Backup": "Restaurer la sauvegarde"
 }

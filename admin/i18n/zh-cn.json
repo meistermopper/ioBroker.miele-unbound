@@ -42,5 +42,8 @@
   "step2_header": "第 2 步：使用 Miele 登录",
   "step2_text": "1. 输入您的 Miele 应用帐户电子邮件和密码，然后单击“登录”。\n2. 注意：登录后，页面将挂在旋转的加载轮上（或显示错误）。这是完全正常的，表明成功！",
   "step3_header": "第 3 步：复制重定向 URL 并获取 GroupKey",
-  "step3_text": "1. 在“网络”选项卡 (F12) 中，滚动到以“redirect?redirect_uri=miele...”或“miele://oauth2-code/...”开头的最后一个（通常为红色）请求。\n2. 右键单击​​该条目➔“复制 URL”/“复制链接地址”。\n3. 将捕获的地址粘贴到下面的字段中，然后单击“获取 GroupKey”。"
+  "step3_text": "1. 在“网络”选项卡 (F12) 中，滚动到以“redirect?redirect_uri=miele...”或“miele://oauth2-code/...”开头的最后一个（通常为红色）请求。\n2. 右键单击​​该条目➔“复制 URL”/“复制链接地址”。\n3. 将捕获的地址粘贴到下面的字段中，然后单击“获取 GroupKey”。",
+  "backup_note": "⚠️ 重要提示：请立即将此备份字符串保存到您的密码管理器中！出于安全原因，它不会永久保存，在保存并关闭后将不再显示。",
+  "Exported Backup String (Click icon to copy to clipboard)": "导出的备份字符串（点击图标复制到剪贴板）",
+  "Restore Backup": "恢复备份"
 }

@@ -42,5 +42,8 @@
   "step2_header": "Step 2: Sign in with Miele",
   "step2_text": "1. Enter your Miele app account email and password and click 'Sign in'.\n2. Note: After login, the page will hang on a spinning loading wheel (or show an error). This is completely normal and indicates success!",
   "step3_header": "Step 3: Copy redirect URL & fetch GroupKey",
-  "step3_text": "1. In the Network tab (F12), scroll to the very last (often red) request starting with 'redirect?redirect_uri=miele...' or 'miele://oauth2-code/...'.\n2. Right-click that entry ➔ 'Copy URL' / 'Copy link address'.\n3. Paste the captured address into the field below and click 'Fetch GroupKey'."
+  "step3_text": "1. In the Network tab (F12), scroll to the very last (often red) request starting with 'redirect?redirect_uri=miele...' or 'miele://oauth2-code/...'.\n2. Right-click that entry ➔ 'Copy URL' / 'Copy link address'.\n3. Paste the captured address into the field below and click 'Fetch GroupKey'.",
+  "backup_note": "⚠️ IMPORTANT: Save this backup string to your password manager now! For security reasons, it is not stored permanently and will disappear after saving and closing.",
+  "Exported Backup String (Click icon to copy to clipboard)": "Exported Backup String (Click icon to copy to clipboard)",
+  "Restore Backup": "Restore Backup"
 }
