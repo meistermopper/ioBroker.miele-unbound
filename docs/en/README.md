@@ -117,6 +117,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Only update sensor states supported by appliance profile to prevent missing object warnings
 
 ### 1.0.0 (2026-09-23)
 - Fix auto-translate GitHub workflow by granting contents write permission

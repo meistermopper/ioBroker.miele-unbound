@@ -9,6 +9,14 @@ import {
 import type { DeviceProfile, StateDefinition } from './types.js';
 
 export class DeviceProfiles {
+	public static getTemperatureZones(deviceType: number): number {
+		const isWasher = deviceType === 1 || deviceType === 24;
+		const isDishwasher = deviceType === 7 || deviceType === 8;
+		const isCooking = [12, 13, 14, 15, 16, 27, 28, 31, 39, 40, 41, 42, 43, 45, 67].includes(deviceType);
+		const isCooling = [19, 20, 21, 32, 33, 34, 68].includes(deviceType);
+		return isCooling ? 3 : isCooking ? 3 : isWasher || isDishwasher ? 1 : 0;
+	}
+
 	public static getProfile(deviceType: number, lang: 'de' | 'en' = 'de'): DeviceProfile {
 		const category = DEVICE_CATEGORIES[deviceType] || {
 			en: getDeviceCategory(deviceType, 'en'),
@@ -216,13 +224,11 @@ export class DeviceProfiles {
 		const isWasher = deviceType === 1 || deviceType === 24;
 		const isDryer = deviceType === 2 || deviceType === 24;
 		const isDishwasher = deviceType === 7 || deviceType === 8;
-		const isCooking = [12, 13, 14, 15, 16, 27, 28, 31, 39, 40, 41, 42, 43, 45, 67].includes(deviceType);
-		const isCooling = [19, 20, 21, 32, 33, 34, 68].includes(deviceType);
 		const isHood = deviceType === 18;
 		const isVacuum = deviceType === 23;
 
 		// Temperature zones
-		const temperatureZones = isCooling ? 3 : isCooking ? 3 : isWasher || isDishwasher ? 1 : 0;
+		const temperatureZones = DeviceProfiles.getTemperatureZones(deviceType);
 
 		if (temperatureZones > 0) {
 			states.push(

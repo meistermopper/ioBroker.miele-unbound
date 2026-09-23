@@ -440,42 +440,51 @@ export class MieleUnbound extends utils.Adapter {
 		await this.setStateAsync(`${sId}.state.mobileStart`, { val: mobileStart, ack: true });
 
 		// Sensors: Temperatures
-		if (Array.isArray(state.Temperature)) {
+		const tempZones = DeviceProfiles.getTemperatureZones(devType);
+		if (tempZones > 0 && Array.isArray(state.Temperature)) {
 			const t1 = tempToCelsius(state.Temperature[0]);
 			if (t1 !== null) {
 				await this.setStateAsync(`${sId}.sensors.temperature`, { val: t1, ack: true });
 			}
-			const t2 = tempToCelsius(state.Temperature[1]);
-			if (t2 !== null) {
-				await this.setStateAsync(`${sId}.sensors.temperatureZone2`, { val: t2, ack: true });
+			if (tempZones >= 2) {
+				const t2 = tempToCelsius(state.Temperature[1]);
+				if (t2 !== null) {
+					await this.setStateAsync(`${sId}.sensors.temperatureZone2`, { val: t2, ack: true });
+				}
 			}
-			const t3 = tempToCelsius(state.Temperature[2]);
-			if (t3 !== null) {
-				await this.setStateAsync(`${sId}.sensors.temperatureZone3`, { val: t3, ack: true });
+			if (tempZones >= 3) {
+				const t3 = tempToCelsius(state.Temperature[2]);
+				if (t3 !== null) {
+					await this.setStateAsync(`${sId}.sensors.temperatureZone3`, { val: t3, ack: true });
+				}
 			}
 		}
 
-		if (Array.isArray(state.TargetTemperature)) {
+		if (tempZones > 0 && Array.isArray(state.TargetTemperature)) {
 			const tt1 = tempToCelsius(state.TargetTemperature[0]);
 			if (tt1 !== null) {
 				await this.setStateAsync(`${sId}.sensors.targetTemperature`, { val: tt1, ack: true });
 			}
-			const tt2 = tempToCelsius(state.TargetTemperature[1]);
-			if (tt2 !== null) {
-				await this.setStateAsync(`${sId}.sensors.targetTemperatureZone2`, { val: tt2, ack: true });
+			if (tempZones >= 2) {
+				const tt2 = tempToCelsius(state.TargetTemperature[1]);
+				if (tt2 !== null) {
+					await this.setStateAsync(`${sId}.sensors.targetTemperatureZone2`, { val: tt2, ack: true });
+				}
 			}
-			const tt3 = tempToCelsius(state.TargetTemperature[2]);
-			if (tt3 !== null) {
-				await this.setStateAsync(`${sId}.sensors.targetTemperatureZone3`, { val: tt3, ack: true });
+			if (tempZones >= 3) {
+				const tt3 = tempToCelsius(state.TargetTemperature[2]);
+				if (tt3 !== null) {
+					await this.setStateAsync(`${sId}.sensors.targetTemperatureZone3`, { val: tt3, ack: true });
+				}
 			}
 		}
 
 		// Appliance-specific sensors
-		if (state.SpinningSpeed !== undefined) {
+		if ((devType === 1 || devType === 24) && state.SpinningSpeed !== undefined) {
 			await this.setStateAsync(`${sId}.sensors.spinningSpeed`, { val: state.SpinningSpeed, ack: true });
 		}
 
-		if (state.DryingStep !== undefined) {
+		if ((devType === 2 || devType === 24) && state.DryingStep !== undefined) {
 			await this.setStateAsync(`${sId}.sensors.dryingStep`, { val: state.DryingStep, ack: true });
 			await this.setStateAsync(`${sId}.sensors.dryingStepText`, {
 				val: getDryingStepText(state.DryingStep, lang),
@@ -483,11 +492,11 @@ export class MieleUnbound extends utils.Adapter {
 			});
 		}
 
-		if (state.BatteryLevel !== undefined) {
+		if (devType === 23 && state.BatteryLevel !== undefined) {
 			await this.setStateAsync(`${sId}.sensors.batteryLevel`, { val: state.BatteryLevel, ack: true });
 		}
 
-		if (state.VentilationStep !== undefined) {
+		if (devType === 18 && state.VentilationStep !== undefined) {
 			await this.setStateAsync(`${sId}.sensors.ventilationStep`, { val: state.VentilationStep, ack: true });
 		}
 

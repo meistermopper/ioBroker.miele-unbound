@@ -181,5 +181,14 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(profile.hasVentilation).to.be.true;
 			expect(profile.states.some(s => s.id === 'sensors.ventilationStep')).to.be.true;
 		});
+
+		it('should restrict dishwasher to 1 temperature zone without zone2 or zone3', () => {
+			const profile = DeviceProfiles.getProfile(7, 'de');
+			expect(DeviceProfiles.getTemperatureZones(7)).to.equal(1);
+			expect(profile.temperatureZones).to.equal(1);
+			expect(profile.states.some(s => s.id === 'sensors.temperature')).to.be.true;
+			expect(profile.states.some(s => s.id === 'sensors.temperatureZone2')).to.be.false;
+			expect(profile.states.some(s => s.id === 'sensors.temperatureZone3')).to.be.false;
+		});
 	});
 });

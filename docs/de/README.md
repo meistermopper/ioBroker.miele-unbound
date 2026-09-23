@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Nur vom Geräteprofil unterstützte Sensor-States schreiben gegen ungültige Objektwarnungen
 
 ### 1.0.0 (2026-09-23)
 - Auto-Translate GitHub Workflow durch Schreibberechtigung (contents write) behoben
