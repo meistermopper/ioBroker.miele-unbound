@@ -34,6 +34,11 @@ jobs:
       - name: Run Translate Adapter
         run: npm run translate
 
+      - name: Normalize line endings (LF only)
+        run: |
+          find admin/i18n -name '*.json' -exec sed -i 's/\r//' {} +
+          sed -i 's/\r//' io-package.json
+
       - name: Commit & Push Changes
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
