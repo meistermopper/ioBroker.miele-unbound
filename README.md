@@ -115,8 +115,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.1.0 (2026-09-23)
 - Parallelize setState calls in processState, add programPhase states map, and unify type aliases
 - Restrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported
 - Fix inUse state calculation to only report true while cycle is actively running
@@ -164,7 +163,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Add iob.bat developer shortcut and devServerCli.md command reference
 - Add commitlint configuration, husky Git hooks and AI commit message helper
 - Document async robustness, hardware protection and lifecycle rules in AGENTS.md
-
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

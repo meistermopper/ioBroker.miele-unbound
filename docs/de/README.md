@@ -117,6 +117,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.1.0 (2026-09-23)
 - setState in processState parallelisieren, programPhase-States mappen & Typ-Aliase bündeln
 - EcoFeedback-States auf Waschmaschinen begrenzen, da DOP2-Abfrage nur für diese aktiv ist
 - inUse-Berechnung korrigieren, sodass nur während aktiver Programmläufe true gemeldet wird

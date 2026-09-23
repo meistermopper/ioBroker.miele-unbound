@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.0.1",
+		"version": "1.1.0",
 		"news": {
+			"1.1.0": {
+				"en": "Parallelize setState calls in processState, add programPhase states map, and unify type aliases\nRestrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported\nFix inUse state calculation to only report true while cycle is actively running\nUpdate hood light sensor state from live appliance telemetry\nKeep backup export and restore buttons active to prevent UI locking in jsonConfig\nMap raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels",
+				"de": "Parallele SetState-Aufrufe in ProcessState, füge ProgramPhase State Map hinzu und vereinheitliche Typaliase\nEcoFeedback-Status auf Waschmaschinen beschränken, bis DOP2 unterstützt wird\nInUse State Calculation meldet nun nur wahr, wenn der Zyklus läuft\nStatus des Haubensensors live per Telemetrie aktualisieren\nHalten Sie Backup, Export und Restore aktiv, damit JSONConfig nicht gesperrt ist\nOrdnen Sie rohe Miele API Phasen-IDs (1793-1800) lesbaren Labels zu",
+				"ru": "Распараллеливайте вызовы setState в ProcessState, добавьте карту состояний ProgramPhase и унифицируйте псевдонимы типов\nОграничьте состояние EcoFeedback на стиральных машинах до тех пор, пока не будет поддерживаться технология DOP2 для сушильных и\nИсправьте расчет состояния inUse, чтобы сообщать значение true только во время активного цикла\nОбновите состояние датчика освещенности капота с помощью телеметрии живого устройства\nДержите кнопки резервного копирования, экспорта и восстановления активными, чтобы предотвратить блокировку пользовательского интерфейса в JSONConfig\nСопоставьте необработанные идентификаторы фаз посудомоечной машины Miele API (1793-1800) с удобочитаемыми этикетками",
+				"pt": "Paralelize chamadas setState em processState, adicione programPhase state map e unifique aliases\nRestrinja os estados do EcoFeedback às máquinas de lavar até que o DOP2 seja suportado\nCorrige o cálculo do estado InUse para relatar valores reais apenas durante o ciclo\nAtualize o estado do sensor de luz do capô usando a telemetria\nAtive os botões de backup, exportação e restauração para evitar bloqueio no JSONConfig\nMapeie IDs de fase de lava-louças da API Miele (1793-1800) em rótulos legíveis",
+				"nl": "SetState-aanroepen parallel laten lopen in ProcessState, ProgramPhase-statussen in kaart brengen en typealiassen samenvoegen\nBeperk de EcoFeedback-status tot wasmachines totdat de DOP2 van de droger/vaatwasser wordt ondersteund\nDe berekening van de InUse-status corrigeren om alleen waar te rapporteren terwijl de cyclus actief is\nDe status van de lichtsensor van de afzuigkap bijwerken op basis van de telemetrie van het apparaat\nHoud de knoppen voor het exporteren en herstellen van back-ups actief om te voorkomen dat de gebruikersinterface wordt vergrendeld in JSONConfig.\nKoppel onbewerkte Miele API-fase-ID's voor vaatwasmachines (1793-1800) aan voor mensen leesbare etiketten",
+				"fr": "Parallélisez les appels SetState dans ProcessState, ajoutez la carte des états ProgramPhase et unifiez les alias\nRestreindre les états EcoFeedback aux machines à laver jusqu'à ce que la DOP2 soit prise en charge\nCorriger le calcul de l'état InUse pour qu'il ne soit vrai que lorsque le cycle est actif\nMettre à jour l'état du capteur de lumière du capot grâce à la télémétrie\nActivez les boutons de sauvegarde, d'export et de restauration pour éviter le blocage de JSONConfig\nAssociez les ID de phase API Miele bruts (1793-1800) à des étiquettes lisibles",
+				"it": "Parallelizza le chiamate SetState in ProcessState, aggiunge ProgramPhase e unifica gli alias\nLimita gli stati EcoFeedback alle lavatrici fino al supporto del DOP2\nRisolve il calcolo dello stato InUse in modo che sia vero solo se il ciclo è attivo\nAggiorna lo stato del sensore di luce del cofano\nAttivi i pulsanti Backup, Export e Restore per evitare il blocco dell'UI in JSONConfig\nMappa gli ID di fase delle lavastoviglie Miele API (1793-1800) su etichette leggibili",
+				"es": "Paralelice las llamadas SetState en ProcessState, añada el mapa de estados de ProgramPhase y unifique los alias\nRestringir los estados de EcoFeedback a las lavadoras hasta que se admita DOP2 en secadora/lavavajillas\nFijo el cálculo del estado en uso para que solo sea cierto cuando el ciclo está activo\nActualice el sensor de luz del capó con la telemetría del aparato\nMantenga activos los botones de respaldo, exportación y restauración para evitar que la UI bloquee JsonConfig\nAsigne los ID de fase sin procesar de la API de lavavajillas de Miele (1793-1800) a etiquetas legibles",
+				"pl": "Paralelizuj wywołania setState w ProcessState, dodaj mapę stanów programPhase i unifikuj aliasy typu\nOgranicz stany EcoFeedback do pralek, dopóki nie będzie obsługiwana suszarka/zmywarka DOP2\nNapraw obliczenia stanu inUse, aby raportować tylko wartość true, gdy cykl jest aktywnie uruchomiony\nZaktualizuj stan czujnika światła okapu z telemetrii urządzenia pod napięciem\nAktywuj przyciski eksportu i przywracania kopii zapasowych, aby zapobiec blokowaniu interfejsu użytkownika w JSONConfig\nMapowanie surowych identyfikatorów faz zmywarki API Miele (1793-1800) na etykiety czytelne dla człowieka",
+				"uk": "Паралелізація викликів setState у processState, додавання карти станів programPhase та уніфікація псевдонімів типів\nОбмежте стан EcoFeedback для пральних машин, доки не буде підтримуватися сушарка/посудомийна машина DOP2\nВиправлено обчислення стану InUse, щоб повідомляти лише про true під час активного запуску циклу\nОновіть стан датчика освітлення витяжки з телеметрії приладів в режимі реального часу\nЗберігайте активні кнопки експорту та відновлення резервних копій, щоб запобігти блокуванню інтерфейсу користувача в JSONConfig\nДодайте необроблені ідентифікатори фаз посудомийної машини Miele API (1793-1800) на етикетки, що читаються людиною",
+				"zh-cn": "并行处理 processState 中的 setState 调用，添加 ProgramPhase 状态映射，统一类型别名\n在支持烘干机/洗碗机 DOP2 之前，将生态反馈状态限制在洗衣机上\n修复 inUse 状态计算问题，使其仅在 cycle 活跃运行时报告为真\n通过实时设备遥测更新引擎盖光传感器状态\n保持备份导出和恢复按钮处于活动状态，以防止 JsonConfig 中的用户界面锁定\n将原始的 Miele API 洗碗机阶段 ID (1793-1800) 映射到人类可读的标签"
+			},
 			"1.0.1": {
 				"en": "Only update sensor states supported by appliance profile to prevent missing object warnings",
 				"de": "Nur vom Geräteprofil unterstützte Sensorstatus aktualisieren, um fehlendes Objekt zu vermeiden",
@@ -56,17 +69,8 @@
 			"uk": "Підключайте сучасні прилади Miele@Home локально через LAN без хмари з розширеними профілями",
 			"zh-cn": "通过 LAN 本地连接现代 Miele@Home 电器，无需依赖云，具有丰富的设备配置文件"
 		},
-		"authors": [
-			"meistermopper <meister.mopper@gmail.com>"
-		],
-		"keywords": [
-			"miele",
-			"mieleathome",
-			"local",
-			"dop2",
-			"h256",
-			"lan"
-		],
+		"authors": ["meistermopper <meister.mopper@gmail.com>"],
+		"keywords": ["miele", "mieleathome", "local", "dop2", "h256", "lan"],
 		"licenseInformation": {
 			"type": "free",
 			"license": "MIT"
@@ -98,16 +102,8 @@
 			}
 		]
 	},
-	"encryptedNative": [
-		"groupKey",
-		"manualGroupKey",
-		"backupPassphrase"
-	],
-	"protectedNative": [
-		"groupKey",
-		"manualGroupKey",
-		"backupPassphrase"
-	],
+	"encryptedNative": ["groupKey", "manualGroupKey", "backupPassphrase"],
+	"protectedNative": ["groupKey", "manualGroupKey", "backupPassphrase"],
 	"native": {
 		"country": "de",
 		"groupId": "",
