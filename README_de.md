@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Auto-Translate GitHub Workflow durch Schreibberechtigung (contents write) behoben
 - Eigenes schreibgeschütztes Export-Feld mit Kopier-Button für Zwischenablage ergänzt
 - Flüchtige Backup-Felder beim Speichern verwerfen und Leeren-Button (X) wiederherstellen
 - Backup-Import durch jsonData-Parameterübergabe in jsonConfig sendTo-Buttons behoben

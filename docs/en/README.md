@@ -117,6 +117,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Fix auto-translate GitHub workflow by granting contents write permission
 - Add dedicated read-only backup export field with copy to clipboard button
 - Do not persist transient backup credentials on save and restore clear button adornment
 - Fix backup import by using jsonData parameter injection in jsonConfig sendTo buttons
