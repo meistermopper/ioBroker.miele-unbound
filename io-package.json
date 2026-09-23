@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.1.0",
+		"version": "1.1.1",
 		"news": {
+			"1.1.1": {
+				"en": "Enable EcoFeedback query and states for dishwashers (device types 7 and 8)",
+				"de": "ÖkoFeedback-Abfrage und -Status für Spülmaschinen (7 und 8) aktivieren",
+				"ru": "Включите запрос и состояния EcoFeedback для посудомоечных машин (типы устройств 7 и 8)",
+				"pt": "Ative a consulta e os estados do EcoFeedback para lava-louças (tipos 7 e 8)",
+				"nl": "EcoFeedback-query en -staten inschakelen voor vaatwassers (apparaattypes 7 en 8)",
+				"fr": "Activez la requête EcoFeedback et les états pour les lave-vaisselle (types 7 et 8)",
+				"it": "Attiva la query e gli stati EcoFeedback per le lavastoviglie (tipi 7 e 8)",
+				"es": "Activar la consulta y los estados de EcoFeedback para lavavajillas (tipos 7 y 8)",
+				"pl": "Włącz zapytanie i stany EcoFeedback dla zmywarek (typy urządzeń 7 i 8)",
+				"uk": "Включення запиту та станів EcoFeedback для посудомийних машин (типи пристроїв 7 та 8)",
+				"zh-cn": "为洗碗机（设备类型 7 和 8）启用生态反馈查询和状态"
+			},
 			"1.1.0": {
 				"en": "Parallelize setState calls in processState, add programPhase states map, and unify type aliases\nRestrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported\nFix inUse state calculation to only report true while cycle is actively running\nUpdate hood light sensor state from live appliance telemetry\nKeep backup export and restore buttons active to prevent UI locking in jsonConfig\nMap raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels",
 				"de": "Parallele SetState-Aufrufe in ProcessState, füge ProgramPhase State Map hinzu und vereinheitliche Typaliase\nEcoFeedback-Status auf Waschmaschinen beschränken, bis DOP2 unterstützt wird\nInUse State Calculation meldet nun nur wahr, wenn der Zyklus läuft\nStatus des Haubensensors live per Telemetrie aktualisieren\nHalten Sie Backup, Export und Restore aktiv, damit JSONConfig nicht gesperrt ist\nOrdnen Sie rohe Miele API Phasen-IDs (1793-1800) lesbaren Labels zu",

@@ -117,6 +117,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.1.1 (2026-09-23)
 - EcoFeedback-Abfrage und States für Geschirrspüler (Typ 7 & 8) aktivieren
 
 ### 1.1.0 (2026-09-23)
