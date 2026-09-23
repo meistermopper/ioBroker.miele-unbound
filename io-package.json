@@ -56,17 +56,8 @@
 			"uk": "Підключайте сучасні прилади Miele@Home локально через LAN без хмари з розширеними профілями",
 			"zh-cn": "通过 LAN 本地连接现代 Miele@Home 电器，无需依赖云，具有丰富的设备配置文件"
 		},
-		"authors": [
-			"meistermopper <meister.mopper@gmail.com>"
-		],
-		"keywords": [
-			"miele",
-			"mieleathome",
-			"local",
-			"dop2",
-			"h256",
-			"lan"
-		],
+		"authors": ["meistermopper <meister.mopper@gmail.com>"],
+		"keywords": ["miele", "mieleathome", "local", "dop2", "h256", "lan"],
 		"licenseInformation": {
 			"type": "free",
 			"license": "MIT"
@@ -98,16 +89,8 @@
 			}
 		]
 	},
-	"encryptedNative": [
-		"groupKey",
-		"manualGroupKey",
-		"backupPassphrase"
-	],
-	"protectedNative": [
-		"groupKey",
-		"manualGroupKey",
-		"backupPassphrase"
-	],
+	"encryptedNative": ["groupKey", "manualGroupKey", "backupPassphrase"],
+	"protectedNative": ["groupKey", "manualGroupKey", "backupPassphrase"],
 	"native": {
 		"country": "de",
 		"groupId": "",
