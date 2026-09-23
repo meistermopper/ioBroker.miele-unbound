@@ -27,13 +27,17 @@ function extractVersionChangelog(version) {
 	const filesToCheck = [readmePath, oldPath];
 	for (const filePath of filesToCheck) {
 		if (!fs.existsSync(filePath)) continue;
-		const content = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
+		const content = fs
+			.readFileSync(filePath, 'utf8')
+			.replace(/\r\n/g, '\n');
 		const lines = content.split('\n');
 
 		let capturing = false;
 		const captured = [];
 		for (const line of lines) {
-			const match = line.match(/^#{2,3}\s+(?:v?(\d+\.\d+\.\d+(?:-[\w.]+)?))/i);
+			const match = line.match(
+				/^#{2,3}\s+(?:v?(\d+\.\d+\.\d+(?:-[\w.]+)?))/i,
+			);
 			if (match) {
 				const foundVer = match[1];
 				if (foundVer === version) {
@@ -42,7 +46,10 @@ function extractVersionChangelog(version) {
 					break;
 				}
 			} else if (capturing) {
-				if (line.match(/^#{1,3}\s+/) || line.includes('Older changelog entries')) {
+				if (
+					line.match(/^#{1,3}\s+/) ||
+					line.includes('Older changelog entries')
+				) {
 					break;
 				}
 				captured.push(line);
@@ -61,11 +68,18 @@ function extractVersionChangelog(version) {
 			const ioPkg = JSON.parse(fs.readFileSync(ioPkgPath, 'utf8'));
 			const news = ioPkg.common?.news?.[version];
 			if (news) {
-				const rawNews = typeof news === 'string' ? news : news.en || Object.values(news)[0];
+				const rawNews =
+					typeof news === 'string'
+						? news
+						: news.en || Object.values(news)[0];
 				if (rawNews) {
 					return rawNews
 						.split('\n')
-						.map((l) => (l.trim().startsWith('*') || l.trim().startsWith('-') ? l : `* ${l}`))
+						.map((l) =>
+							l.trim().startsWith('*') || l.trim().startsWith('-')
+								? l
+								: `* ${l}`,
+						)
 						.join('\n');
 				}
 			}
@@ -122,7 +136,10 @@ function getReleaseNotes(tag) {
 	if (previousTag) {
 		try {
 			const cmd = `gh api --method POST repos/meistermopper/ioBroker.miele-unbound/releases/generate-notes -f tag_name="${tag}" -f previous_tag_name="${previousTag}" --jq .body`;
-			ghNotes = execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] }).trim();
+			ghNotes = execSync(cmd, {
+				encoding: 'utf8',
+				stdio: ['pipe', 'pipe', 'ignore'],
+			}).trim();
 		} catch {
 			// Ignore if gh api is unavailable
 		}
@@ -152,7 +169,9 @@ function getReleaseNotes(tag) {
 
 	// 3. GitHub PRs & dependencies
 	if (ghNotes) {
-		const cleanGhNotes = ghNotes.replace(/\*\*Full Changelog\*\*:.*$/m, '').trim();
+		const cleanGhNotes = ghNotes
+			.replace(/\*\*Full Changelog\*\*:.*$/m, '')
+			.trim();
 		if (cleanGhNotes) {
 			body += `${cleanGhNotes}\n\n`;
 		}
@@ -181,11 +200,16 @@ function updateRelease(tag, dryRun = false) {
 		return;
 	}
 
-	const tmpFile = path.resolve(__dirname, `../release-notes-${tag.replace(/[^a-zA-Z0-9_-]/g, '_')}.tmp.md`);
+	const tmpFile = path.resolve(
+		__dirname,
+		`../release-notes-${tag.replace(/[^a-zA-Z0-9_-]/g, '_')}.tmp.md`,
+	);
 	fs.writeFileSync(tmpFile, notes, 'utf8');
 
 	try {
-		execSync(`gh release edit "${tag}" --notes-file "${tmpFile}"`, { stdio: 'inherit' });
+		execSync(`gh release edit "${tag}" --notes-file "${tmpFile}"`, {
+			stdio: 'inherit',
+		});
 		console.log(`✅ Successfully updated GitHub release for ${tag}!`);
 	} catch (err) {
 		console.error(`❌ Failed to update release ${tag}: ${err.message}`);
@@ -198,9 +222,12 @@ function updateRelease(tag, dryRun = false) {
 
 function getAllPublishedReleaseTags() {
 	try {
-		const output = execSync('gh release list --limit 100 --json tagName --jq ".[].tagName"', {
-			encoding: 'utf8',
-		});
+		const output = execSync(
+			'gh release list --limit 100 --json tagName --jq ".[].tagName"',
+			{
+				encoding: 'utf8',
+			},
+		);
 		return output
 			.trim()
 			.split('\n')
@@ -228,7 +255,9 @@ function main() {
 
 	if (tags.length === 0) {
 		console.error('Usage:');
-		console.error('  node scripts/update-release-notes.js <tag> [<tag2> ...]');
+		console.error(
+			'  node scripts/update-release-notes.js <tag> [<tag2> ...]',
+		);
 		console.error('  node scripts/update-release-notes.js --all');
 		console.error('  node scripts/update-release-notes.js --dry-run <tag>');
 		process.exit(1);
@@ -243,4 +272,8 @@ if (require.main === module) {
 	main();
 }
 
-module.exports = { getReleaseNotes, parseChangelogItems, extractVersionChangelog };
+module.exports = {
+	getReleaseNotes,
+	parseChangelogItems,
+	extractVersionChangelog,
+};

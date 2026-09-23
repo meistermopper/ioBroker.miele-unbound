@@ -7,7 +7,7 @@ const docsDir = path.join(rootDir, 'docs');
 // Define directories to create
 const dirs = [
 	path.join(docsDir, 'de', 'media'),
-	path.join(docsDir, 'en', 'media')
+	path.join(docsDir, 'en', 'media'),
 ];
 
 // Ensure directories exist and contain .gitkeep
@@ -29,7 +29,10 @@ if (fs.existsSync(enReadmeSrc)) {
 	// Replace link to German version README_de.md with relative link to the localized folder
 	content = content.replace(/\]\(README_de\.md\)/g, '](../de/README.md)');
 	// Replace link to older changelog CHANGELOG_OLD.md with relative link to root
-	content = content.replace(/\]\(CHANGELOG_OLD\.md\)/g, '](../../CHANGELOG_OLD.md)');
+	content = content.replace(
+		/\]\(CHANGELOG_OLD\.md\)/g,
+		'](../../CHANGELOG_OLD.md)',
+	);
 	// Replace link to LICENSE file with relative link to root
 	content = content.replace(/\]\(LICENSE\)/g, '](../../LICENSE)');
 	// Replace link to admin folder with relative link to root
@@ -48,7 +51,10 @@ if (fs.existsSync(deReadmeSrc)) {
 	// Replace link to English version README.md with relative link to the localized folder
 	content = content.replace(/\]\(README\.md\)/g, '](../en/README.md)');
 	// Replace link to older changelog CHANGELOG_OLD.md with relative link to root
-	content = content.replace(/\]\(CHANGELOG_OLD\.md\)/g, '](../../CHANGELOG_OLD.md)');
+	content = content.replace(
+		/\]\(CHANGELOG_OLD\.md\)/g,
+		'](../../CHANGELOG_OLD.md)',
+	);
 	// Replace link to LICENSE file with relative link to root
 	content = content.replace(/\]\(LICENSE\)/g, '](../../LICENSE)');
 	// Replace link to admin folder with relative link to root

@@ -226,7 +226,9 @@ function updateGermanWipHeader() {
 	const newHeader = `### **WORK IN PROGRESS**${originalLineEndings}${originalLineEndings}### ${version} (${dateStr})`;
 	content = content.replace(wipMarker, newHeader);
 	fs.writeFileSync(readmeDePath, content, 'utf8');
-	console.log(`Updated README_de.md WIP header to version ${version} (${dateStr}).`);
+	console.log(
+		`Updated README_de.md WIP header to version ${version} (${dateStr}).`,
+	);
 }
 
 // Update the German WIP header with the current version from package.json

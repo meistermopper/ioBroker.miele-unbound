@@ -25,9 +25,22 @@ const FIXED: Record<number, number> = {
 	15: 8,
 };
 const SIGNED = new Set([3, 6, 9, 12]);
-const ARRAY_ELEM: Record<number, number> = { 17: 1, 20: 1, 21: 2, 22: 2, 23: 2, 25: 4, 27: 8 };
+const ARRAY_ELEM: Record<number, number> = {
+	17: 1,
+	20: 1,
+	21: 2,
+	22: 2,
+	23: 2,
+	25: 4,
+	27: 8,
+};
 
-function readInt(buf: Buffer, off: number, len: number, signed: boolean): number | bigint {
+function readInt(
+	buf: Buffer,
+	off: number,
+	len: number,
+	signed: boolean,
+): number | bigint {
 	let v = 0n;
 	for (let i = 0; i < len; i++) {
 		v = (v << 8n) | BigInt(buf[off + i]);
@@ -41,7 +54,11 @@ function readInt(buf: Buffer, off: number, len: number, signed: boolean): number
 	return len > 4 ? v : Number(v);
 }
 
-function decodeField(type: number, buf: Buffer, off: number): { value: any; wireLength: number } {
+function decodeField(
+	type: number,
+	buf: Buffer,
+	off: number,
+): { value: any; wireLength: number } {
 	if (FIXED[type] != null) {
 		const len = FIXED[type];
 		if (type === 1) {
@@ -53,14 +70,20 @@ function decodeField(type: number, buf: Buffer, off: number): { value: any; wire
 		if (type === 15) {
 			return { value: buf.readDoubleBE(off), wireLength: 8 };
 		}
-		return { value: readInt(buf, off, len, SIGNED.has(type)), wireLength: len };
+		return {
+			value: readInt(buf, off, len, SIGNED.has(type)),
+			wireLength: len,
+		};
 	}
 	if (type === 16) {
 		return decodeStruct(buf, off);
 	}
 	if (type === 18 || type === 32) {
 		const strLen = (buf[off] << 8) + buf[off + 1];
-		return { value: buf.subarray(off + 2, off + 2 + strLen), wireLength: 2 + strLen };
+		return {
+			value: buf.subarray(off + 2, off + 2 + strLen),
+			wireLength: 2 + strLen,
+		};
 	}
 	if (ARRAY_ELEM[type] != null) {
 		const n = (buf[off] << 8) + buf[off + 1];
@@ -68,14 +91,21 @@ function decodeField(type: number, buf: Buffer, off: number): { value: any; wire
 		const vals: any[] = [];
 		for (let i = 0; i < n; i++) {
 			const p = off + 2 + i * el;
-			vals.push(type === 17 ? buf[p] === 1 : readInt(buf, p, el, SIGNED.has(type - 10)));
+			vals.push(
+				type === 17
+					? buf[p] === 1
+					: readInt(buf, p, el, SIGNED.has(type - 10)),
+			);
 		}
 		return { value: vals, wireLength: 2 + n * el };
 	}
 	throw new Error(`Unknown DOP2 field type ${type} at offset ${off}`);
 }
 
-function decodeStruct(buf: Buffer, off: number): { value: any[]; wireLength: number } {
+function decodeStruct(
+	buf: Buffer,
+	off: number,
+): { value: any[]; wireLength: number } {
 	const numberOfFields = buf[off + 1];
 	let p = off + 3;
 	let fieldLength = 0;
@@ -95,7 +125,11 @@ function decodeStruct(buf: Buffer, off: number): { value: any[]; wireLength: num
 	return { value: fields, wireLength: fieldLength + 3 };
 }
 
-export function parseDop2Leaf(buf: Buffer): { unit: number; attr: number; fields: Record<number, any> } {
+export function parseDop2Leaf(buf: Buffer): {
+	unit: number;
+	attr: number;
+	fields: Record<number, any>;
+} {
 	const payloadLength = (buf[0] << 8) + buf[1];
 	const unit = (buf[2] << 8) + buf[3];
 	const attr = (buf[4] << 8) + buf[5];

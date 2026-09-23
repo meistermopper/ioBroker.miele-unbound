@@ -9,7 +9,9 @@ interface MdnsAnswer {
 
 const SERVICE = '_mieleathome._tcp.local';
 
-function parseTxt(buffers: Buffer[] | undefined): Record<string, string | boolean> {
+function parseTxt(
+	buffers: Buffer[] | undefined,
+): Record<string, string | boolean> {
 	const txt: Record<string, string | boolean> = {};
 	for (const b of buffers || []) {
 		const s = b.toString('utf8');
@@ -27,13 +29,16 @@ export function discoverMieleDevices(
 	timeoutMs = 5000,
 	log?: (msg: string) => void,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	timerFn?: { setTimeout: (fn: () => void, ms: number) => any; clearTimeout: (id: any) => void },
+	timerFn?: {
+		setTimeout: (fn: () => void, ms: number) => any;
+		clearTimeout: (id: any) => void;
+	},
 	signal?: AbortSignal,
 ): Promise<DiscoveredDevice[]> {
 	const setT = timerFn ? timerFn.setTimeout : setTimeout;
 	const clearT = timerFn ? timerFn.clearTimeout : clearTimeout;
 
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		if (signal?.aborted) {
 			resolve([]);
 			return;
@@ -46,7 +51,9 @@ export function discoverMieleDevices(
 			multicastDns = require('multicast-dns');
 		} catch {
 			if (log) {
-				log('multicast-dns module not available; skipping mDNS discovery');
+				log(
+					'multicast-dns module not available; skipping mDNS discovery',
+				);
 			}
 			resolve([]);
 			return;
@@ -72,7 +79,12 @@ export function discoverMieleDevices(
 		const mdnsList: any[] = [];
 		const instances: Record<
 			string,
-			{ techType: string; host: string | null; port: number; txt: Record<string, string | boolean> }
+			{
+				techType: string;
+				host: string | null;
+				port: number;
+				txt: Record<string, string | boolean>;
+			}
 		> = {};
 		const hostToIp: Record<string, string> = {};
 
@@ -82,7 +94,12 @@ export function discoverMieleDevices(
 
 			if (a.type === 'SRV' && a.name.endsWith(`.${SERVICE}`)) {
 				if (!instances[a.name]) {
-					instances[a.name] = { techType: '', host: null, port: 80, txt: {} };
+					instances[a.name] = {
+						techType: '',
+						host: null,
+						port: 80,
+						txt: {},
+					};
 				}
 				const inst = instances[a.name];
 				inst.host = srvData.target;
@@ -96,7 +113,11 @@ export function discoverMieleDevices(
 				if (srvData.target) {
 					for (const m of mdnsList) {
 						try {
-							m.query({ questions: [{ name: srvData.target, type: 'A' }] });
+							m.query({
+								questions: [
+									{ name: srvData.target, type: 'A' },
+								],
+							});
 						} catch {
 							// Ignore send error
 						}
@@ -104,7 +125,12 @@ export function discoverMieleDevices(
 				}
 			} else if (a.type === 'TXT' && a.name.endsWith(`.${SERVICE}`)) {
 				if (!instances[a.name]) {
-					instances[a.name] = { techType: '', host: null, port: 80, txt: {} };
+					instances[a.name] = {
+						techType: '',
+						host: null,
+						port: 80,
+						txt: {},
+					};
 				}
 				const inst = instances[a.name];
 				Object.assign(inst.txt, parseTxt(txtData));
@@ -122,16 +148,29 @@ export function discoverMieleDevices(
 
 		for (const iface of interfaces) {
 			try {
-				const mdns = iface ? multicastDns({ interface: iface }) : multicastDns();
+				const mdns = iface
+					? multicastDns({ interface: iface })
+					: multicastDns();
 				mdnsList.push(mdns);
-				mdns.on('response', (res: { answers?: MdnsAnswer[]; additionals?: MdnsAnswer[] }) => {
-					for (const a of [...(res.answers || []), ...(res.additionals || [])]) {
-						onAnswer(a);
-					}
-				});
+				mdns.on(
+					'response',
+					(res: {
+						answers?: MdnsAnswer[];
+						additionals?: MdnsAnswer[];
+					}) => {
+						for (const a of [
+							...(res.answers || []),
+							...(res.additionals || []),
+						]) {
+							onAnswer(a);
+						}
+					},
+				);
 			} catch (err) {
 				if (log) {
-					log(`mDNS init failed for interface ${iface}: ${(err as Error).message}`);
+					log(
+						`mDNS init failed for interface ${iface}: ${(err as Error).message}`,
+					);
 				}
 			}
 		}
@@ -198,7 +237,10 @@ export function discoverMieleDevices(
 						host: inst.host || '',
 						port: inst.port || 80,
 						techType: inst.techType,
-						groupId: typeof inst.txt.group === 'string' ? inst.txt.group : undefined,
+						groupId:
+							typeof inst.txt.group === 'string'
+								? inst.txt.group
+								: undefined,
 					});
 				}
 			}

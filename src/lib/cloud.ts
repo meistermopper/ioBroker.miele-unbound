@@ -46,14 +46,22 @@ export interface GroupKeyResult {
 }
 
 function b64url(buf: Buffer): string {
-	return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+	return buf
+		.toString('base64')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=+$/, '');
 }
 
 function httpsRequest(
 	method: string,
 	urlStr: string,
 	opts: { headers?: Record<string, string>; body?: string | null } = {},
-): Promise<{ status: number; headers: Record<string, string | string[] | undefined>; body: string }> {
+): Promise<{
+	status: number;
+	headers: Record<string, string | string[] | undefined>;
+	body: string;
+}> {
 	return new Promise((resolve, reject) => {
 		const u = new URL(urlStr);
 		const req = https.request(
@@ -64,9 +72,9 @@ function httpsRequest(
 				headers: opts.headers || {},
 				timeout: 20000,
 			},
-			res => {
+			(res) => {
 				const chunks: Buffer[] = [];
-				res.on('data', c => chunks.push(c));
+				res.on('data', (c) => chunks.push(c));
 				res.on('end', () =>
 					resolve({
 						status: res.statusCode || 0,
@@ -77,7 +85,9 @@ function httpsRequest(
 			},
 		);
 		req.on('error', reject);
-		req.on('timeout', () => req.destroy(new Error('HTTPS Request Timeout')));
+		req.on('timeout', () =>
+			req.destroy(new Error('HTTPS Request Timeout')),
+		);
 		if (opts.body) {
 			req.write(opts.body);
 		}
@@ -85,12 +95,17 @@ function httpsRequest(
 	});
 }
 
-export function buildAuthorizeUrl(cc = 'de'): { url: string; challenge: OAuthChallenge } {
+export function buildAuthorizeUrl(cc = 'de'): {
+	url: string;
+	challenge: OAuthChallenge;
+} {
 	const cleanCc = String(cc).toLowerCase();
 	const clientId = CONSUMER_CLIENT_IDS[cleanCc] || CONSUMER_CLIENT_IDS.de;
 
 	const verifier = b64url(crypto.randomBytes(64));
-	const challenge = b64url(crypto.createHash('sha256').update(verifier).digest());
+	const challenge = b64url(
+		crypto.createHash('sha256').update(verifier).digest(),
+	);
 	const state = b64url(crypto.randomBytes(16));
 	const nonce = b64url(crypto.randomBytes(16));
 
@@ -111,12 +126,19 @@ export function buildAuthorizeUrl(cc = 'de'): { url: string; challenge: OAuthCha
 	};
 }
 
-export function parseRedirectUrl(redirectUrl: string, expectedState?: string): string {
-	const q = redirectUrl.includes('?') ? redirectUrl.slice(redirectUrl.indexOf('?') + 1) : '';
+export function parseRedirectUrl(
+	redirectUrl: string,
+	expectedState?: string,
+): string {
+	const q = redirectUrl.includes('?')
+		? redirectUrl.slice(redirectUrl.indexOf('?') + 1)
+		: '';
 	const parsed = new URLSearchParams(q);
 
 	if (parsed.get('error')) {
-		throw new Error(`OAuth error: ${parsed.get('error')} ${parsed.get('error_description') || ''}`);
+		throw new Error(
+			`OAuth error: ${parsed.get('error')} ${parsed.get('error_description') || ''}`,
+		);
 	}
 
 	const code = parsed.get('code');
@@ -126,13 +148,18 @@ export function parseRedirectUrl(redirectUrl: string, expectedState?: string): s
 
 	const state = parsed.get('state');
 	if (expectedState && state !== expectedState) {
-		throw new Error('OAuth state mismatch (CSRF protection) – please regenerate login URL');
+		throw new Error(
+			'OAuth state mismatch (CSRF protection) – please regenerate login URL',
+		);
 	}
 
 	return code;
 }
 
-export async function exchangeCode(challenge: OAuthChallenge, code: string): Promise<{ access_token: string }> {
+export async function exchangeCode(
+	challenge: OAuthChallenge,
+	code: string,
+): Promise<{ access_token: string }> {
 	const body = new URLSearchParams({
 		grant_type: 'authorization_code',
 		code,
@@ -141,12 +168,23 @@ export async function exchangeCode(challenge: OAuthChallenge, code: string): Pro
 		code_verifier: challenge.verifier,
 	}).toString();
 
-	const res = await httpsRequest('POST', `https://prod.map.miele-iot.com/${challenge.cc}/token`, {
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
-		body,
-	});
+	const res = await httpsRequest(
+		'POST',
+		`https://prod.map.miele-iot.com/${challenge.cc}/token`,
+		{
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				Accept: 'application/json',
+			},
+			body,
+		},
+	);
 
-	let tok: { access_token?: string; error?: string; error_description?: string };
+	let tok: {
+		access_token?: string;
+		error?: string;
+		error_description?: string;
+	};
 	try {
 		tok = JSON.parse(res.body);
 	} catch {
@@ -154,14 +192,21 @@ export async function exchangeCode(challenge: OAuthChallenge, code: string): Pro
 	}
 
 	if (tok.error || !tok.access_token) {
-		throw new Error(`Token endpoint error: ${tok.error} ${tok.error_description || ''}`);
+		throw new Error(
+			`Token endpoint error: ${tok.error} ${tok.error_description || ''}`,
+		);
 	}
 
 	return { access_token: tok.access_token };
 }
 
-export async function fetchGroupKey(accessToken: string, region = 'EU'): Promise<GroupKeyResult> {
-	const host = REST_HOST_BY_REGION[String(region).toUpperCase()] || REST_HOST_BY_REGION.EU;
+export async function fetchGroupKey(
+	accessToken: string,
+	region = 'EU',
+): Promise<GroupKeyResult> {
+	const host =
+		REST_HOST_BY_REGION[String(region).toUpperCase()] ||
+		REST_HOST_BY_REGION.EU;
 
 	const res = await httpsRequest('GET', `https://${host}/V2/GroupKeyId/`, {
 		headers: {
@@ -173,10 +218,14 @@ export async function fetchGroupKey(accessToken: string, region = 'EU'): Promise
 	});
 
 	if (res.status === 403) {
-		throw new Error(`GroupKeyId returned 403 (Token missing mcs scope?): ${res.body.slice(0, 150)}`);
+		throw new Error(
+			`GroupKeyId returned 403 (Token missing mcs scope?): ${res.body.slice(0, 150)}`,
+		);
 	}
 	if (res.status !== 200) {
-		throw new Error(`GroupKeyId returned HTTP ${res.status}: ${res.body.slice(0, 150)}`);
+		throw new Error(
+			`GroupKeyId returned HTTP ${res.status}: ${res.body.slice(0, 150)}`,
+		);
 	}
 
 	const groups = JSON.parse(res.body);

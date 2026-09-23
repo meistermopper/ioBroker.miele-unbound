@@ -27,16 +27,26 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 		});
 
 		it('should throw error on invalid groupKey length', () => {
-			expect(() => new MieleCrypto(testGroupId, 'aabbcc')).to.throw(/Invalid GroupKey length/);
+			expect(() => new MieleCrypto(testGroupId, 'aabbcc')).to.throw(
+				/Invalid GroupKey length/,
+			);
 		});
 
 		it('should sign request and generate MieleH256 Authorization header', () => {
 			const mc = new MieleCrypto(testGroupId, testGroupKey);
 			const fixedDate = 'Mon, 21 Sep 2026 12:00:00 GMT';
-			const { headers, signature } = mc.headers('GET', '192.168.1.100', 'Devices/0/State', null, fixedDate);
+			const { headers, signature } = mc.headers(
+				'GET',
+				'192.168.1.100',
+				'Devices/0/State',
+				null,
+				fixedDate,
+			);
 
 			expect(signature).to.be.a('string').and.have.lengthOf(64);
-			expect(headers.Authorization).to.equal(`MieleH256 ${testGroupId}:${signature}`);
+			expect(headers.Authorization).to.equal(
+				`MieleH256 ${testGroupId}:${signature}`,
+			);
 			expect(headers.Date).to.equal(fixedDate);
 			expect(headers.Accept).to.equal('application/vnd.miele.v1+json');
 		});
@@ -53,7 +63,11 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			const plainText = '{"status":5,"remainingTime":[1,15]}';
 			const padded = MieleCrypto.padBody(plainText);
 
-			const { signature } = mc.sign('GET', '192.168.1.100', 'Devices/0/State');
+			const { signature } = mc.sign(
+				'GET',
+				'192.168.1.100',
+				'Devices/0/State',
+			);
 			const encrypted = mc.encryptBody(padded, signature);
 
 			expect(encrypted).to.be.instanceOf(Buffer);
@@ -88,13 +102,17 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 
 			expect(restored.groupId).to.equal(sampleData.groupId);
 			expect(restored.groupKey).to.equal(sampleData.groupKey);
-			expect(restored.manualDevices).to.deep.equal(sampleData.manualDevices);
+			expect(restored.manualDevices).to.deep.equal(
+				sampleData.manualDevices,
+			);
 			expect(restored.timestamp).to.be.a('number');
 		});
 
 		it('should reject decryption with incorrect passphrase', () => {
 			const encrypted = MieleBackup.encrypt(sampleData, passphrase);
-			expect(() => MieleBackup.decrypt(encrypted, 'WrongPassword')).to.throw(/Decryption failed/);
+			expect(() =>
+				MieleBackup.decrypt(encrypted, 'WrongPassword'),
+			).to.throw(/Decryption failed/);
 		});
 
 		it('should handle complex passphrases with special characters, quotes, backslashes and umlauts', () => {
@@ -104,7 +122,9 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 
 			expect(restored.groupId).to.equal(sampleData.groupId);
 			expect(restored.groupKey).to.equal(sampleData.groupKey);
-			expect(restored.manualDevices).to.deep.equal(sampleData.manualDevices);
+			expect(restored.manualDevices).to.deep.equal(
+				sampleData.manualDevices,
+			);
 		});
 	});
 
@@ -158,37 +178,51 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			const profile = DeviceProfiles.getProfile(1, 'de');
 			expect(profile.hasEcoFeedback).to.be.true;
 			expect(profile.hasSpinningSpeed).to.be.true;
-			expect(profile.states.some(s => s.id === 'sensors.spinningSpeed')).to.be.true;
-			expect(profile.states.some(s => s.id === 'eco.energy')).to.be.true;
+			expect(profile.states.some((s) => s.id === 'sensors.spinningSpeed'))
+				.to.be.true;
+			expect(profile.states.some((s) => s.id === 'eco.energy')).to.be
+				.true;
 		});
 
 		it('should provide dryer profile with drying step and no spin speed', () => {
 			const profile = DeviceProfiles.getProfile(2, 'de');
 			expect(profile.hasDryingStep).to.be.true;
 			expect(profile.hasSpinningSpeed).to.be.false;
-			expect(profile.states.some(s => s.id === 'sensors.dryingStep')).to.be.true;
+			expect(profile.states.some((s) => s.id === 'sensors.dryingStep')).to
+				.be.true;
 		});
 
 		it('should provide oven profile with multiple temperature zones', () => {
 			const profile = DeviceProfiles.getProfile(12, 'de');
 			expect(profile.hasTargetTemperature).to.be.true;
 			expect(profile.temperatureZones).to.equal(3);
-			expect(profile.states.some(s => s.id === 'sensors.targetTemperatureZone2')).to.be.true;
+			expect(
+				profile.states.some(
+					(s) => s.id === 'sensors.targetTemperatureZone2',
+				),
+			).to.be.true;
 		});
 
 		it('should provide hood profile with ventilation fan level', () => {
 			const profile = DeviceProfiles.getProfile(18, 'de');
 			expect(profile.hasVentilation).to.be.true;
-			expect(profile.states.some(s => s.id === 'sensors.ventilationStep')).to.be.true;
+			expect(
+				profile.states.some((s) => s.id === 'sensors.ventilationStep'),
+			).to.be.true;
 		});
 
 		it('should restrict dishwasher to 1 temperature zone without zone2 or zone3', () => {
 			const profile = DeviceProfiles.getProfile(7, 'de');
 			expect(DeviceProfiles.getTemperatureZones(7)).to.equal(1);
 			expect(profile.temperatureZones).to.equal(1);
-			expect(profile.states.some(s => s.id === 'sensors.temperature')).to.be.true;
-			expect(profile.states.some(s => s.id === 'sensors.temperatureZone2')).to.be.false;
-			expect(profile.states.some(s => s.id === 'sensors.temperatureZone3')).to.be.false;
+			expect(profile.states.some((s) => s.id === 'sensors.temperature'))
+				.to.be.true;
+			expect(
+				profile.states.some((s) => s.id === 'sensors.temperatureZone2'),
+			).to.be.false;
+			expect(
+				profile.states.some((s) => s.id === 'sensors.temperatureZone3'),
+			).to.be.false;
 		});
 	});
 });

@@ -24,13 +24,19 @@ export const DEVICE_CATEGORIES: Record<number, { en: string; de: string }> = {
 	34: { en: 'Wine Storage Unit', de: 'Weinlagerschrank' },
 	39: { en: 'Double Oven', de: 'Doppelbackofen' },
 	40: { en: 'Double Steam Oven', de: 'Doppeldampfgarer' },
-	41: { en: 'Double Steam Oven Combination', de: 'Kombi-Doppeldampfbackofen' },
+	41: {
+		en: 'Double Steam Oven Combination',
+		de: 'Kombi-Doppeldampfbackofen',
+	},
 	42: { en: 'Double Microwave', de: 'Doppelmikrowelle' },
 	43: { en: 'Double Microwave Oven', de: 'Doppelmikrowellenbackofen' },
 	45: { en: 'Steam Oven Microwave Combination', de: 'Dampfgarer-Mikrowelle' },
 	48: { en: 'Vacuum Drawer', de: 'Vakuumierschublade' },
 	67: { en: 'Dialog Oven', de: 'Dialoggarer' },
-	68: { en: 'Wine Cabinet Freezer Combination', de: 'Weinschrank-Gefrierkombination' },
+	68: {
+		en: 'Wine Cabinet Freezer Combination',
+		de: 'Weinschrank-Gefrierkombination',
+	},
 };
 
 export const STATUS_MAP: Record<number, { en: string; de: string }> = {
@@ -72,7 +78,10 @@ export const DRYING_STEPS: Record<number, { en: string; de: string }> = {
 	6: { en: 'Machine iron', de: 'Mangelfeucht' },
 };
 
-export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>> = {
+export const PROGRAMS: Record<
+	number,
+	Record<number, { en: string; de: string }>
+> = {
 	// Washing Machine & Washer-Dryer (1, 24)
 	1: {
 		0: { en: 'Off', de: 'Aus' },
@@ -269,7 +278,10 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		208: { en: 'SolarSave', de: 'SolarSpar' },
 		209: { en: 'ComfortWash 55°C', de: 'ComfortWash 55°C' },
 		210: { en: 'Gentle 45°C', de: 'Fein 45°C' },
-		211: { en: 'Tall items (without upper basket) 65°C', de: 'Ohne Oberkorb 65°C' },
+		211: {
+			en: 'Tall items (without upper basket) 65°C',
+			de: 'Ohne Oberkorb 65°C',
+		},
 		212: { en: 'Pasta / Paella', de: 'Pasta / Paella' },
 		213: { en: 'Glasses', de: 'Gläser' },
 		214: { en: 'Maintenance Program', de: 'Gerätepflege' },
@@ -295,16 +307,34 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		25: { en: 'Top Heat', de: 'Oberhitze' },
 		29: { en: 'Fan Grill', de: 'Umluftgrill' },
 		31: { en: 'Bottom Heat', de: 'Unterhitze' },
-		35: { en: 'Moisture Plus Auto Roast', de: 'Feuchtigkeit plus – Automatikbraten' },
+		35: {
+			en: 'Moisture Plus Auto Roast',
+			de: 'Feuchtigkeit plus – Automatikbraten',
+		},
 		40: { en: 'Moisture Plus Fan Plus', de: 'Feuchtigkeit plus – Umluft' },
-		48: { en: 'Moisture Plus Auto Roast', de: 'Feuchtigkeit plus – Automatikbraten' },
+		48: {
+			en: 'Moisture Plus Auto Roast',
+			de: 'Feuchtigkeit plus – Automatikbraten',
+		},
 		49: { en: 'Moisture Plus Fan Plus', de: 'Feuchtigkeit plus – Umluft' },
-		50: { en: 'Moisture Plus Intensive Bake', de: 'Feuchtigkeit plus – Intensivbacken' },
-		51: { en: 'Moisture Plus Conventional Heat', de: 'Feuchtigkeit plus – Ober-/Unterhitze' },
+		50: {
+			en: 'Moisture Plus Intensive Bake',
+			de: 'Feuchtigkeit plus – Intensivbacken',
+		},
+		51: {
+			en: 'Moisture Plus Conventional Heat',
+			de: 'Feuchtigkeit plus – Ober-/Unterhitze',
+		},
 		53: { en: 'Popcorn', de: 'Popcorn' },
 		54: { en: 'Quick Microwave', de: 'Schnell-Mikrowelle' },
-		74: { en: 'Moisture Plus Intensive Bake', de: 'Feuchtigkeit plus – Intensivbacken' },
-		76: { en: 'Moisture Plus Conventional Heat', de: 'Feuchtigkeit plus – Ober-/Unterhitze' },
+		74: {
+			en: 'Moisture Plus Intensive Bake',
+			de: 'Feuchtigkeit plus – Intensivbacken',
+		},
+		76: {
+			en: 'Moisture Plus Conventional Heat',
+			de: 'Feuchtigkeit plus – Ober-/Unterhitze',
+		},
 		97: { en: 'Custom Program 1', de: 'Eigenes Programm 1' },
 		98: { en: 'Custom Program 2', de: 'Eigenes Programm 2' },
 		99: { en: 'Custom Program 3', de: 'Eigenes Programm 3' },
@@ -359,24 +389,45 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		401: { en: 'Turkey Whole', de: 'Pute (ganz)' },
 		402: { en: 'Turkey Drumsticks', de: 'Putenkeulen' },
 		406: { en: 'Veal Fillet Roast', de: 'Kalbsfilet braten' },
-		407: { en: 'Veal Fillet Low Temperature Cooking', de: 'Kalbsfilet (Niedertemperatur)' },
+		407: {
+			en: 'Veal Fillet Low Temperature Cooking',
+			de: 'Kalbsfilet (Niedertemperatur)',
+		},
 		408: { en: 'Veal Knuckle', de: 'Kalbshaxe' },
 		409: { en: 'Saddle Of Veal Roast', de: 'Kalbsrücken braten' },
-		410: { en: 'Saddle Of Veal Low Temperature Cooking', de: 'Kalbsrücken (Niedertemperatur)' },
+		410: {
+			en: 'Saddle Of Veal Low Temperature Cooking',
+			de: 'Kalbsrücken (Niedertemperatur)',
+		},
 		411: { en: 'Braised Veal', de: 'Schmorbraten (Kalb)' },
 		415: { en: 'Leg Of Lamb', de: 'Lammkeule' },
 		419: { en: 'Saddle Of Lamb Roast', de: 'Lammrücken braten' },
-		420: { en: 'Saddle Of Lamb Low Temperature Cooking', de: 'Lammrücken (Niedertemperatur)' },
+		420: {
+			en: 'Saddle Of Lamb Low Temperature Cooking',
+			de: 'Lammrücken (Niedertemperatur)',
+		},
 		422: { en: 'Beef Fillet Roast', de: 'Rinderfilet braten' },
-		423: { en: 'Beef Fillet Low Temperature Cooking', de: 'Rinderfilet (Niedertemperatur)' },
+		423: {
+			en: 'Beef Fillet Low Temperature Cooking',
+			de: 'Rinderfilet (Niedertemperatur)',
+		},
 		427: { en: 'Braised Beef', de: 'Schmorbraten (Rind)' },
 		428: { en: 'Roast Beef Roast', de: 'Roastbeef braten' },
-		429: { en: 'Roast Beef Low Temperature Cooking', de: 'Roastbeef (Niedertemperatur)' },
+		429: {
+			en: 'Roast Beef Low Temperature Cooking',
+			de: 'Roastbeef (Niedertemperatur)',
+		},
 		435: { en: 'Pork Smoked Ribs Roast', de: 'Kasseler braten' },
-		436: { en: 'Pork Smoked Ribs Low Temperature Cooking', de: 'Kasseler (Niedertemperatur)' },
+		436: {
+			en: 'Pork Smoked Ribs Low Temperature Cooking',
+			de: 'Kasseler (Niedertemperatur)',
+		},
 		443: { en: 'Ham Roast', de: 'Schinkenbraten' },
 		449: { en: 'Pork Fillet Roast', de: 'Schweinefilet braten' },
-		450: { en: 'Pork Fillet Low Temperature Cooking', de: 'Schweinefilet (Niedertemperatur)' },
+		450: {
+			en: 'Pork Fillet Low Temperature Cooking',
+			de: 'Schweinefilet (Niedertemperatur)',
+		},
 		454: { en: 'Saddle Of Venison', de: 'Hirschrücken' },
 		455: { en: 'Rabbit', de: 'Kaninchen' },
 		456: { en: 'Saddle Of Roebuck', de: 'Rehrücken' },
@@ -389,21 +440,42 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		497: { en: 'Springform Tin 20cm', de: 'Springform 20 cm' },
 		498: { en: 'Springform Tin 25cm', de: 'Springform 25 cm' },
 		499: { en: 'Fruit Flan Puff Pastry', de: 'Obstkuchen (Blätterteig)' },
-		500: { en: 'Fruit Flan Short Crust Pastry', de: 'Obstkuchen (Mürbeteig)' },
+		500: {
+			en: 'Fruit Flan Short Crust Pastry',
+			de: 'Obstkuchen (Mürbeteig)',
+		},
 		501: { en: 'Sachertorte', de: 'Sachertorte' },
-		502: { en: 'Chocolate Hazlenut Cake One Large', de: 'Schoko-Nuss-Kuchen (groß)' },
-		503: { en: 'Chocolate Hazlenut Cake Several Small', de: 'Schoko-Nuss-Kuchen (klein)' },
+		502: {
+			en: 'Chocolate Hazlenut Cake One Large',
+			de: 'Schoko-Nuss-Kuchen (groß)',
+		},
+		503: {
+			en: 'Chocolate Hazlenut Cake Several Small',
+			de: 'Schoko-Nuss-Kuchen (klein)',
+		},
 		504: { en: 'Stollen', de: 'Stollen' },
 		505: { en: 'Drop Cookies 1 Tray', de: 'Spritzgebäck (1 Blech)' },
 		506: { en: 'Drop Cookies 2 Trays', de: 'Spritzgebäck (2 Bleche)' },
 		507: { en: 'Linzer Augen 1 Tray', de: 'Linzer Augen (1 Blech)' },
 		508: { en: 'Linzer Augen 2 Trays', de: 'Linzer Augen (2 Bleche)' },
 		509: { en: 'Almond Macaroons 1 Tray', de: 'Mandelmakronen (1 Blech)' },
-		510: { en: 'Almond Macaroons 2 Trays', de: 'Mandelmakronen (2 Bleche)' },
-		512: { en: 'Biscuits Short Crust Pastry 1 Tray', de: 'Mürbeteigplätzchen (1 Blech)' },
-		513: { en: 'Biscuits Short Crust Pastry 2 Trays', de: 'Mürbeteigplätzchen (2 Bleche)' },
+		510: {
+			en: 'Almond Macaroons 2 Trays',
+			de: 'Mandelmakronen (2 Bleche)',
+		},
+		512: {
+			en: 'Biscuits Short Crust Pastry 1 Tray',
+			de: 'Mürbeteigplätzchen (1 Blech)',
+		},
+		513: {
+			en: 'Biscuits Short Crust Pastry 2 Trays',
+			de: 'Mürbeteigplätzchen (2 Bleche)',
+		},
 		514: { en: 'Vanilla Biscuits 1 Tray', de: 'Vanillekipferl (1 Blech)' },
-		515: { en: 'Vanilla Biscuits 2 Trays', de: 'Vanillekipferl (2 Bleche)' },
+		515: {
+			en: 'Vanilla Biscuits 2 Trays',
+			de: 'Vanillekipferl (2 Bleche)',
+		},
 		516: { en: 'Choux Buns', de: 'Windbeutel' },
 		518: { en: 'Spelt Bread', de: 'Dinkelbrot' },
 		519: { en: 'Walnut Bread', de: 'Walnussbrot' },
@@ -413,13 +485,31 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		526: { en: 'Rye Rolls', de: 'Roggenbrötchen' },
 		527: { en: 'White Rolls', de: 'Weiße Brötchen' },
 		528: { en: 'Tart Flambe', de: 'Flammkuchen' },
-		529: { en: 'Pizza Yeast Dough Baking Tray', de: 'Pizza Hefeteig (Blech)' },
-		530: { en: 'Pizza Yeast Dough Round Baking Tine', de: 'Pizza Hefeteig (rund)' },
-		531: { en: 'Pizza Oil Cheese Dough Baking Tray', de: 'Pizza Öl-Käse-Teig (Blech)' },
-		532: { en: 'Pizza Oil Cheese Dough Round Baking Tine', de: 'Pizza Öl-Käse-Teig (rund)' },
+		529: {
+			en: 'Pizza Yeast Dough Baking Tray',
+			de: 'Pizza Hefeteig (Blech)',
+		},
+		530: {
+			en: 'Pizza Yeast Dough Round Baking Tine',
+			de: 'Pizza Hefeteig (rund)',
+		},
+		531: {
+			en: 'Pizza Oil Cheese Dough Baking Tray',
+			de: 'Pizza Öl-Käse-Teig (Blech)',
+		},
+		532: {
+			en: 'Pizza Oil Cheese Dough Round Baking Tine',
+			de: 'Pizza Öl-Käse-Teig (rund)',
+		},
 		533: { en: 'Quiche Lorraine', de: 'Quiche Lorraine' },
-		534: { en: 'Savoury Flan Puff Pastry', de: 'Herzhafter Kuchen (Blätterteig)' },
-		535: { en: 'Savoury Flan Short Crust Pastry', de: 'Herzhafter Kuchen (Mürbeteig)' },
+		534: {
+			en: 'Savoury Flan Puff Pastry',
+			de: 'Herzhafter Kuchen (Blätterteig)',
+		},
+		535: {
+			en: 'Savoury Flan Short Crust Pastry',
+			de: 'Herzhafter Kuchen (Mürbeteig)',
+		},
 		536: { en: 'Osso Buco', de: 'Osso Buco' },
 		539: { en: 'Beef Hash', de: 'Rinderhackgericht' },
 		543: { en: 'Pork With Crackling', de: 'Krustenbraten' },
@@ -434,7 +524,10 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		623: { en: 'Prove 45 Min', de: 'Teig gehen (45 min)' },
 		624: { en: 'Belgian Sponge Cake', de: 'Belgischer Biskuit' },
 		625: { en: 'Goose Unstuffed', de: 'Gans (ungefüllt)' },
-		634: { en: 'Rack Of Lamb With Vegetables', de: 'Lammkarree mit Gemüse' },
+		634: {
+			en: 'Rack Of Lamb With Vegetables',
+			de: 'Lammkarree mit Gemüse',
+		},
 		635: { en: 'Yorkshire Pudding', de: 'Yorkshire Pudding' },
 		636: { en: 'Meat Loaf', de: 'Hackbraten' },
 		647: { en: 'Defrost Meat', de: 'Fleisch auftauen' },
@@ -448,7 +541,10 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 		699: { en: 'Goose Stuffed', de: 'Gans (gefüllt)' },
 		700: { en: 'Beef Wellington', de: 'Beef Wellington' },
 		701: { en: 'Pork Belly', de: 'Schweinebauch' },
-		702: { en: 'Pikeperch Fillet With Vegetables', de: 'Zanderfilet mit Gemüse' },
+		702: {
+			en: 'Pikeperch Fillet With Vegetables',
+			de: 'Zanderfilet mit Gemüse',
+		},
 		17003: { en: 'Off', de: 'Off' },
 		99001: { en: 'Steam Bake', de: 'Dampfbacken' },
 	},
@@ -584,7 +680,10 @@ export const PROGRAMS: Record<number, Record<number, { en: string; de: string }>
 	},
 };
 
-export const PHASES: Record<number, Record<number, { en: string; de: string }>> = {
+export const PHASES: Record<
+	number,
+	Record<number, { en: string; de: string }>
+> = {
 	// Washing Machine (1, 24)
 	1: {
 		0: { en: 'Not running', de: 'Nicht aktiv' },
@@ -626,15 +725,23 @@ export const PHASES: Record<number, Record<number, { en: string; de: string }>> 
 	},
 };
 
-export function getDeviceCategory(type: number, lang: 'de' | 'en' = 'de'): string {
+export function getDeviceCategory(
+	type: number,
+	lang: 'de' | 'en' = 'de',
+): string {
 	const cat = DEVICE_CATEGORIES[type];
 	if (cat) {
 		return cat[lang] || cat.de;
 	}
-	return lang === 'de' ? `Unbekanntes Gerät (${type})` : `Unknown Device (${type})`;
+	return lang === 'de'
+		? `Unbekanntes Gerät (${type})`
+		: `Unknown Device (${type})`;
 }
 
-export function getStatusText(status: number, lang: 'de' | 'en' = 'de'): string {
+export function getStatusText(
+	status: number,
+	lang: 'de' | 'en' = 'de',
+): string {
 	const s = STATUS_MAP[status];
 	if (s) {
 		return s[lang] || s.de;
@@ -642,7 +749,10 @@ export function getStatusText(status: number, lang: 'de' | 'en' = 'de'): string 
 	return lang === 'de' ? `Status ${status}` : `Status ${status}`;
 }
 
-export function getProgramTypeText(type: number, lang: 'de' | 'en' = 'de'): string {
+export function getProgramTypeText(
+	type: number,
+	lang: 'de' | 'en' = 'de',
+): string {
 	const p = PROGRAM_TYPES[type];
 	if (p) {
 		return p[lang] || p.de;
@@ -650,7 +760,10 @@ export function getProgramTypeText(type: number, lang: 'de' | 'en' = 'de'): stri
 	return String(type);
 }
 
-export function getDryingStepText(step: number, lang: 'de' | 'en' = 'de'): string {
+export function getDryingStepText(
+	step: number,
+	lang: 'de' | 'en' = 'de',
+): string {
 	const d = DRYING_STEPS[step];
 	if (d) {
 		return d[lang] || d.de;
@@ -658,11 +771,17 @@ export function getDryingStepText(step: number, lang: 'de' | 'en' = 'de'): strin
 	return String(step);
 }
 
-export function getProgramText(deviceType: number, programId: number, lang: 'de' | 'en' = 'de'): string {
+export function getProgramText(
+	deviceType: number,
+	programId: number,
+	lang: 'de' | 'en' = 'de',
+): string {
 	let dt = deviceType;
 	if (dt === 24) {
-		if (PROGRAMS[1]?.[programId]) return PROGRAMS[1][programId][lang] || PROGRAMS[1][programId].de;
-		if (PROGRAMS[2]?.[programId]) return PROGRAMS[2][programId][lang] || PROGRAMS[2][programId].de;
+		if (PROGRAMS[1]?.[programId])
+			return PROGRAMS[1][programId][lang] || PROGRAMS[1][programId].de;
+		if (PROGRAMS[2]?.[programId])
+			return PROGRAMS[2][programId][lang] || PROGRAMS[2][programId].de;
 		dt = 1;
 	} else if (dt === 8) {
 		dt = 7;
@@ -678,7 +797,11 @@ export function getProgramText(deviceType: number, programId: number, lang: 'de'
 	return programId ? `Program ${programId}` : '';
 }
 
-export function getProgramPhaseText(deviceType: number, phaseId: number, lang: 'de' | 'en' = 'de'): string {
+export function getProgramPhaseText(
+	deviceType: number,
+	phaseId: number,
+	lang: 'de' | 'en' = 'de',
+): string {
 	const dt = deviceType === 24 ? 1 : deviceType === 8 ? 7 : deviceType;
 	const table = PHASES[dt];
 	if (table && table[phaseId]) {

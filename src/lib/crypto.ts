@@ -22,7 +22,8 @@ export class MieleCrypto {
 	}
 
 	public static padBody(plain: Buffer | string): Buffer {
-		const buf = typeof plain === 'string' ? Buffer.from(plain, 'utf8') : plain;
+		const buf =
+			typeof plain === 'string' ? Buffer.from(plain, 'utf8') : plain;
 		const minLen = Math.max(64, Math.ceil(buf.length / 16) * 16);
 		const padded = Buffer.alloc(minLen, 0x20);
 		buf.copy(padded);
@@ -57,7 +58,13 @@ export class MieleCrypto {
 		body?: Buffer | null,
 		customDate?: string,
 	): { headers: Record<string, string>; signature: string } {
-		const { date, signature } = this.sign(method, host, resource, body, customDate);
+		const { date, signature } = this.sign(
+			method,
+			host,
+			resource,
+			body,
+			customDate,
+		);
 
 		return {
 			headers: {
@@ -77,11 +84,21 @@ export class MieleCrypto {
 		return Buffer.concat([cipher.update(plain), cipher.final()]);
 	}
 
-	public decryptResponse(xSignatureHex: string, encryptedBody: Buffer): Buffer {
+	public decryptResponse(
+		xSignatureHex: string,
+		encryptedBody: Buffer,
+	): Buffer {
 		const iv = Buffer.from(xSignatureHex.slice(0, 32), 'hex');
-		const decipher = crypto.createDecipheriv('aes-256-cbc', this.aesKey, iv);
+		const decipher = crypto.createDecipheriv(
+			'aes-256-cbc',
+			this.aesKey,
+			iv,
+		);
 		decipher.setAutoPadding(false);
-		return Buffer.concat([decipher.update(encryptedBody), decipher.final()]);
+		return Buffer.concat([
+			decipher.update(encryptedBody),
+			decipher.final(),
+		]);
 	}
 
 	public getGroupId(): string {

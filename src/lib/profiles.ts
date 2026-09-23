@@ -12,12 +12,17 @@ export class DeviceProfiles {
 	public static getTemperatureZones(deviceType: number): number {
 		const isWasher = deviceType === 1 || deviceType === 24;
 		const isDishwasher = deviceType === 7 || deviceType === 8;
-		const isCooking = [12, 13, 14, 15, 16, 27, 28, 31, 39, 40, 41, 42, 43, 45, 67].includes(deviceType);
+		const isCooking = [
+			12, 13, 14, 15, 16, 27, 28, 31, 39, 40, 41, 42, 43, 45, 67,
+		].includes(deviceType);
 		const isCooling = [19, 20, 21, 32, 33, 34, 68].includes(deviceType);
 		return isCooling ? 3 : isCooking ? 3 : isWasher || isDishwasher ? 1 : 0;
 	}
 
-	public static getProfile(deviceType: number, lang: 'de' | 'en' = 'de'): DeviceProfile {
+	public static getProfile(
+		deviceType: number,
+		lang: 'de' | 'en' = 'de',
+	): DeviceProfile {
 		const category = DEVICE_CATEGORIES[deviceType] || {
 			en: getDeviceCategory(deviceType, 'en'),
 			de: getDeviceCategory(deviceType, 'de'),
@@ -26,7 +31,9 @@ export class DeviceProfiles {
 		let progDt = deviceType;
 		if (progDt === 8) {
 			progDt = 7;
-		} else if ([13, 15, 16, 31, 39, 40, 41, 42, 43, 45, 67].includes(progDt)) {
+		} else if (
+			[13, 15, 16, 31, 39, 40, 41, 42, 43, 45, 67].includes(progDt)
+		) {
 			progDt = 12;
 		} else if (progDt === 48) {
 			progDt = 25;
@@ -34,7 +41,12 @@ export class DeviceProfiles {
 
 		const progMap = PROGRAMS[progDt];
 		const programStates: Record<number, string> | undefined = progMap
-			? Object.fromEntries(Object.entries(progMap).map(([k, v]) => [k, v[lang] || v.de]))
+			? Object.fromEntries(
+					Object.entries(progMap).map(([k, v]) => [
+						k,
+						v[lang] || v.de,
+					]),
+				)
 			: undefined;
 
 		const states: StateDefinition[] = [];
@@ -43,13 +55,21 @@ export class DeviceProfiles {
 		states.push(
 			{
 				id: 'state.status',
-				name: { en: 'Operating Status (raw)', de: 'Betriebsstatus (Rohwert)' },
+				name: {
+					en: 'Operating Status (raw)',
+					de: 'Betriebsstatus (Rohwert)',
+				},
 				role: 'value',
 				type: 'number',
 				read: true,
 				write: false,
 				def: 1,
-				states: Object.fromEntries(Object.entries(STATUS_MAP).map(([k, v]) => [k, v[lang] || v.de])),
+				states: Object.fromEntries(
+					Object.entries(STATUS_MAP).map(([k, v]) => [
+						k,
+						v[lang] || v.de,
+					]),
+				),
 			},
 			{
 				id: 'state.statusText',
@@ -87,7 +107,12 @@ export class DeviceProfiles {
 				read: true,
 				write: false,
 				def: 0,
-				states: Object.fromEntries(Object.entries(PROGRAM_TYPES).map(([k, v]) => [k, v[lang] || v.de])),
+				states: Object.fromEntries(
+					Object.entries(PROGRAM_TYPES).map(([k, v]) => [
+						k,
+						v[lang] || v.de,
+					]),
+				),
 			},
 			{
 				id: 'state.programTypeText',
@@ -100,7 +125,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.programPhase',
-				name: { en: 'Program Phase (raw)', de: 'Programmphase (Rohwert)' },
+				name: {
+					en: 'Program Phase (raw)',
+					de: 'Programmphase (Rohwert)',
+				},
 				role: 'value',
 				type: 'number',
 				read: true,
@@ -118,7 +146,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.remainingMinutes',
-				name: { en: 'Remaining Time (Minutes)', de: 'Restzeit (Minuten)' },
+				name: {
+					en: 'Remaining Time (Minutes)',
+					de: 'Restzeit (Minuten)',
+				},
 				role: 'value.interval',
 				type: 'number',
 				unit: 'min',
@@ -137,7 +168,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.elapsedMinutes',
-				name: { en: 'Elapsed Time (Minutes)', de: 'Laufzeit (Minuten)' },
+				name: {
+					en: 'Elapsed Time (Minutes)',
+					de: 'Laufzeit (Minuten)',
+				},
 				role: 'value.interval',
 				type: 'number',
 				unit: 'min',
@@ -147,7 +181,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.startInMinutes',
-				name: { en: 'Start Delay (Minutes)', de: 'Startvorwahl (Minuten)' },
+				name: {
+					en: 'Start Delay (Minutes)',
+					de: 'Startvorwahl (Minuten)',
+				},
 				role: 'value.interval',
 				type: 'number',
 				unit: 'min',
@@ -157,7 +194,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.estimatedEndTime',
-				name: { en: 'Estimated End Time (Timestamp)', de: 'Voraussichtliches Ende (Zeitstempel)' },
+				name: {
+					en: 'Estimated End Time (Timestamp)',
+					de: 'Voraussichtliches Ende (Zeitstempel)',
+				},
 				role: 'date',
 				type: 'number',
 				read: true,
@@ -166,7 +206,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.estimatedEndTimeText',
-				name: { en: 'Estimated End Time (HH:MM)', de: 'Voraussichtliches Ende (HH:MM)' },
+				name: {
+					en: 'Estimated End Time (HH:MM)',
+					de: 'Voraussichtliches Ende (HH:MM)',
+				},
 				role: 'text',
 				type: 'string',
 				read: true,
@@ -184,7 +227,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.signalInfo',
-				name: { en: 'Information Signal Active', de: 'Hinweissignal aktiv' },
+				name: {
+					en: 'Information Signal Active',
+					de: 'Hinweissignal aktiv',
+				},
 				role: 'indicator',
 				type: 'boolean',
 				read: true,
@@ -193,7 +239,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.signalFailure',
-				name: { en: 'Failure / Error Active', de: 'Störung / Fehler aktiv' },
+				name: {
+					en: 'Failure / Error Active',
+					de: 'Störung / Fehler aktiv',
+				},
 				role: 'indicator.maintenance',
 				type: 'boolean',
 				read: true,
@@ -202,7 +251,10 @@ export class DeviceProfiles {
 			},
 			{
 				id: 'state.mobileStart',
-				name: { en: 'Remote Control / MobileStart Active', de: 'Fernbedienung / MobileStart freigegeben' },
+				name: {
+					en: 'Remote Control / MobileStart Active',
+					de: 'Fernbedienung / MobileStart freigegeben',
+				},
 				role: 'indicator',
 				type: 'boolean',
 				read: true,
@@ -234,7 +286,10 @@ export class DeviceProfiles {
 			states.push(
 				{
 					id: 'sensors.temperature',
-					name: { en: 'Current Temperature Zone 1', de: 'Aktuelle Temperatur Zone 1' },
+					name: {
+						en: 'Current Temperature Zone 1',
+						de: 'Aktuelle Temperatur Zone 1',
+					},
 					role: 'value.temperature',
 					type: 'number',
 					unit: '°C',
@@ -244,7 +299,10 @@ export class DeviceProfiles {
 				},
 				{
 					id: 'sensors.targetTemperature',
-					name: { en: 'Target Temperature Zone 1', de: 'Zieltemperatur Zone 1' },
+					name: {
+						en: 'Target Temperature Zone 1',
+						de: 'Zieltemperatur Zone 1',
+					},
 					role: 'value.temperature',
 					type: 'number',
 					unit: '°C',
@@ -257,7 +315,10 @@ export class DeviceProfiles {
 				states.push(
 					{
 						id: 'sensors.temperatureZone2',
-						name: { en: 'Current Temperature Zone 2', de: 'Aktuelle Temperatur Zone 2' },
+						name: {
+							en: 'Current Temperature Zone 2',
+							de: 'Aktuelle Temperatur Zone 2',
+						},
 						role: 'value.temperature',
 						type: 'number',
 						unit: '°C',
@@ -267,7 +328,10 @@ export class DeviceProfiles {
 					},
 					{
 						id: 'sensors.targetTemperatureZone2',
-						name: { en: 'Target Temperature Zone 2', de: 'Zieltemperatur Zone 2' },
+						name: {
+							en: 'Target Temperature Zone 2',
+							de: 'Zieltemperatur Zone 2',
+						},
 						role: 'value.temperature',
 						type: 'number',
 						unit: '°C',
@@ -281,7 +345,10 @@ export class DeviceProfiles {
 				states.push(
 					{
 						id: 'sensors.temperatureZone3',
-						name: { en: 'Current Temperature Zone 3', de: 'Aktuelle Temperatur Zone 3' },
+						name: {
+							en: 'Current Temperature Zone 3',
+							de: 'Aktuelle Temperatur Zone 3',
+						},
 						role: 'value.temperature',
 						type: 'number',
 						unit: '°C',
@@ -291,7 +358,10 @@ export class DeviceProfiles {
 					},
 					{
 						id: 'sensors.targetTemperatureZone3',
-						name: { en: 'Target Temperature Zone 3', de: 'Zieltemperatur Zone 3' },
+						name: {
+							en: 'Target Temperature Zone 3',
+							de: 'Zieltemperatur Zone 3',
+						},
 						role: 'value.temperature',
 						type: 'number',
 						unit: '°C',
@@ -320,13 +390,21 @@ export class DeviceProfiles {
 			states.push(
 				{
 					id: 'sensors.dryingStep',
-					name: { en: 'Drying Step (raw)', de: 'Trockenstufe (Rohwert)' },
+					name: {
+						en: 'Drying Step (raw)',
+						de: 'Trockenstufe (Rohwert)',
+					},
 					role: 'value',
 					type: 'number',
 					read: true,
 					write: false,
 					def: 0,
-					states: Object.fromEntries(Object.entries(DRYING_STEPS).map(([k, v]) => [k, v[lang] || v.de])),
+					states: Object.fromEntries(
+						Object.entries(DRYING_STEPS).map(([k, v]) => [
+							k,
+							v[lang] || v.de,
+						]),
+					),
 				},
 				{
 					id: 'sensors.dryingStepText',
@@ -382,7 +460,10 @@ export class DeviceProfiles {
 			states.push(
 				{
 					id: 'eco.energy',
-					name: { en: 'EcoFeedback Energy Consumption', de: 'EcoFeedback Energieverbrauch' },
+					name: {
+						en: 'EcoFeedback Energy Consumption',
+						de: 'EcoFeedback Energieverbrauch',
+					},
 					role: 'value.power.consumption',
 					type: 'number',
 					unit: 'kWh',
@@ -392,7 +473,10 @@ export class DeviceProfiles {
 				},
 				{
 					id: 'eco.energyWh',
-					name: { en: 'EcoFeedback Energy (Wh)', de: 'EcoFeedback Energie (Wh)' },
+					name: {
+						en: 'EcoFeedback Energy (Wh)',
+						de: 'EcoFeedback Energie (Wh)',
+					},
 					role: 'value',
 					type: 'number',
 					unit: 'Wh',
@@ -406,7 +490,10 @@ export class DeviceProfiles {
 				states.push(
 					{
 						id: 'eco.water',
-						name: { en: 'EcoFeedback Water Consumption', de: 'EcoFeedback Wasserverbrauch' },
+						name: {
+							en: 'EcoFeedback Water Consumption',
+							de: 'EcoFeedback Wasserverbrauch',
+						},
 						role: 'value',
 						type: 'number',
 						unit: 'l',
@@ -416,7 +503,10 @@ export class DeviceProfiles {
 					},
 					{
 						id: 'eco.waterImpulses',
-						name: { en: 'Water Impulses (raw counter)', de: 'Wasserzähler-Impulse (Rohwert)' },
+						name: {
+							en: 'Water Impulses (raw counter)',
+							de: 'Wasserzähler-Impulse (Rohwert)',
+						},
 						role: 'value',
 						type: 'number',
 						read: true,
@@ -430,7 +520,10 @@ export class DeviceProfiles {
 				states.push(
 					{
 						id: 'eco.heatingEnergyWh',
-						name: { en: 'Heating Rod Energy (Wh)', de: 'Heizstab-Energie (Wh)' },
+						name: {
+							en: 'Heating Rod Energy (Wh)',
+							de: 'Heizstab-Energie (Wh)',
+						},
 						role: 'value',
 						type: 'number',
 						unit: 'Wh',
@@ -440,7 +533,10 @@ export class DeviceProfiles {
 					},
 					{
 						id: 'eco.heatingDurationSec',
-						name: { en: 'Heating Duration (Seconds)', de: 'Heizdauer (Sekunden)' },
+						name: {
+							en: 'Heating Duration (Seconds)',
+							de: 'Heizdauer (Sekunden)',
+						},
 						role: 'value',
 						type: 'number',
 						unit: 's',

@@ -35,7 +35,10 @@ export class MieleBackup {
 
 		const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
 		const jsonString = JSON.stringify(payload);
-		const encrypted = Buffer.concat([cipher.update(jsonString, 'utf8'), cipher.final()]);
+		const encrypted = Buffer.concat([
+			cipher.update(jsonString, 'utf8'),
+			cipher.final(),
+		]);
 		const authTag = cipher.getAuthTag();
 
 		return [
@@ -47,7 +50,10 @@ export class MieleBackup {
 		].join(':');
 	}
 
-	public static decrypt(backupString: string, passphrase: string): BackupData {
+	public static decrypt(
+		backupString: string,
+		passphrase: string,
+	): BackupData {
 		if (!passphrase) {
 			throw new Error('Passphrase is required to decrypt backup');
 		}
@@ -76,10 +82,15 @@ export class MieleBackup {
 		decipher.setAuthTag(authTag);
 
 		try {
-			const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+			const decrypted = Buffer.concat([
+				decipher.update(encrypted),
+				decipher.final(),
+			]);
 			return JSON.parse(decrypted.toString('utf8')) as BackupData;
 		} catch (_err) {
-			throw new Error('Decryption failed: incorrect passphrase or corrupted backup data');
+			throw new Error(
+				'Decryption failed: incorrect passphrase or corrupted backup data',
+			);
 		}
 	}
 }
