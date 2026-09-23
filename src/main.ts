@@ -644,15 +644,8 @@ export class MieleUnbound extends utils.Adapter {
 			set('sensors.light', state.Light !== 0);
 		}
 
-		// EcoFeedback (Targeted query on Leaf 2/6195 for washing machines and dishwashers during active cycle or on completion)
-		if (
-			cfg.ecoFeedback &&
-			(devType === 1 ||
-				devType === 24 ||
-				devType === 7 ||
-				devType === 8) &&
-			dev.api
-		) {
+		// EcoFeedback (Targeted query on Leaf 2/6195 for washing machines during active cycle or on completion)
+		if (cfg.ecoFeedback && (devType === 1 || devType === 24) && dev.api) {
 			if (dev.active || status === 7) {
 				try {
 					const res = await dev.api.readDop2(

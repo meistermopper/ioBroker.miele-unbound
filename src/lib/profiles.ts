@@ -459,9 +459,9 @@ export class DeviceProfiles {
 			});
 		}
 
-		// EcoFeedback states – washing machines (type 1/24) and dishwashers (type 7/8)
-		// are supported via DOP2 leaf 2/6195.
-		const hasEco = isWasher || isDishwasher;
+		// EcoFeedback states – only washing machines (type 1/24) are supported
+		// via DOP2 leaf 2/6195. Dryers and dishwashers do not expose this leaf locally.
+		const hasEco = isWasher;
 		if (hasEco) {
 			states.push(
 				{

@@ -211,16 +211,15 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			).to.be.true;
 		});
 
-		it('should configure dishwasher with eco feedback and 1 temperature zone', () => {
+		it('should restrict dishwasher to 1 temperature zone without zone2, zone3 or eco states', () => {
 			const profile = DeviceProfiles.getProfile(7, 'de');
 			expect(DeviceProfiles.getTemperatureZones(7)).to.equal(1);
 			expect(profile.temperatureZones).to.equal(1);
-			expect(profile.hasEcoFeedback).to.be.true;
+			expect(profile.hasEcoFeedback).to.be.false;
 			expect(profile.states.some((s) => s.id === 'eco.energy')).to.be
-				.true;
-			expect(profile.states.some((s) => s.id === 'eco.water')).to.be.true;
-			expect(profile.states.some((s) => s.id === 'eco.heatingEnergyWh'))
-				.to.be.false;
+				.false;
+			expect(profile.states.some((s) => s.id === 'eco.water')).to.be
+				.false;
 			expect(profile.states.some((s) => s.id === 'sensors.temperature'))
 				.to.be.true;
 			expect(

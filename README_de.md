@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- EcoFeedback für Geschirrspüler zurücknehmen, da DOP2 Leaf 2/6195 nicht existiert
 
 ### 1.1.1 (2026-09-23)
 - EcoFeedback-Abfrage und States für Geschirrspüler (Typ 7 & 8) aktivieren

@@ -115,6 +115,9 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+- Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195
+
 ### 1.1.1 (2026-09-23)
 - Enable EcoFeedback query and states for dishwashers (device types 7 and 8)
 
