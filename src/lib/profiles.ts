@@ -459,9 +459,9 @@ export class DeviceProfiles {
 			});
 		}
 
-		// EcoFeedback states – only washing machines (type 1/24) are currently supported
-		// via DOP2 leaf 2/6195. Dryers and dishwashers do not have a DOP2 implementation yet.
-		const hasEco = isWasher;
+		// EcoFeedback states – washing machines (type 1/24) and dishwashers (type 7/8)
+		// are supported via DOP2 leaf 2/6195.
+		const hasEco = isWasher || isDishwasher;
 		if (hasEco) {
 			states.push(
 				{

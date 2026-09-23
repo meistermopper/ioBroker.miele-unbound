@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- EcoFeedback-Abfrage und States für Geschirrspüler (Typ 7 & 8) aktivieren
 
 ### 1.1.0 (2026-09-23)
 - setState in processState parallelisieren, programPhase-States mappen & Typ-Aliase bündeln

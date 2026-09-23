@@ -115,6 +115,9 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+- Enable EcoFeedback query and states for dishwashers (device types 7 and 8)
+
 ### 1.1.0 (2026-09-23)
 - Parallelize setState calls in processState, add programPhase states map, and unify type aliases
 - Restrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported
