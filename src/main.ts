@@ -716,6 +716,13 @@ export class MieleUnbound extends utils.Adapter {
 			});
 		}
 
+		if (devType === 18 && state.Light !== undefined) {
+			await this.setStateAsync(`${sId}.sensors.light`, {
+				val: state.Light !== 0,
+				ack: true,
+			});
+		}
+
 		// EcoFeedback (Targeted query on Leaf 2/6195 for washing machines during active cycle or on completion)
 		if (cfg.ecoFeedback && (devType === 1 || devType === 24) && dev.api) {
 			if (dev.active || status === 7) {
