@@ -1,0 +1,9 @@
+# Normalize line endings for all text files
+* text=auto
+
+# Force LF for files that Biome requires LF (JSON, TypeScript, JS)
+*.json text eol=lf
+*.ts text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.md text eol=lf
