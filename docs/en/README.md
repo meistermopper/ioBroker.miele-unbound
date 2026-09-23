@@ -118,6 +118,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ### **WORK IN PROGRESS**
 - Keep backup export and restore buttons active to prevent UI locking in jsonConfig
+- Map raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels
 
 ### 1.0.1 (2026-09-23)
 - Only update sensor states supported by appliance profile to prevent missing object warnings

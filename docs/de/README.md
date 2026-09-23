@@ -118,6 +118,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 
 ### **WORK IN PROGRESS**
 - Backup-Buttons in jsonConfig immer aktiv halten gegen UI-Sperren bei Eingabefeldern
+- Rohe Miele-API-Phasennummern des Geschirrspülers (1793-1800) auf lesbare Bezeichnungen mappen
 
 ### 1.0.1 (2026-09-23)
 - Nur vom Geräteprofil unterstützte Sensor-States schreiben gegen ungültige Objektwarnungen
