@@ -117,6 +117,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Parallelize setState calls in processState, add programPhase states map, and unify type aliases
 - Keep backup export and restore buttons active to prevent UI locking in jsonConfig
 - Map raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels
 

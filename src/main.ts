@@ -63,6 +63,10 @@ export class MieleUnbound extends utils.Adapter {
 	private isDiscovering = false;
 	private isUnloading = false;
 
+	private get cfg(): AdapterConfig {
+		return this.config as unknown as AdapterConfig;
+	}
+
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
 			...options,
@@ -79,7 +83,7 @@ export class MieleUnbound extends utils.Adapter {
 		this.isUnloading = false;
 		await this.setStateAsync('info.connection', { val: false, ack: true });
 
-		const cfg = this.config as unknown as AdapterConfig;
+		const cfg = this.cfg;
 		const effectiveGroupId = (
 			cfg.groupId ||
 			cfg.manualGroupId ||
@@ -197,7 +201,7 @@ export class MieleUnbound extends utils.Adapter {
 			this.clearTimeout(this.pollTimer);
 		}
 
-		const cfg = this.config as unknown as AdapterConfig;
+		const cfg = this.cfg;
 		const hasActiveDevice = Array.from(this.devices.values()).some(
 			(d) => d.active,
 		);
@@ -220,7 +224,7 @@ export class MieleUnbound extends utils.Adapter {
 
 	private async pollAllDevices(): Promise<void> {
 		if (this.devices.size === 0) {
-			const cfg = this.config as unknown as AdapterConfig;
+			const cfg = this.cfg;
 			if (cfg.autoDiscovery && !this.isDiscovering) {
 				this.triggerDiscovery();
 			}
@@ -306,8 +310,9 @@ export class MieleUnbound extends utils.Adapter {
 
 		dev.deviceType = ident.DeviceType || 0;
 		dev.model = ident.DeviceIdentLabel?.TechType || '';
+		dev.name = dev.model || dev.name;
 
-		const cfg = this.config as unknown as AdapterConfig;
+		const cfg = this.cfg;
 		const lang = cfg.language || 'de';
 		const profile = DeviceProfiles.getProfile(dev.deviceType, lang);
 
@@ -487,164 +492,104 @@ export class MieleUnbound extends utils.Adapter {
 			return;
 		}
 		const sId = dev.serial;
-		const cfg = this.config as unknown as AdapterConfig;
+		const cfg = this.cfg;
 		const lang = cfg.language || 'de';
 		const devType = dev.deviceType || 1;
 
-		await this.setStateAsync(`${sId}.info.connected`, {
-			val: true,
-			ack: true,
-		});
+		const updates: Promise<unknown>[] = [];
+		const set = (subId: string, val: ioBroker.SettableState['val']) => {
+			updates.push(
+				this.setStateAsync(`${sId}.${subId}`, {
+					val,
+					ack: true,
+				}),
+			);
+		};
+
+		set('info.connected', true);
 
 		// Operating Status
 		const status = state.Status ?? 1;
 		dev.active =
 			status === 3 || status === 4 || status === 5 || status === 6;
 
-		await this.setStateAsync(`${sId}.state.status`, {
-			val: status,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.statusText`, {
-			val: getStatusText(status, lang),
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.inUse`, {
-			// true only while program is actively running (consistent with dev.active)
-			val: status === 3 || status === 4 || status === 5 || status === 6,
-			ack: true,
-		});
+		set('state.status', status);
+		set('state.statusText', getStatusText(status, lang));
+		set(
+			'state.inUse',
+			status === 3 || status === 4 || status === 5 || status === 6,
+		);
 
 		// Programs & Phases
 		const pType = state.ProgramType ?? 0;
-		await this.setStateAsync(`${sId}.state.programType`, {
-			val: pType,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.programTypeText`, {
-			val: getProgramTypeText(pType, lang),
-			ack: true,
-		});
+		set('state.programType', pType);
+		set('state.programTypeText', getProgramTypeText(pType, lang));
 
 		const pId = state.ProgramID ?? 0;
-		await this.setStateAsync(`${sId}.state.programId`, {
-			val: pId,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.programText`, {
-			val: getProgramText(devType, pId, lang),
-			ack: true,
-		});
+		set('state.programId', pId);
+		set('state.programText', getProgramText(devType, pId, lang));
 
 		const phase = state.ProgramPhase ?? 0;
-		await this.setStateAsync(`${sId}.state.programPhase`, {
-			val: phase,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.programPhaseText`, {
-			val: getProgramPhaseText(devType, phase, lang),
-			ack: true,
-		});
+		set('state.programPhase', phase);
+		set(
+			'state.programPhaseText',
+			getProgramPhaseText(devType, phase, lang),
+		);
 
 		// Times
 		const remMin = timeToMinutes(state.RemainingTime) || 0;
-		await this.setStateAsync(`${sId}.state.remainingMinutes`, {
-			val: remMin,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.remainingHHMM`, {
-			val: timeToHHMM(state.RemainingTime),
-			ack: true,
-		});
+		set('state.remainingMinutes', remMin);
+		set('state.remainingHHMM', timeToHHMM(state.RemainingTime));
 
 		const elapMin = timeToMinutes(state.ElapsedTime) || 0;
-		await this.setStateAsync(`${sId}.state.elapsedMinutes`, {
-			val: elapMin,
-			ack: true,
-		});
+		set('state.elapsedMinutes', elapMin);
 
 		const startMin =
 			status === 3 || status === 4
 				? timeToMinutes(state.StartTime) || 0
 				: 0;
-		await this.setStateAsync(`${sId}.state.startInMinutes`, {
-			val: startMin,
-			ack: true,
-		});
+		set('state.startInMinutes', startMin);
 
 		if (remMin > 0) {
 			const finishTime = Date.now() + (startMin + remMin) * 60000;
 			const d = new Date(finishTime);
 			const hh = String(d.getHours()).padStart(2, '0');
 			const mm = String(d.getMinutes()).padStart(2, '0');
-			await this.setStateAsync(`${sId}.state.estimatedEndTime`, {
-				val: finishTime,
-				ack: true,
-			});
-			await this.setStateAsync(`${sId}.state.estimatedEndTimeText`, {
-				val: `${hh}:${mm}`,
-				ack: true,
-			});
+			set('state.estimatedEndTime', finishTime);
+			set('state.estimatedEndTimeText', `${hh}:${mm}`);
 		} else {
-			await this.setStateAsync(`${sId}.state.estimatedEndTime`, {
-				val: 0,
-				ack: true,
-			});
-			await this.setStateAsync(`${sId}.state.estimatedEndTimeText`, {
-				val: '',
-				ack: true,
-			});
+			set('state.estimatedEndTime', 0);
+			set('state.estimatedEndTimeText', '');
 		}
 
 		// Binary signals
-		await this.setStateAsync(`${sId}.state.door`, {
-			val: !!state.SignalDoor,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.signalInfo`, {
-			val: !!state.SignalInfo,
-			ack: true,
-		});
-		await this.setStateAsync(`${sId}.state.signalFailure`, {
-			val: !!state.SignalFailure,
-			ack: true,
-		});
+		set('state.door', !!state.SignalDoor);
+		set('state.signalInfo', !!state.SignalInfo);
+		set('state.signalFailure', !!state.SignalFailure);
 
 		// MobileStart
 		const mobileStart = Array.isArray(state.RemoteEnable)
 			? !!state.RemoteEnable[1]
 			: false;
-		await this.setStateAsync(`${sId}.state.mobileStart`, {
-			val: mobileStart,
-			ack: true,
-		});
+		set('state.mobileStart', mobileStart);
 
 		// Sensors: Temperatures
 		const tempZones = DeviceProfiles.getTemperatureZones(devType);
 		if (tempZones > 0 && Array.isArray(state.Temperature)) {
 			const t1 = tempToCelsius(state.Temperature[0]);
 			if (t1 !== null) {
-				await this.setStateAsync(`${sId}.sensors.temperature`, {
-					val: t1,
-					ack: true,
-				});
+				set('sensors.temperature', t1);
 			}
 			if (tempZones >= 2) {
 				const t2 = tempToCelsius(state.Temperature[1]);
 				if (t2 !== null) {
-					await this.setStateAsync(
-						`${sId}.sensors.temperatureZone2`,
-						{ val: t2, ack: true },
-					);
+					set('sensors.temperatureZone2', t2);
 				}
 			}
 			if (tempZones >= 3) {
 				const t3 = tempToCelsius(state.Temperature[2]);
 				if (t3 !== null) {
-					await this.setStateAsync(
-						`${sId}.sensors.temperatureZone3`,
-						{ val: t3, ack: true },
-					);
+					set('sensors.temperatureZone3', t3);
 				}
 			}
 		}
@@ -652,27 +597,18 @@ export class MieleUnbound extends utils.Adapter {
 		if (tempZones > 0 && Array.isArray(state.TargetTemperature)) {
 			const tt1 = tempToCelsius(state.TargetTemperature[0]);
 			if (tt1 !== null) {
-				await this.setStateAsync(`${sId}.sensors.targetTemperature`, {
-					val: tt1,
-					ack: true,
-				});
+				set('sensors.targetTemperature', tt1);
 			}
 			if (tempZones >= 2) {
 				const tt2 = tempToCelsius(state.TargetTemperature[1]);
 				if (tt2 !== null) {
-					await this.setStateAsync(
-						`${sId}.sensors.targetTemperatureZone2`,
-						{ val: tt2, ack: true },
-					);
+					set('sensors.targetTemperatureZone2', tt2);
 				}
 			}
 			if (tempZones >= 3) {
 				const tt3 = tempToCelsius(state.TargetTemperature[2]);
 				if (tt3 !== null) {
-					await this.setStateAsync(
-						`${sId}.sensors.targetTemperatureZone3`,
-						{ val: tt3, ack: true },
-					);
+					set('sensors.targetTemperatureZone3', tt3);
 				}
 			}
 		}
@@ -682,45 +618,30 @@ export class MieleUnbound extends utils.Adapter {
 			(devType === 1 || devType === 24) &&
 			state.SpinningSpeed !== undefined
 		) {
-			await this.setStateAsync(`${sId}.sensors.spinningSpeed`, {
-				val: state.SpinningSpeed,
-				ack: true,
-			});
+			set('sensors.spinningSpeed', state.SpinningSpeed);
 		}
 
 		if (
 			(devType === 2 || devType === 24) &&
 			state.DryingStep !== undefined
 		) {
-			await this.setStateAsync(`${sId}.sensors.dryingStep`, {
-				val: state.DryingStep,
-				ack: true,
-			});
-			await this.setStateAsync(`${sId}.sensors.dryingStepText`, {
-				val: getDryingStepText(state.DryingStep, lang),
-				ack: true,
-			});
+			set('sensors.dryingStep', state.DryingStep);
+			set(
+				'sensors.dryingStepText',
+				getDryingStepText(state.DryingStep, lang),
+			);
 		}
 
 		if (devType === 23 && state.BatteryLevel !== undefined) {
-			await this.setStateAsync(`${sId}.sensors.batteryLevel`, {
-				val: state.BatteryLevel,
-				ack: true,
-			});
+			set('sensors.batteryLevel', state.BatteryLevel);
 		}
 
 		if (devType === 18 && state.VentilationStep !== undefined) {
-			await this.setStateAsync(`${sId}.sensors.ventilationStep`, {
-				val: state.VentilationStep,
-				ack: true,
-			});
+			set('sensors.ventilationStep', state.VentilationStep);
 		}
 
 		if (devType === 18 && state.Light !== undefined) {
-			await this.setStateAsync(`${sId}.sensors.light`, {
-				val: state.Light !== 0,
-				ack: true,
-			});
+			set('sensors.light', state.Light !== 0);
 		}
 
 		// EcoFeedback (Targeted query on Leaf 2/6195 for washing machines during active cycle or on completion)
@@ -738,39 +659,24 @@ export class MieleUnbound extends utils.Adapter {
 					if (res.status === 200 && res.body && res.body.length > 8) {
 						const eco = MieleEco.parseLeaf2_6195(res.body);
 						if (eco.energyKWh !== undefined) {
-							await this.setStateAsync(`${sId}.eco.energy`, {
-								val: eco.energyKWh,
-								ack: true,
-							});
+							set('eco.energy', eco.energyKWh);
 						}
 						if (eco.energyWh !== undefined) {
-							await this.setStateAsync(`${sId}.eco.energyWh`, {
-								val: eco.energyWh,
-								ack: true,
-							});
+							set('eco.energyWh', eco.energyWh);
 						}
 						if (eco.waterLiters !== undefined) {
-							await this.setStateAsync(`${sId}.eco.water`, {
-								val: eco.waterLiters,
-								ack: true,
-							});
+							set('eco.water', eco.waterLiters);
 						}
 						if (eco.waterImpulses !== undefined) {
-							await this.setStateAsync(
-								`${sId}.eco.waterImpulses`,
-								{ val: eco.waterImpulses, ack: true },
-							);
+							set('eco.waterImpulses', eco.waterImpulses);
 						}
 						if (eco.heatingEnergyWh !== undefined) {
-							await this.setStateAsync(
-								`${sId}.eco.heatingEnergyWh`,
-								{ val: eco.heatingEnergyWh, ack: true },
-							);
+							set('eco.heatingEnergyWh', eco.heatingEnergyWh);
 						}
 						if (eco.heatingDurationSec !== undefined) {
-							await this.setStateAsync(
-								`${sId}.eco.heatingDurationSec`,
-								{ val: eco.heatingDurationSec, ack: true },
+							set(
+								'eco.heatingDurationSec',
+								eco.heatingDurationSec,
 							);
 						}
 					}
@@ -781,6 +687,8 @@ export class MieleUnbound extends utils.Adapter {
 				}
 			}
 		}
+
+		await Promise.all(updates);
 	}
 
 	private async ensureStateObject(
@@ -788,7 +696,7 @@ export class MieleUnbound extends utils.Adapter {
 		def: StateDefinition,
 	): Promise<void> {
 		const fullId = `${serial}.${def.id}`;
-		const cfg = this.config as unknown as AdapterConfig;
+		const cfg = this.cfg;
 		const lang = cfg.language || 'de';
 
 		await this.setObjectNotExistsAsync(fullId, {
@@ -815,7 +723,7 @@ export class MieleUnbound extends utils.Adapter {
 			return;
 		}
 
-		const cfg = this.config as unknown as AdapterConfig;
+		const cfg = this.cfg;
 		if (!cfg.allowControl) {
 			this.log.warn(
 				`Received command for ${id}, but remote control is disabled in adapter settings.`,
@@ -885,7 +793,7 @@ export class MieleUnbound extends utils.Adapter {
 				case 'getAuthorizeUrl': {
 					const cc =
 						(obj.message as { country?: string })?.country ||
-						(this.config as unknown as AdapterConfig).country ||
+						this.cfg.country ||
 						'de';
 					const { url, challenge } = buildAuthorizeUrl(cc);
 					this.currentChallenge = challenge;
@@ -910,9 +818,7 @@ export class MieleUnbound extends utils.Adapter {
 				case 'fetchGroupKey': {
 					const msg = obj.message as { redirectUrl?: string };
 					const redirectUrl =
-						msg?.redirectUrl ||
-						(this.config as unknown as AdapterConfig).redirectUrl ||
-						'';
+						msg?.redirectUrl || this.cfg.redirectUrl || '';
 
 					if (!redirectUrl) {
 						respond({
@@ -937,9 +843,7 @@ export class MieleUnbound extends utils.Adapter {
 						}
 					}
 					if (!challenge) {
-						const cc =
-							(this.config as unknown as AdapterConfig).country ||
-							'de';
+						const cc = this.cfg.country || 'de';
 						challenge = buildAuthorizeUrl(cc).challenge;
 					}
 
@@ -1009,9 +913,7 @@ export class MieleUnbound extends utils.Adapter {
 						manualGroupKey?: string;
 					};
 					const passphrase =
-						msg?.passphrase ||
-						(this.config as unknown as AdapterConfig)
-							.backupPassphrase;
+						msg?.passphrase || this.cfg.backupPassphrase;
 					if (!passphrase || passphrase.trim().length < 4) {
 						respond({
 							success: false,
@@ -1020,7 +922,7 @@ export class MieleUnbound extends utils.Adapter {
 						return;
 					}
 
-					const cfg = this.config as unknown as AdapterConfig;
+					const cfg = this.cfg;
 					const groupId = (
 						msg?.groupId ||
 						msg?.manualGroupId ||
@@ -1081,8 +983,7 @@ export class MieleUnbound extends utils.Adapter {
 					};
 					const passphrase = (
 						msg?.passphrase ||
-						(this.config as unknown as AdapterConfig)
-							.backupPassphrase ||
+						this.cfg.backupPassphrase ||
 						''
 					).trim();
 					const backupStr = (
@@ -1137,9 +1038,7 @@ export class MieleUnbound extends utils.Adapter {
 							groupId: data.groupId,
 							groupKey: data.groupKey,
 							manualDevices:
-								data.manualDevices ||
-								(this.config as unknown as AdapterConfig)
-									.manualDevices,
+								data.manualDevices || this.cfg.manualDevices,
 						});
 
 						this.log.info(
@@ -1157,8 +1056,7 @@ export class MieleUnbound extends utils.Adapter {
 								groupKey: data.groupKey,
 								manualDevices:
 									data.manualDevices ||
-									(this.config as unknown as AdapterConfig)
-										.manualDevices,
+									this.cfg.manualDevices,
 							},
 						});
 					} catch (err) {

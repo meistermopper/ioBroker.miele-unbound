@@ -2,8 +2,11 @@ import {
 	DEVICE_CATEGORIES,
 	DRYING_STEPS,
 	getDeviceCategory,
+	PHASES,
 	PROGRAM_TYPES,
 	PROGRAMS,
+	resolvePhaseDeviceType,
+	resolveProgramDeviceType,
 	STATUS_MAP,
 } from './definitions.js';
 import type { DeviceProfile, StateDefinition } from './types.js';
@@ -28,21 +31,22 @@ export class DeviceProfiles {
 			de: getDeviceCategory(deviceType, 'de'),
 		};
 
-		let progDt = deviceType;
-		if (progDt === 8) {
-			progDt = 7;
-		} else if (
-			[13, 15, 16, 31, 39, 40, 41, 42, 43, 45, 67].includes(progDt)
-		) {
-			progDt = 12;
-		} else if (progDt === 48) {
-			progDt = 25;
-		}
-
+		const progDt = resolveProgramDeviceType(deviceType);
 		const progMap = PROGRAMS[progDt];
 		const programStates: Record<number, string> | undefined = progMap
 			? Object.fromEntries(
 					Object.entries(progMap).map(([k, v]) => [
+						k,
+						v[lang] || v.de,
+					]),
+				)
+			: undefined;
+
+		const phaseDt = resolvePhaseDeviceType(deviceType);
+		const phaseMap = PHASES[phaseDt];
+		const phaseStates: Record<number, string> | undefined = phaseMap
+			? Object.fromEntries(
+					Object.entries(phaseMap).map(([k, v]) => [
 						k,
 						v[lang] || v.de,
 					]),
@@ -134,6 +138,7 @@ export class DeviceProfiles {
 				read: true,
 				write: false,
 				def: 0,
+				states: phaseStates,
 			},
 			{
 				id: 'state.programPhaseText',

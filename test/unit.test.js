@@ -224,5 +224,15 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				profile.states.some((s) => s.id === 'sensors.temperatureZone3'),
 			).to.be.false;
 		});
+
+		it('should provide programPhase states enum in profile', () => {
+			const profile = DeviceProfiles.getProfile(1, 'de');
+			const phaseState = profile.states.find(
+				(s) => s.id === 'state.programPhase',
+			);
+			expect(phaseState).to.exist;
+			expect(phaseState.states).to.be.an('object');
+			expect(phaseState.states[3]).to.equal('Hauptwäsche');
+		});
 	});
 });

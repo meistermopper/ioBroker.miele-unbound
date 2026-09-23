@@ -780,6 +780,32 @@ export function getDryingStepText(
 	return String(step);
 }
 
+export function resolveProgramDeviceType(deviceType: number): number {
+	if (deviceType === 8) {
+		return 7;
+	}
+	if ([13, 15, 16, 31, 39, 40, 41, 42, 43, 45, 67].includes(deviceType)) {
+		return 12;
+	}
+	if (deviceType === 48) {
+		return 25;
+	}
+	return deviceType;
+}
+
+export function resolvePhaseDeviceType(deviceType: number): number {
+	if (deviceType === 24) {
+		return 1;
+	}
+	if (deviceType === 8) {
+		return 7;
+	}
+	if ([13, 15, 16, 31, 39, 40, 41, 42, 43, 45, 67].includes(deviceType)) {
+		return 12;
+	}
+	return deviceType;
+}
+
 export function getProgramText(
 	deviceType: number,
 	programId: number,
@@ -792,12 +818,8 @@ export function getProgramText(
 		if (PROGRAMS[2]?.[programId])
 			return PROGRAMS[2][programId][lang] || PROGRAMS[2][programId].de;
 		dt = 1;
-	} else if (dt === 8) {
-		dt = 7;
-	} else if ([13, 15, 16, 31, 39, 40, 41, 42, 43, 45, 67].includes(dt)) {
-		dt = 12;
-	} else if (dt === 48) {
-		dt = 25;
+	} else {
+		dt = resolveProgramDeviceType(dt);
 	}
 	const table = PROGRAMS[dt];
 	if (table && table[programId]) {
@@ -811,7 +833,7 @@ export function getProgramPhaseText(
 	phaseId: number,
 	lang: 'de' | 'en' = 'de',
 ): string {
-	const dt = deviceType === 24 ? 1 : deviceType === 8 ? 7 : deviceType;
+	const dt = resolvePhaseDeviceType(deviceType);
 	const table = PHASES[dt];
 	if (table && table[phaseId]) {
 		return table[phaseId][lang] || table[phaseId].de;

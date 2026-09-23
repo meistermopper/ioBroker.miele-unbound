@@ -117,6 +117,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- setState in processState parallelisieren, programPhase-States mappen & Typ-Aliase bündeln
 - Backup-Buttons in jsonConfig immer aktiv halten gegen UI-Sperren bei Eingabefeldern
 - Rohe Miele-API-Phasennummern des Geschirrspülers (1793-1800) auf lesbare Bezeichnungen mappen
 
