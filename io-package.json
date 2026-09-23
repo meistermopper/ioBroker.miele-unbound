@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.0.0",
+		"version": "1.0.1",
 		"news": {
+			"1.0.1": {
+				"en": "Only update sensor states supported by appliance profile to prevent missing object warnings",
+				"de": "Nur vom Geräteprofil unterstützte Sensorstatus aktualisieren, um fehlendes Objekt zu vermeiden",
+				"ru": "Обновляйте только состояния датчиков, поддерживаемые профилем устройства, чтобы предотвратить появление предупреждений об отсутствии объектов",
+				"pt": "Só atualize os estados do sensor compatíveis com o perfil do aparelho para evitar a perda",
+				"nl": "Werk alleen de sensorstatussen bij die worden ondersteund door het apparaatprofiel om te voorkomen dat er een bericht verschijnt dat objecten ontbreken",
+				"fr": "Ne mettez à jour l'état des capteurs qu'en fonction du profil de l'appareil pour éviter les objets manquants",
+				"it": "Aggiorna i sensori supportati dal profilo dell'appliance solo per evitare avvisi",
+				"es": "Actualice solo los estados de los sensores compatibles con el perfil del aparato para evitar que falte objeto",
+				"pl": "Aktualizuj tylko stany czujników obsługiwane przez profil urządzenia, aby zapobiec brakującym ostrzeżeniom o obiektach",
+				"uk": "Оновлюйте лише стани датчиків, що підтримуються профілем приладу, щоб запобігти появі попереджень про відсутність об'єктів",
+				"zh-cn": "仅更新设备配置文件支持的传感器状态，以防止丢失对象警告"
+			},
 			"1.0.0": {
 				"en": "Initial release of miele-unbound: Local-First Miele@Home adapter with enriched device profiles",
 				"de": "Erstveröffentlichung von miele-unbound: Lokaler Miele@Home-Adapter mit umfassenden Geräteprofilen",
@@ -43,17 +56,8 @@
 			"uk": "Підключайте сучасні прилади Miele@Home локально через LAN без хмари з розширеними профілями",
 			"zh-cn": "通过 LAN 本地连接现代 Miele@Home 电器，无需依赖云，具有丰富的设备配置文件"
 		},
-		"authors": [
-			"meistermopper <meister.mopper@gmail.com>"
-		],
-		"keywords": [
-			"miele",
-			"mieleathome",
-			"local",
-			"dop2",
-			"h256",
-			"lan"
-		],
+		"authors": ["meistermopper <meister.mopper@gmail.com>"],
+		"keywords": ["miele", "mieleathome", "local", "dop2", "h256", "lan"],
 		"licenseInformation": {
 			"type": "free",
 			"license": "MIT"
@@ -85,16 +89,8 @@
 			}
 		]
 	},
-	"encryptedNative": [
-		"groupKey",
-		"manualGroupKey",
-		"backupPassphrase"
-	],
-	"protectedNative": [
-		"groupKey",
-		"manualGroupKey",
-		"backupPassphrase"
-	],
+	"encryptedNative": ["groupKey", "manualGroupKey", "backupPassphrase"],
+	"protectedNative": ["groupKey", "manualGroupKey", "backupPassphrase"],
 	"native": {
 		"country": "de",
 		"groupId": "",

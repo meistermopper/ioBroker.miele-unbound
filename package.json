@@ -1,6 +1,6 @@
 {
 	"name": "iobroker.miele-unbound",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Connect Miele@Home appliances locally without cloud dependence, combining local speed with rich device profiles",
 	"author": {
 		"name": "meistermopper",

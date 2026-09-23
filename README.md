@@ -115,8 +115,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.0.1 (2026-09-23)
 - Only update sensor states supported by appliance profile to prevent missing object warnings
 
 ### 1.0.0 (2026-09-23)
@@ -157,6 +156,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Add commitlint configuration, husky Git hooks and AI commit message helper
 - Document async robustness, hardware protection and lifecycle rules in AGENTS.md
 
+
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
 ## License
@@ -166,4 +166,3 @@ MIT License
 Copyright (c) 2026 meistermopper <meister.mopper@gmail.com>
 
 See [LICENSE](LICENSE) for more details.
-
