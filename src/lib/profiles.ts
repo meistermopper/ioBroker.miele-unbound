@@ -454,8 +454,9 @@ export class DeviceProfiles {
 			});
 		}
 
-		// EcoFeedback states for appliances supporting energy/water readings
-		const hasEco = isWasher || isDryer || isDishwasher;
+		// EcoFeedback states – only washing machines (type 1/24) are currently supported
+		// via DOP2 leaf 2/6195. Dryers and dishwashers do not have a DOP2 implementation yet.
+		const hasEco = isWasher;
 		if (hasEco) {
 			states.push(
 				{
