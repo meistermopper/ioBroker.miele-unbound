@@ -510,7 +510,8 @@ export class MieleUnbound extends utils.Adapter {
 			ack: true,
 		});
 		await this.setStateAsync(`${sId}.state.inUse`, {
-			val: status !== 1 && status !== 255,
+			// true only while program is actively running (consistent with dev.active)
+			val: status === 3 || status === 4 || status === 5 || status === 6,
 			ack: true,
 		});
 
