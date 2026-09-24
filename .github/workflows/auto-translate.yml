@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -33,6 +33,9 @@ jobs:
 
       - name: Run Translate Adapter
         run: npm run translate
+
+      - name: Format with Biome
+        run: npx @biomejs/biome format --write io-package.json admin/i18n/*.json
 
       - name: Normalize line endings (LF only)
         run: |

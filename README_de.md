@@ -117,6 +117,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- actions/checkout & setup-node im Auto-Translate-Workflow auf v7 aktualisieren
+- Auto-Translate-Workflow um Biome-Formatierung für io-package.json ergänzen
 
 ### 1.1.2 (2026-09-23)
 - EcoFeedback für Geschirrspüler zurücknehmen, da DOP2 Leaf 2/6195 nicht existiert
