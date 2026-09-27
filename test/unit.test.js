@@ -162,6 +162,14 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(getProgramText(7, 0, 'de')).to.equal('Aus');
 			expect(getProgramPhaseText(1, 3, 'de')).to.equal('Hauptwäsche');
 			expect(getProgramPhaseText(1, 6, 'en')).to.equal('Spin');
+
+			// Raw DOP2 / H256 local phase resolution
+			expect(getProgramPhaseText(1, 260, 'de')).to.equal('Hauptwäsche');
+			expect(getProgramPhaseText(1, 266, 'en')).to.equal('Spin');
+			expect(getProgramPhaseText(2, 513, 'de')).to.equal('In Betrieb');
+			expect(getProgramPhaseText(2, 514, 'en')).to.equal('Drying');
+			expect(getProgramPhaseText(7, 1795, 'de')).to.equal('Reinigen');
+			expect(getProgramPhaseText(12, 3073, 'de')).to.equal('Aufheizen');
 		});
 
 		it('should convert times and temperatures accurately', () => {
