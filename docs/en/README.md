@@ -116,6 +116,8 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+
 ### 1.2.0 (2026-09-27)
 - Add optional SuperVision real-time push HTTP listener with mDNS service announce
 - Add program and phase definitions for robotic vacuum cleaners and coffee systems
