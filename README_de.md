@@ -118,6 +118,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.2.0 (2026-09-27)
 - Optionalen SuperVision-Echtzeit-Push-Listener mit mDNS-Service-Announce ergänzen
 - Programm- und Phasendefinitionen für Saugroboter und Kaffeevollautomaten hinzufügen
 - Lokale DOP2-Rohphasen-IDs für Waschmaschinen, Trockner, Spüler und Öfen mappen
@@ -143,45 +145,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### 1.0.1 (2026-09-23)
 - Nur vom Geräteprofil unterstützte Sensor-States schreiben gegen ungültige Objektwarnungen
 
-### 1.0.0 (2026-09-23)
-- Auto-Translate GitHub Workflow durch Schreibberechtigung (contents write) behoben
-- Eigenes schreibgeschütztes Export-Feld mit Kopier-Button für Zwischenablage ergänzt
-- Flüchtige Backup-Felder beim Speichern verwerfen und Leeren-Button (X) wiederherstellen
-- Backup-Import durch jsonData-Parameterübergabe in jsonConfig sendTo-Buttons behoben
-- Verschlüsseltes Backup wird direkt ins UI-Feld befüllt mit 1-Klick-Zwischenablage
-- Passwort-Bestätigung (repeat) und Sichtbarkeits-Toggle für backupPassphrase ergänzt
-- Runde Ecken aus Adapter-Logo entfernt für vollflächigen Miele-Rot-Hintergrund
-- Ausführliche Schritt-für-Schritt-Anleitung mit DevTools und Docker-Hinweisen ergänzt
-- Erstentwicklung des Crossover-Adapters mit MieleH256-Engine und Profilen
-- Verschlüsselte Sicherung und Wiederherstellung via AES-256-GCM
-- Geräteprofile für Waschmaschinen, Trockner, Spülmaschinen und Backöfen
-- Gezielte EcoFeedback-Auswertung ohne Brute-Force-Registerabfragen
-- OAuth-Autorisierungs-Popup und Messagebox-Kommunikation für Admin behoben
-- GroupKey-Pairing mit Formularübernahme und sauberem Unload optimiert
-- mDNS-Erkennung über mehrere Netzwerkschnittstellen und direkte A-Record-Abfrage
-- OAuth PKCE Challenge zwischengespeichert gegen State-Mismatch bei Neustart
-- Aktive Haushalts-GroupID wird direkt im Pairing-Tab angezeigt
-- Dynamische Geräte-Routenerkennung und X-Signature-Header-Parsing korrigiert
-- Klare Button-Gestaltung (contained/outlined) für alle JSONConfig-Aktionen
-- Detaillierte Schritt-für-Schritt-Anleitung mit Entwicklertools im Pairing-Tab
-- Vollständige Programmkataloge für alle Miele-Geräte und moderne 200er-IDs
-- Automatischer Übersetzungs-Workflow und 11 ioBroker-Sprachdateien ergänzt
-- Automatischer sync-docs Workflow spiegelt README-Dateien in docs/ Verzeichnis
-- Release-Konfiguration, check-wip und manage-changelogs Skripte ergänzt
-- Adapter-Logo mit Miele-Roten Hintergrund und Kettenglied-Emblem überarbeitet
-- Anzeigegröße und Zentrierung des Logos in den README-Dateien angepasst
-- .gitignore um Verzeichnisse, IDE- und Logdateien erweitert
-- Redundante Test-Dependencies bereinigt und Abhängigkeiten aktualisiert
-- Responsive Breakpoint-Größen in jsonConfig ergänzt und Abhängigkeiten dedupliziert
-- Standard-Integrationstest hinzugefügt und in CI reaktiviert
-- GitHub Actions CI/CD-Workflows für Multi-OS-Tests und Auto-Übersetzung ergänzt
-- Dependabot-Konfiguration und Auto-Merge-Workflow für Updates integriert
-- GitHub Issue-Templates für Fehlerberichte und Feature-Wünsche eingerichtet
-- iob.bat Entwickler-Shortcut und devServerCli.md Befehlsreferenz ergänzt
-- Commitlint-Konfiguration, Husky Git-Hooks und KI-Commit-Helfer ergänzt
-- Regeln für asynchrone Robustheit, Hardware-Schutz und Lifecycle in AGENTS.md
-
-Ältere Changelog-Einträge sind in [CHANGELOG_OLD.md](CHANGELOG_OLD.md) zu finden.
+[Ältere Einträge](CHANGELOG_OLD.md)
 
 ## Lizenz
 
