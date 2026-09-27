@@ -170,6 +170,20 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(getProgramPhaseText(2, 514, 'en')).to.equal('Drying');
 			expect(getProgramPhaseText(7, 1795, 'de')).to.equal('Reinigen');
 			expect(getProgramPhaseText(12, 3073, 'de')).to.equal('Aufheizen');
+
+			// Dishwasher program 5
+			expect(getProgramText(7, 5, 'de')).to.equal('SolarSpar');
+			expect(getProgramText(7, 5, 'en')).to.equal('SolarSave');
+
+			// Coffee system phases
+			expect(getProgramPhaseText(17, 4353, 'de')).to.equal('Espresso');
+			expect(getProgramPhaseText(17, 4377, 'en')).to.equal('Grinding');
+
+			// Robotic vacuum cleaner programs and phases
+			expect(getProgramText(23, 1, 'de')).to.equal('Auto');
+			expect(getProgramText(23, 3, 'en')).to.equal('Turbo');
+			expect(getProgramPhaseText(23, 5889, 'de')).to.equal('Saugt');
+			expect(getProgramPhaseText(23, 5903, 'en')).to.equal('Docked');
 		});
 
 		it('should convert times and temperatures accurately', () => {

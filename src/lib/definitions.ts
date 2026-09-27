@@ -243,6 +243,7 @@ export const PROGRAMS: Record<
 		1: { en: 'Intensive 75°C', de: 'Intensiv' },
 		2: { en: 'Maintenance Program', de: 'Maschinenpflege' },
 		3: { en: 'ECO', de: 'Eco' },
+		5: { en: 'SolarSave', de: 'SolarSpar' },
 		6: { en: 'Automatic', de: 'Automatic' },
 		7: { en: 'Automatic', de: 'Automatic' },
 		9: { en: 'SolarSave', de: 'Solarspar' },
@@ -678,6 +679,14 @@ export const PROGRAMS: Record<
 		3: { en: 'Keep Warm', de: 'Warmhalten' },
 		4: { en: 'Slow Roasting', de: 'Niedertemperaturgaren' },
 	},
+	// Robotic Vacuum Cleaner (23)
+	23: {
+		0: { en: 'No Program', de: 'Kein Programm' },
+		1: { en: 'Auto', de: 'Auto' },
+		2: { en: 'Spot', de: 'Spot' },
+		3: { en: 'Turbo', de: 'Turbo' },
+		4: { en: 'Silent', de: 'Silent' },
+	},
 };
 
 export const PHASES: Record<
@@ -807,6 +816,36 @@ export const PHASES: Record<
 		3081: { en: 'Roasting', de: 'Braten' },
 		3084: { en: 'Energy save', de: 'Energiesparen' },
 		3099: { en: 'Pre-heating', de: 'Vorheizen' },
+		65535: { en: 'Not running', de: 'Nicht aktiv' },
+	},
+	// Coffee System (17)
+	17: {
+		0: { en: 'Not running', de: 'Nicht aktiv' },
+		3073: { en: 'Heating up', de: 'Aufheizen' },
+		4352: { en: 'Not running', de: 'Nicht aktiv' },
+		4353: { en: 'Espresso', de: 'Espresso' },
+		4354: { en: 'Hot milk', de: 'Heiße Milch' },
+		4355: { en: 'Milk foam', de: 'Milchschaum' },
+		4361: { en: 'Dispensing', de: 'Ausgabe' },
+		4369: { en: 'Pre-brewing', de: 'Vorbrühen' },
+		4377: { en: 'Grinding', de: 'Mahlen' },
+		4385: { en: 'Second espresso', de: 'Zweiter Espresso' },
+		4393: { en: 'Second pre-brewing', de: 'Zweites Vorbrühen' },
+		4401: { en: 'Second grinding', de: 'Zweites Mahlen' },
+		4404: { en: 'Dispensing', de: 'Ausgabe' },
+		4405: { en: 'Rinse', de: 'Spülen' },
+		65535: { en: 'Not running', de: 'Nicht aktiv' },
+	},
+	// Robotic Vacuum Cleaner (23)
+	23: {
+		0: { en: 'Not running', de: 'Nicht aktiv' },
+		5889: { en: 'Vacuum cleaning', de: 'Saugt' },
+		5890: { en: 'Returning', de: 'Rückfahrt zur Station' },
+		5891: { en: 'Vacuum cleaning paused', de: 'Saugen pausiert' },
+		5892: { en: 'Going to target area', de: 'Fährt zum Zielbereich' },
+		5903: { en: 'Docked', de: 'In der Station' },
+		5904: { en: 'Docked', de: 'In der Station' },
+		5910: { en: 'Remote controlled', de: 'Ferngesteuert' },
 		65535: { en: 'Not running', de: 'Nicht aktiv' },
 	},
 };
