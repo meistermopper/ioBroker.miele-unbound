@@ -124,6 +124,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - SolarSave-Spülprogramm (ID 5) für Geschirrspüler ergänzen
 - actions/checkout & setup-node im Auto-Translate-Workflow auf v7 aktualisieren
 - Auto-Translate-Workflow um Biome-Formatierung für io-package.json ergänzen
+- Aufschlussreiches Logging für Geräteregistrierung, Verbindungsstatus und Polling-Fehler
 
 ### 1.1.2 (2026-09-23)
 - EcoFeedback für Geschirrspüler zurücknehmen, da DOP2 Leaf 2/6195 nicht existiert

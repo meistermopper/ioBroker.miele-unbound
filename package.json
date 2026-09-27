@@ -75,6 +75,7 @@
 		"sync-docs": "node scripts/sync-docs.js",
 		"build": "npm run sync-docs && node -e \"require('node:fs').rmSync('build', { recursive: true, force: true })\" && tsc -p tsconfig.build.json",
 		"watch": "tsc -p tsconfig.build.json --watch",
+		"watch:ts": "tsc -p tsconfig.build.json --watch",
 		"dev": "node scripts/patch-ps-tree.js && dev-server watch",
 		"lint": "biome check .",
 		"test:local": "npm run lint && npm run test:ts && npm run build && npm run test:package && npm run test:unit",

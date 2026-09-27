@@ -41,6 +41,7 @@ interface ManagedDevice {
 	route?: string;
 	api?: MieleDeviceApi;
 	active: boolean;
+	connected: boolean;
 	lastSeen: number;
 	knownProfile: boolean;
 }
@@ -83,6 +84,38 @@ export class MieleUnbound extends utils.Adapter {
 
 	private async onReady(): Promise<void> {
 		this.isUnloading = false;
+
+		// Ensure instance info objects exist
+		await this.setObjectNotExistsAsync('info', {
+			type: 'channel',
+			common: { name: 'Information' },
+			native: {},
+		});
+		await this.setObjectNotExistsAsync('info.connection', {
+			type: 'state',
+			common: {
+				role: 'indicator.connected',
+				name: 'Adapter is connected to at least one appliance',
+				type: 'boolean',
+				read: true,
+				write: false,
+				def: false,
+			},
+			native: {},
+		});
+		await this.setObjectNotExistsAsync('info.discoveredDevices', {
+			type: 'state',
+			common: {
+				role: 'json',
+				name: 'Discovered devices via mDNS',
+				type: 'string',
+				read: true,
+				write: false,
+				def: '[]',
+			},
+			native: {},
+		});
+
 		await this.setStateAsync('info.connection', { val: false, ack: true });
 
 		const cfg = this.cfg;
@@ -120,6 +153,16 @@ export class MieleUnbound extends utils.Adapter {
 					this.registerDevice(dev.ip.trim(), dev.name);
 				}
 			}
+		}
+
+		this.log.info(
+			`Adapter ready. Registered ${this.devices.size} device(s). Auto-discovery: ${cfg.autoDiscovery ? 'enabled' : 'disabled'}.`,
+		);
+
+		if (this.devices.size === 0 && !cfg.autoDiscovery) {
+			this.log.warn(
+				'No devices registered and auto-discovery is disabled. Please add devices under "Manual Devices" in adapter settings.',
+			);
 		}
 
 		// Start mDNS discovery if enabled
@@ -189,12 +232,17 @@ export class MieleUnbound extends utils.Adapter {
 			return;
 		}
 
+		this.log.info(
+			`Registering Miele device at ${ip}${name ? ` (${name})` : ''}`,
+		);
+
 		const api = new MieleDeviceApi(ip, this.mc, { timeout: 8000 });
 		this.devices.set(ip, {
 			ip,
 			name,
 			api,
 			active: false,
+			connected: false,
 			lastSeen: 0,
 			knownProfile: false,
 		});
@@ -247,50 +295,79 @@ export class MieleUnbound extends utils.Adapter {
 
 			try {
 				// Query Ident first if serial / device type is not yet known
-				if (!dev.serial || !dev.route) {
-					if (!dev.route) {
+				if (!dev.serial || !dev.route || !dev.knownProfile) {
+					let routeToTry = dev.route;
+					if (!routeToTry) {
 						try {
 							const devList = await dev.api.getDevices();
 							if (devList && typeof devList === 'object') {
 								const routes = Object.keys(devList);
 								if (routes.length > 0) {
-									dev.route =
+									routeToTry =
 										devList[routes[0]].href?.replace(
 											/\/$/,
 											'',
 										) || routes[0];
 								}
 							}
-						} catch {
-							// Fallback if Devices endpoint is not supported
-							dev.route = '0';
+						} catch (devListErr) {
+							this.log.debug(
+								`Failed to query /Devices for ${ip}: ${(devListErr as Error).message}`,
+							);
 						}
 					}
-					if (!dev.route) {
-						dev.route = '0';
+
+					// If still no route discovered, try fallback '0'
+					const targetRoute = routeToTry || '0';
+					let ident: MieleIdentResponse | null = null;
+					try {
+						ident = await dev.api.getIdent(targetRoute);
+					} catch (identErr) {
+						// Reset route on failure so future polls can re-attempt /Devices discovery
+						dev.route = undefined;
+						throw identErr;
 					}
 
-					const ident = await dev.api.getIdent(dev.route);
 					if (ident) {
+						dev.route = targetRoute;
 						await this.processIdent(dev, ident);
 					}
 				}
 
-				if (!dev.route) {
-					dev.route = '0';
+				if (!dev.route || !dev.serial) {
+					continue;
 				}
 
 				// Query Live State
 				const state = await dev.api.getState(dev.route);
 				if (state) {
+					const wasConnected = dev.connected;
+					dev.connected = true;
 					dev.lastSeen = Date.now();
 					anyConnected = true;
+					if (!wasConnected) {
+						this.log.info(
+							`Connected to Miele appliance at ${ip} (${dev.serial} - ${dev.model || dev.name || 'Device'})`,
+						);
+					}
 					await this.processState(dev, state);
 				}
 			} catch (err) {
-				this.log.debug(
-					`Poll failed for ${ip}: ${(err as Error).message}`,
-				);
+				const wasConnected = dev.connected;
+				dev.connected = false;
+				if (dev.lastSeen === 0) {
+					this.log.warn(
+						`Could not connect to Miele appliance at ${ip}: ${(err as Error).message}`,
+					);
+				} else if (wasConnected) {
+					this.log.warn(
+						`Connection lost to Miele appliance at ${ip} (${dev.serial || 'unknown'}): ${(err as Error).message}`,
+					);
+				} else {
+					this.log.debug(
+						`Poll failed for ${ip}: ${(err as Error).message}`,
+					);
+				}
 				if (dev.serial) {
 					await this.setStateAsync(`${dev.serial}.info.connected`, {
 						val: false,
@@ -489,6 +566,9 @@ export class MieleUnbound extends utils.Adapter {
 		}
 
 		dev.knownProfile = true;
+		this.log.info(
+			`Identified Miele appliance at ${dev.ip}: ${dev.name} (Serial: ${serial}, Type: ${dev.deviceType})`,
+		);
 	}
 
 	private async processState(

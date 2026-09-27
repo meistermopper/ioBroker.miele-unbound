@@ -124,6 +124,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Add SolarSave program (ID 5) for dishwashers
 - Upgrade actions/checkout & setup-node to v7 in auto-translate workflow
 - Format translated files with Biome in auto-translate workflow
+- Add informative logging for device registration, connection transitions and polling errors
 
 ### 1.1.2 (2026-09-23)
 - Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195
