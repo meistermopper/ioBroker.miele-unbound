@@ -45,5 +45,10 @@
 	"step2_header": "Etapa 2: faça login com Miele",
 	"step2_text": "1. Insira o e-mail e a senha da sua conta do aplicativo Miele e clique em “Entrar”.\n2. Observação: após o login, a página ficará pendurada em uma roda de carregamento giratória (ou mostrará um erro). Isso é completamente normal e indica sucesso!",
 	"step3_header": "Etapa 3: copiar URL de redirecionamento e buscar GroupKey",
-	"step3_text": "1. Na guia Rede (F12), role até a última solicitação (geralmente vermelha) começando com 'redirect?redirect_uri=miele...' ou 'miele://oauth2-code/...'.\n2. Clique com o botão direito nessa entrada ➔ 'Copiar URL' / 'Copiar endereço do link'.\n3. Cole o endereço capturado no campo abaixo e clique em ‘Fetch GroupKey’."
+	"step3_text": "1. Na guia Rede (F12), role até a última solicitação (geralmente vermelha) começando com 'redirect?redirect_uri=miele...' ou 'miele://oauth2-code/...'.\n2. Clique com o botão direito nessa entrada ➔ 'Copiar URL' / 'Copiar endereço do link'.\n3. Cole o endereço capturado no campo abaixo e clique em ‘Fetch GroupKey’.",
+	"headerPush": "Ouvinte de push em tempo real do SuperVision",
+	"enablePush": "Ativar ouvinte de push SuperVision (atualizações em tempo real)",
+	"enablePush_help": "Ouve eventos de push HTTP SuperVision instantâneos dos aparelhos (requer a mesma sub-rede/VLAN)",
+	"pushPort": "Porta do servidor push",
+	"pushPort_help": "Porta TCP local para pushes recebidos de aparelhos (padrão: 18082)"
 }

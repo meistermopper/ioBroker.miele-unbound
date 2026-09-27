@@ -12,6 +12,8 @@ export interface AdapterConfig {
 	allowControl: boolean;
 	autoDiscovery: boolean;
 	language: 'de' | 'en';
+	enablePush?: boolean;
+	pushPort?: number;
 	manualDevices: ManualDevice[];
 }
 

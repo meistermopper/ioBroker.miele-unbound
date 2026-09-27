@@ -101,6 +101,81 @@ export class MieleCrypto {
 		]);
 	}
 
+	public static ivFromSignature(sigHex: string): Buffer {
+		let clean = sigHex.trim();
+		if (clean.length % 2 !== 0) {
+			clean = `0${clean}`;
+		}
+		return Buffer.from(clean, 'hex').subarray(0, 16);
+	}
+
+	public static padResponseBody(buf: Buffer): Buffer {
+		if (!buf.length) {
+			return buf;
+		}
+		const isJson = buf[0] === 0x7b && buf[buf.length - 1] === 0x7d;
+		if (isJson && buf.length < 64) {
+			return Buffer.concat([
+				buf.subarray(0, buf.length - 1),
+				Buffer.alloc(64 - buf.length, 0x20),
+				Buffer.from('}'),
+			]);
+		}
+		const rem = buf.length % 16;
+		if (rem === 0 && buf.length >= 64) {
+			return buf;
+		}
+		const needed = Math.max(64 - buf.length, 0) || 16 - rem;
+		return Buffer.concat([buf, Buffer.alloc(needed, 0x20)]);
+	}
+
+	public decryptWithSignature(sigHex: string, cipherBuf: Buffer): Buffer {
+		const iv = MieleCrypto.ivFromSignature(sigHex);
+		const decipher = crypto.createDecipheriv(
+			'aes-256-cbc',
+			this.aesKey,
+			iv,
+		);
+		decipher.setAutoPadding(false);
+		return Buffer.concat([decipher.update(cipherBuf), decipher.final()]);
+	}
+
+	public signResponse(
+		status: number,
+		date: string,
+		bodyPlain: string | Buffer,
+	): { body: Buffer; signature: string } {
+		const contentType = 'application/vnd.miele.v1+json; charset=utf-8';
+		const bodyBuf = MieleCrypto.padResponseBody(
+			Buffer.isBuffer(bodyPlain)
+				? bodyPlain
+				: Buffer.from(bodyPlain, 'utf8'),
+		);
+		const canonical = Buffer.concat([
+			Buffer.from(`${status}\n${contentType}\n${date}\n`, 'utf8'),
+			bodyBuf,
+		]);
+		const sig = crypto
+			.createHmac('sha256', this.hmacKey)
+			.update(canonical)
+			.digest();
+		const iv = sig.subarray(0, 16);
+		let body = Buffer.alloc(0);
+		if (bodyBuf.length) {
+			const cipher = crypto.createCipheriv(
+				'aes-256-cbc',
+				this.aesKey,
+				iv,
+			);
+			cipher.setAutoPadding(false);
+			body = Buffer.concat([cipher.update(bodyBuf), cipher.final()]);
+		}
+		return {
+			body,
+			signature: `MieleH256 ${this.groupId}:${sig.toString('hex').toUpperCase()}`,
+		};
+	}
+
 	public getGroupId(): string {
 		return this.groupId;
 	}

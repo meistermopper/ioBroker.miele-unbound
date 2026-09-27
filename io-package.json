@@ -146,7 +146,9 @@
 		"allowControl": false,
 		"autoDiscovery": true,
 		"language": "de",
-		"manualDevices": []
+		"manualDevices": [],
+		"enablePush": false,
+		"pushPort": 18082
 	},
 	"instanceObjects": [
 		{

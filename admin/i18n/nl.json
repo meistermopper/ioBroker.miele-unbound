@@ -45,5 +45,10 @@
 	"step2_header": "Stap 2: Meld u aan met Miele",
 	"step2_text": "1. Voer het e-mailadres en wachtwoord van uw Miele-app-account in en klik op 'Aanmelden'.\n2. Let op: Na het inloggen blijft de pagina hangen aan een draaiend laadwiel (of geeft een foutmelding weer). Dit is volkomen normaal en duidt op succes!",
 	"step3_header": "Stap 3: Kopieer de omleidings-URL en haal GroupKey op",
-	"step3_text": "1. Scroll op het tabblad Netwerk (F12) naar het allerlaatste (vaak rode) verzoek dat begint met 'redirect?redirect_uri=miele...' of 'miele://oauth2-code/...'.\n2. Klik met de rechtermuisknop op dat item ➔ 'URL kopiëren' / 'Linkadres kopiëren'.\n3. Plak het vastgelegde adres in het onderstaande veld en klik op 'Fetch GroupKey'."
+	"step3_text": "1. Scroll op het tabblad Netwerk (F12) naar het allerlaatste (vaak rode) verzoek dat begint met 'redirect?redirect_uri=miele...' of 'miele://oauth2-code/...'.\n2. Klik met de rechtermuisknop op dat item ➔ 'URL kopiëren' / 'Linkadres kopiëren'.\n3. Plak het vastgelegde adres in het onderstaande veld en klik op 'Fetch GroupKey'.",
+	"headerPush": "SuperVision real-time push-ontvanger",
+	"enablePush": "SuperVision push-ontvanger inschakelen (real-time updates)",
+	"enablePush_help": "Ontvangt directe SuperVision HTTP-push-gebeurtenissen van apparaten (vereist hetzelfde subnet/VLAN)",
+	"pushPort": "Push-serverpoort",
+	"pushPort_help": "Lokale TCP-poort voor inkomende pushes van apparaten (standaard: 18082)"
 }

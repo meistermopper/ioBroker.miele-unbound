@@ -13,6 +13,12 @@ const {
 	timeToMinutes,
 } = require('../build/lib/definitions.js');
 const { DeviceProfiles } = require('../build/lib/profiles.js');
+const {
+	MielePushListener,
+	syntheticHostname,
+	detectLanIp,
+	OUR_FAB,
+} = require('../build/lib/push.js');
 
 describe('ioBroker.miele-unbound Unit Tests', () => {
 	const testGroupId = '12345678-1234-1234-1234-123456789abc';
@@ -24,6 +30,27 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 		it('should initialize with valid 64-byte groupKey', () => {
 			const mc = new MieleCrypto(testGroupId, testGroupKey);
 			expect(mc.getGroupId()).to.equal(testGroupId);
+		});
+
+		it('should pad response body and sign/decrypt push payloads correctly', () => {
+			const mc = new MieleCrypto(testGroupId, testGroupKey);
+			const rawJson = JSON.stringify({ Status: 5 });
+			const { body, signature } = mc.signResponse(
+				200,
+				new Date().toUTCString(),
+				rawJson,
+			);
+			expect(body).to.be.an.instanceOf(Buffer);
+			expect(signature).to.include(testGroupId);
+
+			// Test decryptWithSignature
+			const sigHex = signature.split(':')[1];
+			const decrypted = mc.decryptWithSignature(sigHex, body);
+			const cleanJson = decrypted
+				.toString('utf8')
+				.replace(/\0+$/g, '')
+				.trim();
+			expect(JSON.parse(cleanJson)).to.deep.equal({ Status: 5 });
 		});
 
 		it('should throw error on invalid groupKey length', () => {
@@ -260,6 +287,31 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(phaseState).to.exist;
 			expect(phaseState.states).to.be.an('object');
 			expect(phaseState.states[3]).to.equal('Hauptwäsche');
+		});
+	});
+
+	describe('MielePushListener', () => {
+		it('should generate valid synthetic hostnames and detect IP', () => {
+			const host = syntheticHostname(OUR_FAB);
+			expect(host).to.match(/^Miele-001D63FFFE[0-9A-F]{6}\.local$/);
+			const ip = detectLanIp();
+			expect(ip).to.be.a('string');
+		});
+
+		it('should initialize MielePushListener with custom port', () => {
+			const mc = new MieleCrypto(testGroupId, testGroupKey);
+			const push = new MielePushListener({
+				port: 18099,
+				crypto: mc,
+				log: {
+					info: () => {},
+					warn: () => {},
+					error: () => {},
+					debug: () => {},
+				},
+				onEvent: async () => {},
+			});
+			expect(push).to.exist;
 		});
 	});
 });

@@ -45,5 +45,10 @@
 	"step2_header": "Passaggio 2: accedi con Miele",
 	"step2_text": "1. Inserisci l'e-mail e la password del tuo account dell'app Miele e fai clic su \"Accedi\".\n2. Nota: dopo l'accesso, la pagina si bloccherà su una rotella di caricamento che gira (o mostrerà un errore). Questo è del tutto normale e indica il successo!",
 	"step3_header": "Passaggio 3: copia l'URL di reindirizzamento e recupera GroupKey",
-	"step3_text": "1. Nella scheda Rete (F12), scorri fino all'ultima richiesta (spesso rossa) che inizia con 'redirect?redirect_uri=miele...' o 'miele://oauth2-code/...'.\n2. Fare clic con il pulsante destro del mouse sulla voce ➔ \"Copia URL\" / \"Copia indirizzo collegamento\".\n3. Incolla l'indirizzo catturato nel campo sottostante e fai clic su \"Recupera GroupKey\"."
+	"step3_text": "1. Nella scheda Rete (F12), scorri fino all'ultima richiesta (spesso rossa) che inizia con 'redirect?redirect_uri=miele...' o 'miele://oauth2-code/...'.\n2. Fare clic con il pulsante destro del mouse sulla voce ➔ \"Copia URL\" / \"Copia indirizzo collegamento\".\n3. Incolla l'indirizzo catturato nel campo sottostante e fai clic su \"Recupera GroupKey\".",
+	"headerPush": "Ricevitore push in tempo reale SuperVision",
+	"enablePush": "Attiva ricevitore push SuperVision (aggiornamenti in tempo reale)",
+	"enablePush_help": "Riceve eventi push HTTP SuperVision istantanei dagli elettrodomestici (richiede la stessa sottorete/VLAN)",
+	"pushPort": "Porta del server push",
+	"pushPort_help": "Porta TCP locale per i push in entrata dagli elettrodomestici (predefinito: 18082)"
 }

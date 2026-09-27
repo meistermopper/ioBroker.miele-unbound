@@ -45,5 +45,10 @@
 	"step3_text": "1. In the Network tab (F12), scroll to the very last (often red) request starting with 'redirect?redirect_uri=miele...' or 'miele://oauth2-code/...'.\n2. Right-click that entry ➔ 'Copy URL' / 'Copy link address'.\n3. Paste the captured address into the field below and click 'Fetch GroupKey'.",
 	"backup_note": "⚠️ IMPORTANT: Save this backup string to your password manager now! For security reasons, it is not stored permanently and will disappear after saving and closing.",
 	"Exported Backup String (Click icon to copy to clipboard)": "Exported Backup String (Click icon to copy to clipboard)",
-	"Restore Backup": "Restore Backup"
+	"Restore Backup": "Restore Backup",
+	"headerPush": "SuperVision Real-Time Push Listener",
+	"enablePush": "Enable SuperVision push listener (real-time updates)",
+	"enablePush_help": "Listens for instant SuperVision HTTP push events from appliances (requires same subnet/VLAN)",
+	"pushPort": "Push server port",
+	"pushPort_help": "Local TCP port for incoming appliance pushes (default: 18082)"
 }

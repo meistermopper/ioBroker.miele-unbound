@@ -24,6 +24,7 @@ import {
 import { MieleDiscovery } from './lib/discovery.js';
 import { MieleEco } from './lib/eco.js';
 import { DeviceProfiles } from './lib/profiles.js';
+import { MielePushListener } from './lib/push.js';
 import type {
 	AdapterConfig,
 	MieleIdentResponse,
@@ -62,6 +63,7 @@ export class MieleUnbound extends utils.Adapter {
 	private currentChallenge?: OAuthChallenge;
 	private isDiscovering = false;
 	private isUnloading = false;
+	private pushListener?: MielePushListener;
 
 	private get cfg(): AdapterConfig {
 		return this.config as unknown as AdapterConfig;
@@ -127,6 +129,11 @@ export class MieleUnbound extends utils.Adapter {
 
 		// Subscribe to states for control actions
 		this.subscribeStates('*.control.*');
+
+		// Start SuperVision push listener if enabled
+		if (cfg.enablePush) {
+			this.startPushListener();
+		}
 
 		// Start polling loop
 		this.scheduleNextPoll(1000);
@@ -1104,11 +1111,52 @@ export class MieleUnbound extends utils.Adapter {
 		}
 	}
 
-	private onUnload(callback: () => void): void {
+	private startPushListener(): void {
+		if (this.pushListener || !this.mc) {
+			return;
+		}
+		const cfg = this.cfg;
+		const port = cfg.pushPort || 18082;
+		this.pushListener = new MielePushListener({
+			port,
+			crypto: this.mc,
+			log: this.log,
+			adapter: this,
+			onEvent: async ({ route, state }) => {
+				let dev = Array.from(this.devices.values()).find(
+					(d) => d.serial === route,
+				);
+				if (!dev) {
+					const ip = this.serialToIp.get(route);
+					if (ip) {
+						dev = this.devices.get(ip);
+					}
+				}
+				if (dev) {
+					this.log.debug(`Push update received for device ${route}`);
+					await this.processState(dev, state as MieleStateResponse);
+				} else {
+					this.log.debug(
+						`Push update received for unknown device ${route}, triggering discovery`,
+					);
+					if (cfg.autoDiscovery) {
+						this.triggerDiscovery();
+					}
+				}
+			},
+		});
+		this.pushListener.start();
+	}
+
+	private async onUnload(callback: () => void): Promise<void> {
 		try {
 			this.isUnloading = true;
 			if (this.pollTimer) {
 				this.clearTimeout(this.pollTimer);
+			}
+			if (this.pushListener) {
+				await this.pushListener.stop();
+				this.pushListener = undefined;
 			}
 			this.setState('info.connection', { val: false, ack: true });
 			this.log.info('Cleaned up miele-unbound adapter on unload');

@@ -26,6 +26,7 @@ exakte Datenpunkte für über 30 Geräteklassen.
 - **Schonendes Polling:** Strenge serielle Warteschlange je Gerät zur Vermeidung von XKM-Abstürzen.
 - **Einfache Migration:** Verschlüsselter Export/Import und Direkteingabe für Neuinstallationen.
 - **Gerätesteuerung (Opt-in):** Start, Stopp, Pause, Ein-/Ausschalten und Lichtsteuerung via DOP2.
+- **Echtzeit-Push (SuperVision, Opt-in):** Integrierter lokaler Push-Empfänger für sofortige Statusaktualisierungen in Millisekunden direkt von den Miele-Geräten.
 
 ## Schnellstart & Einrichtung
 

@@ -45,5 +45,10 @@
 	"step2_header": "Krok 2: Zaloguj się w Miele",
 	"step2_text": "1. Wprowadź adres e-mail i hasło do konta aplikacji Miele i kliknij „Zaloguj się”.\n2. Uwaga: po zalogowaniu strona zawiesza się na obracającym się kole ładującym (lub wyświetla błąd). Jest to całkowicie normalne i oznacza sukces!",
 	"step3_header": "Krok 3: Skopiuj adres URL przekierowania i pobierz GroupKey",
-	"step3_text": "1. W zakładce Sieć (F12) przewiń do ostatniego (często czerwonego) żądania zaczynającego się od „redirect?redirect_uri=miele...” lub „miele://oauth2-code/...”.\n2. Kliknij prawym przyciskiem myszy ten wpis ➔ „Kopiuj adres URL” / „Kopiuj adres łącza”.\n3. Wklej przechwycony adres w polu poniżej i kliknij „Pobierz klucz grupy”."
+	"step3_text": "1. W zakładce Sieć (F12) przewiń do ostatniego (często czerwonego) żądania zaczynającego się od „redirect?redirect_uri=miele...” lub „miele://oauth2-code/...”.\n2. Kliknij prawym przyciskiem myszy ten wpis ➔ „Kopiuj adres URL” / „Kopiuj adres łącza”.\n3. Wklej przechwycony adres w polu poniżej i kliknij „Pobierz klucz grupy”.",
+	"headerPush": "Odbiornik push SuperVision w czasie rzeczywistym",
+	"enablePush": "Włącz odbiornik push SuperVision (aktualizacje w czasie rzeczywistym)",
+	"enablePush_help": "Odbiera natychmiastowe zdarzenia push HTTP SuperVision z urządzeń (wymaga tej samej podsieci/VLAN)",
+	"pushPort": "Port serwera push",
+	"pushPort_help": "Lokalny port TCP dla przychodzących pushów z urządzeń (domyślnie: 18082)"
 }

@@ -29,15 +29,42 @@
 					"lg": 4,
 					"xl": 4,
 					"options": [
-						{ "label": "Germany", "value": "de" },
-						{ "label": "Austria", "value": "at" },
-						{ "label": "Switzerland", "value": "ch" },
-						{ "label": "Netherlands", "value": "nl" },
-						{ "label": "United Kingdom", "value": "gb" },
-						{ "label": "France", "value": "fr" },
-						{ "label": "Italy", "value": "it" },
-						{ "label": "Spain", "value": "es" },
-						{ "label": "Other", "value": "other" }
+						{
+							"label": "Germany",
+							"value": "de"
+						},
+						{
+							"label": "Austria",
+							"value": "at"
+						},
+						{
+							"label": "Switzerland",
+							"value": "ch"
+						},
+						{
+							"label": "Netherlands",
+							"value": "nl"
+						},
+						{
+							"label": "United Kingdom",
+							"value": "gb"
+						},
+						{
+							"label": "France",
+							"value": "fr"
+						},
+						{
+							"label": "Italy",
+							"value": "it"
+						},
+						{
+							"label": "Spain",
+							"value": "es"
+						},
+						{
+							"label": "Other",
+							"value": "other"
+						}
 					]
 				},
 				"btnOpenLogin": {
@@ -400,8 +427,14 @@
 					"lg": 4,
 					"xl": 4,
 					"options": [
-						{ "label": "German (Deutsch)", "value": "de" },
-						{ "label": "English", "value": "en" }
+						{
+							"label": "German (Deutsch)",
+							"value": "de"
+						},
+						{
+							"label": "English",
+							"value": "en"
+						}
 					]
 				},
 				"dividerSettings1": {
@@ -439,6 +472,31 @@
 					"md": 12,
 					"lg": 12,
 					"xl": 12
+				},
+				"dividerSettings3": {
+					"type": "divider"
+				},
+				"headerPush": {
+					"type": "header",
+					"text": "headerPush",
+					"size": 5
+				},
+				"enablePush": {
+					"type": "checkbox",
+					"label": "enablePush",
+					"help": "enablePush_help",
+					"sm": 12,
+					"md": 6
+				},
+				"pushPort": {
+					"type": "number",
+					"label": "pushPort",
+					"help": "pushPort_help",
+					"min": 1024,
+					"max": 65535,
+					"sm": 12,
+					"md": 6,
+					"hidden": "!data.enablePush"
 				}
 			}
 		}
