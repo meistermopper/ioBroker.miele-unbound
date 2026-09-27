@@ -26,6 +26,7 @@ definitions for over 30 appliance classes.
 - **Hardware-Safe Polling:** Strict sequential request queue per appliance to prevent XKM crashes.
 - **Painless Credential Migration:** Encrypted export/import and manual entry for scratch installs.
 - **Remote Control (Opt-in):** Start, stop, pause, power, and lighting controls via DOP2 opcodes.
+- **Real-time Push (SuperVision, Opt-in):** Built-in local HTTP listener for instant state updates.
 
 ## Quick Start & Setup Guide
 
@@ -117,6 +118,10 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Add optional SuperVision real-time push HTTP listener with mDNS service announce
+- Add program and phase definitions for robotic vacuum cleaners and coffee systems
+- Map local DOP2 raw phase IDs for washers, dryers, dishwashers, and ovens
+- Add SolarSave program (ID 5) for dishwashers
 - Upgrade actions/checkout & setup-node to v7 in auto-translate workflow
 - Format translated files with Biome in auto-translate workflow
 

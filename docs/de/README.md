@@ -118,6 +118,10 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Optionalen SuperVision-Echtzeit-Push-Listener mit mDNS-Service-Announce ergänzen
+- Programm- und Phasendefinitionen für Saugroboter und Kaffeevollautomaten hinzufügen
+- Lokale DOP2-Rohphasen-IDs für Waschmaschinen, Trockner, Spüler und Öfen mappen
+- SolarSave-Spülprogramm (ID 5) für Geschirrspüler ergänzen
 - actions/checkout & setup-node im Auto-Translate-Workflow auf v7 aktualisieren
 - Auto-Translate-Workflow um Biome-Formatierung für io-package.json ergänzen
 
