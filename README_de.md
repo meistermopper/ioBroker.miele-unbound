@@ -118,7 +118,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
-- Geräteindividueller Abfragetakt: Laufende Geräte werden im kurzen Intervall abgefragt, ruhende Geräte im langen Ruhetakt (schont Miele XKM-WLAN-Module)
+- Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)
 
 ### 1.2.0 (2026-09-27)
 - Optionalen SuperVision-Echtzeit-Push-Listener mit mDNS-Service-Announce ergänzen
