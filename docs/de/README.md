@@ -118,6 +118,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.3.0 (2026-10-11)
 - Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)
 
 ### 1.2.0 (2026-09-27)
@@ -143,8 +145,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Backup-Buttons in jsonConfig immer aktiv halten gegen UI-Sperren bei Eingabefeldern
 - Rohe Miele-API-Phasennummern des Geschirrspülers (1793-1800) auf lesbare Bezeichnungen mappen
 
-### 1.0.1 (2026-09-23)
-- Nur vom Geräteprofil unterstützte Sensor-States schreiben gegen ungültige Objektwarnungen
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

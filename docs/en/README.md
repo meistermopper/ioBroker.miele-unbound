@@ -116,7 +116,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.0 (2026-10-11)
 - Add per-device polling scheduler protecting XKM modules with active/idle intervals
 
 ### 1.2.0 (2026-09-27)
@@ -141,9 +141,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Update hood light sensor state from live appliance telemetry
 - Keep backup export and restore buttons active to prevent UI locking in jsonConfig
 - Map raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels
-
-### 1.0.1 (2026-09-23)
-- Only update sensor states supported by appliance profile to prevent missing object warnings
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](../../CHANGELOG_OLD.md).
 

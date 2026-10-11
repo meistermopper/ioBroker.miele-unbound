@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.2.0",
+		"version": "1.3.0",
 		"news": {
+			"1.3.0": {
+				"en": "Add per-device polling scheduler protecting XKM modules with active/idle intervals",
+				"de": "Abfragescheduler pro Gerät zum Schutz von XKM-Modulen mit Aktiv-/Leerlauf hinzufügen",
+				"ru": "Добавьте планировщик опросов для каждого устройства, защищающий модули XKM интервалами активности/простоя",
+				"pt": "Adicione um agendador de pesquisa por dispositivo para proteger módulos XKM",
+				"nl": "Voeg een peilingsplanner per apparaat toe die XKM-modules beschermt met intervallen tussen actief/inactiviteit",
+				"fr": "Ajouter un planificateur de sondages par appareil protégeant les modules XKM actifs/inactifs",
+				"it": "Aggiunga un polling scheduler per dispositivo che protegga i moduli XKM",
+				"es": "Añada un planificador de sondeos por dispositivo que proteja los módulos XKM con intervalos activos/inactivos",
+				"pl": "Dodaj harmonogram głosowania na urządzenie chroniący moduły XKM za pomocą interwałów aktywnych/bezczynności",
+				"uk": "Додайте планувальник опитування для кожного пристрою, що захищає модулі XKM з інтервалами активного/простою",
+				"zh-cn": "添加每台设备的轮询调度程序，以活动/空闲间隔保护 XKM 模块"
+			},
 			"1.2.0": {
 				"en": "Add optional SuperVision real-time push HTTP listener with mDNS service announce\nAdd program and phase definitions for robotic vacuum cleaners and coffee systems\nMap local DOP2 raw phase IDs for washers, dryers, dishwashers, and ovens\nAdd SolarSave program (ID 5) for dishwashers\nUpgrade actions/checkout & setup-node to v7 in auto-translate workflow\nFormat translated files with Biome in auto-translate workflow\nAdd informative logging for device registration, connection transitions and polling errors",
 				"de": "Optionalen SuperVision Echtzeit-Push-HTTP-Listener mit mDNS-Service Announce hinzufügen\nProgramm- und Phasendefinitionen für Saugroboter und Kaffeesysteme hinzufügen\nOrdnen Sie lokale DOP2-Rohphasen-IDs für Waschmaschinen und Öfen zu\nSolarSave-Programm (ID 5) für Spülmaschinen\nAktualisiere Actions/Checkout & Setup-Node im Autoübersetzer auf v7\nFormatieren Sie übersetzte Dateien mit Biome automatisch\nLogging für Geräteregistrierung, Verbindungsübergänge und Abfragefehler hinzufügen",

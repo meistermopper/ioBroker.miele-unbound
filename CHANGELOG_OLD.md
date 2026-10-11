@@ -1,4 +1,7 @@
 # Older changes
+## 1.0.1 (2026-09-23)
+- Only update sensor states supported by appliance profile to prevent missing object warnings
+
 ## 1.0.0 (2026-09-23)
 - Fix auto-translate GitHub workflow by granting contents write permission
 - Add dedicated read-only backup export field with copy to clipboard button
