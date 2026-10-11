@@ -25,6 +25,12 @@ import { MieleDiscovery } from './lib/discovery.js';
 import { MieleEco } from './lib/eco.js';
 import { DeviceProfiles } from './lib/profiles.js';
 import { MielePushListener } from './lib/push.js';
+import {
+	getDeviceIntervalMs,
+	getNextWakeDelayMs,
+	isDeviceDue,
+	type SchedulableDevice,
+} from './lib/scheduler.js';
 import type {
 	AdapterConfig,
 	MieleIdentResponse,
@@ -32,7 +38,8 @@ import type {
 	StateDefinition,
 } from './lib/types.js';
 
-interface ManagedDevice {
+interface ManagedDevice extends SchedulableDevice {
+	nextPoll?: number;
 	ip: string;
 	name?: string;
 	serial?: string;
@@ -245,6 +252,7 @@ export class MieleUnbound extends utils.Adapter {
 			connected: false,
 			lastSeen: 0,
 			knownProfile: false,
+			nextPoll: 0,
 		});
 	}
 
@@ -257,14 +265,15 @@ export class MieleUnbound extends utils.Adapter {
 		}
 
 		const cfg = this.cfg;
-		const hasActiveDevice = Array.from(this.devices.values()).some(
-			(d) => d.active,
-		);
-		const intervalSec = hasActiveDevice
-			? cfg.pollIntervalActive || 5
-			: cfg.pollIntervalIdle || 20;
-
-		const nextDelay = delayMs !== undefined ? delayMs : intervalSec * 1000;
+		const idleMs = (cfg.pollIntervalIdle || 20) * 1000;
+		const nextDelay =
+			delayMs !== undefined
+				? delayMs
+				: getNextWakeDelayMs(
+						Array.from(this.devices.values()),
+						Date.now(),
+						idleMs,
+					);
 
 		this.pollTimer = this.setTimeout(() => {
 			this.pollAllDevices()
@@ -286,10 +295,22 @@ export class MieleUnbound extends utils.Adapter {
 			return;
 		}
 
-		let anyConnected = false;
+		const now = Date.now();
+		const cfg = this.cfg;
+		const activeMs = (cfg.pollIntervalActive || 5) * 1000;
+		const idleMs = (cfg.pollIntervalIdle || 20) * 1000;
+
+		let anyConnected = Array.from(this.devices.values()).some(
+			(d) => d.connected,
+		);
 
 		for (const [ip, dev] of this.devices.entries()) {
 			if (!dev.api) {
+				continue;
+			}
+
+			// Only poll appliances that are currently due
+			if (!isDeviceDue(dev, now)) {
 				continue;
 			}
 
@@ -352,7 +373,10 @@ export class MieleUnbound extends utils.Adapter {
 					}
 					await this.processState(dev, state);
 				}
+				dev.nextPoll =
+					Date.now() + getDeviceIntervalMs(dev, activeMs, idleMs);
 			} catch (err) {
+				dev.nextPoll = Date.now() + idleMs;
 				const wasConnected = dev.connected;
 				dev.connected = false;
 				if (dev.lastSeen === 0) {
@@ -850,7 +874,8 @@ export class MieleUnbound extends utils.Adapter {
 			const success = await dev.api.sendAction(dev.route || '0', opcode);
 			if (success) {
 				await this.setStateAsync(id, { val: state.val, ack: true });
-				// Trigger immediate poll after command execution
+				// Trigger immediate poll for this appliance after command execution
+				dev.nextPoll = 0;
 				this.scheduleNextPoll(1000);
 			} else {
 				this.log.warn(
@@ -1215,6 +1240,11 @@ export class MieleUnbound extends utils.Adapter {
 				if (dev) {
 					this.log.debug(`Push update received for device ${route}`);
 					await this.processState(dev, state as MieleStateResponse);
+					const activeMs = (cfg.pollIntervalActive || 5) * 1000;
+					const idleMs = (cfg.pollIntervalIdle || 20) * 1000;
+					dev.nextPoll =
+						Date.now() + getDeviceIntervalMs(dev, activeMs, idleMs);
+					this.scheduleNextPoll();
 				} else {
 					this.log.debug(
 						`Push update received for unknown device ${route}, triggering discovery`,

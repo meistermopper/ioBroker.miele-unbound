@@ -14,6 +14,12 @@ const {
 } = require('../build/lib/definitions.js');
 const { DeviceProfiles } = require('../build/lib/profiles.js');
 const {
+	MIN_POLL_DELAY_MS,
+	getDeviceIntervalMs,
+	getNextWakeDelayMs,
+	isDeviceDue,
+} = require('../build/lib/scheduler.js');
+const {
 	MielePushListener,
 	syntheticHostname,
 	detectLanIp,
@@ -312,6 +318,50 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				onEvent: async () => {},
 			});
 			expect(push).to.exist;
+		});
+	});
+
+	describe('Polling Scheduler', () => {
+		it('should return active interval for active devices and idle for inactive', () => {
+			expect(getDeviceIntervalMs({ active: true }, 5000, 20000)).to.equal(
+				5000,
+			);
+			expect(
+				getDeviceIntervalMs({ active: false }, 5000, 20000),
+			).to.equal(20000);
+			expect(getDeviceIntervalMs(undefined, 5000, 20000)).to.equal(20000);
+		});
+
+		it('should identify due devices correctly', () => {
+			const now = 1000000;
+			expect(isDeviceDue({ active: false }, now)).to.be.true;
+			expect(isDeviceDue({ active: false, nextPoll: 900000 }, now)).to.be
+				.true;
+			expect(isDeviceDue({ active: true, nextPoll: 1000000 }, now)).to.be
+				.true;
+			expect(isDeviceDue({ active: true, nextPoll: 1005000 }, now)).to.be
+				.false;
+		});
+
+		it('should calculate wake delay based on the earliest scheduled device', () => {
+			const now = 1000000;
+			const devices = [
+				{ active: false, nextPoll: 1020000 },
+				{ active: true, nextPoll: 1004000 },
+			];
+			expect(getNextWakeDelayMs(devices, now, 20000)).to.equal(4000);
+		});
+
+		it('should enforce MIN_POLL_DELAY_MS lower bound', () => {
+			const now = 1000000;
+			const devices = [{ active: true, nextPoll: 1000200 }];
+			expect(getNextWakeDelayMs(devices, now, 20000)).to.equal(
+				MIN_POLL_DELAY_MS,
+			);
+		});
+
+		it('should fallback to idle interval when no devices are registered', () => {
+			expect(getNextWakeDelayMs([], Date.now(), 20000)).to.equal(20000);
 		});
 	});
 });

@@ -117,6 +117,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Add per-device polling scheduler to poll active appliances in fast intervals while keeping idle appliances in quiet intervals
 
 ### 1.2.0 (2026-09-27)
 - Add optional SuperVision real-time push HTTP listener with mDNS service announce
