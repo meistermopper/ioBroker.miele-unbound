@@ -116,6 +116,9 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+- Upgrade vulnerable transitive devDependencies via npm overrides and bump @iobroker/testing
+
 ### 1.3.0 (2026-10-11)
 - Add per-device polling scheduler protecting XKM modules with active/idle intervals
 

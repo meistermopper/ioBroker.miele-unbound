@@ -118,6 +118,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Verwundbare transitive Entwicklungsabhängigkeiten über npm-Overrides und @iobroker/testing behoben
 
 ### 1.3.0 (2026-10-11)
 - Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)
