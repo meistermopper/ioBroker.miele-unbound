@@ -122,6 +122,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Automatischer Wiederholungsversuch bei kurzzeitigen XKM-Socket-Abbrüchen
 - Ausstehende Steuerbefehle beim Adapterstart verwerfen und quittieren
 - Restlaufzeit im ausgeschalteten oder beendeten Gerätestatus auf 0 bereinigen
+- Skript update:dev ergänzt und dev-server Profilsynchronisation verbessert
 
 ### 1.3.0 (2026-10-11)
 - Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)

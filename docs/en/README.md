@@ -121,6 +121,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Add automatic retry for transient XKM socket drops during polling
 - Discard and acknowledge pending control commands on adapter startup
 - Sanitize remaining time to 0 for appliances in off or ended status
+- Add update:dev script and enhance dev-server profile synchronization
 
 ### 1.3.0 (2026-10-11)
 - Add per-device polling scheduler protecting XKM modules with active/idle intervals
