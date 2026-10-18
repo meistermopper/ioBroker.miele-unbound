@@ -118,7 +118,10 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
-- Verwundbare transitive Entwicklungsabhängigkeiten über npm-Overrides und @iobroker/testing behoben
+- Automatischer Subnetz-Fallback-Scan bei geänderten DHCP-IP-Adressen
+- Automatischer Wiederholungsversuch bei kurzzeitigen XKM-Socket-Abbrüchen
+- Ausstehende Steuerbefehle beim Adapterstart verwerfen und quittieren
+- Restlaufzeit im ausgeschalteten oder beendeten Gerätestatus auf 0 bereinigen
 
 ### 1.3.0 (2026-10-11)
 - Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)

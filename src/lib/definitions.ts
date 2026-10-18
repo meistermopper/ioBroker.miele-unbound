@@ -957,6 +957,26 @@ export function getProgramPhaseText(
 	return phaseId ? `Phase ${phaseId}` : '';
 }
 
+/**
+ * Appliances report spurious RemainingTime (like [0, 1]) when turned off (status 1),
+ * program ended (status 7), or disconnected (status 255).
+ * Sanitize remaining time so it returns [0, 0] in these idle/off states.
+ */
+export const STATUS_NO_REMAINING_TIME = new Set([1, 7, 255]);
+
+export function sanitizeRemainingTime(
+	status: number,
+	remainingTime?: unknown,
+): [number, number] | undefined {
+	if (!Array.isArray(remainingTime) || remainingTime.length < 2) {
+		return undefined;
+	}
+	if (STATUS_NO_REMAINING_TIME.has(status)) {
+		return [0, 0];
+	}
+	return remainingTime as [number, number];
+}
+
 export function timeToMinutes(arr?: unknown): number | null {
 	if (!Array.isArray(arr) || arr.length < 2) {
 		return null;

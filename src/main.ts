@@ -17,6 +17,7 @@ import {
 	getProgramText,
 	getProgramTypeText,
 	getStatusText,
+	sanitizeRemainingTime,
 	tempToCelsius,
 	timeToHHMM,
 	timeToMinutes,
@@ -51,6 +52,7 @@ interface ManagedDevice extends SchedulableDevice {
 	connected: boolean;
 	lastSeen: number;
 	knownProfile: boolean;
+	disconnectedSince?: number;
 }
 
 const CONTROL_OPCODES: Record<string, number> = {
@@ -72,6 +74,8 @@ export class MieleUnbound extends utils.Adapter {
 	private isDiscovering = false;
 	private isUnloading = false;
 	private pushListener?: MielePushListener;
+	private lastSubnetScan = 0;
+	private scanPauseMs = 30 * 60 * 1000;
 
 	private get cfg(): AdapterConfig {
 		return this.config as unknown as AdapterConfig;
@@ -177,6 +181,9 @@ export class MieleUnbound extends utils.Adapter {
 			this.triggerDiscovery();
 		}
 
+		// Clean up any unacknowledged commands left over from before restart
+		await this.cleanupPendingCommands();
+
 		// Subscribe to states for control actions
 		this.subscribeStates('*.control.*');
 
@@ -187,6 +194,71 @@ export class MieleUnbound extends utils.Adapter {
 
 		// Start polling loop
 		this.scheduleNextPoll(1000);
+	}
+
+	private async checkSubnetFallback(): Promise<void> {
+		const unreachable = Array.from(this.devices.values()).filter(
+			(d) => !d.connected && d.ip,
+		);
+		if (unreachable.length === 0) {
+			this.scanPauseMs = 30 * 60 * 1000;
+			return;
+		}
+
+		const now = Date.now();
+		if (now - this.lastSubnetScan < this.scanPauseMs) {
+			return;
+		}
+		this.lastSubnetScan = now;
+
+		// Verify if candidates are indeed unreachable via quick probe
+		const unreachableIps = unreachable.map((d) => d.ip);
+		const responsive = await Promise.all(
+			unreachableIps.map((ip) => MieleDiscovery.isMieleDevice(ip, 1200)),
+		);
+		const missingIps = unreachableIps.filter((_, idx) => !responsive[idx]);
+
+		if (missingIps.length === 0) {
+			return;
+		}
+
+		const templates = MieleDiscovery.getSubnetTemplates(missingIps);
+		this.log.info(
+			`Subnet fallback: ${missingIps.length} device(s) not responding (${missingIps.join(', ')}) - scanning subnet(s) for changed IP...`,
+		);
+
+		let newCount = 0;
+		for (const template of templates) {
+			try {
+				const found = await MieleDiscovery.scanSubnet(template, (msg) =>
+					this.log.info(msg),
+				);
+				for (const ip of found) {
+					if (!this.devices.has(ip)) {
+						this.log.info(`New Miele appliance found at ${ip}`);
+						this.registerDevice(ip);
+						newCount++;
+					}
+				}
+			} catch (err) {
+				this.log.debug(
+					`Subnet scan error for ${template}: ${(err as Error).message}`,
+				);
+			}
+		}
+
+		if (newCount > 0) {
+			this.scanPauseMs = 30 * 60 * 1000;
+			this.scheduleNextPoll(200);
+		} else {
+			this.scanPauseMs = Math.min(
+				4 * 60 * 60 * 1000,
+				this.scanPauseMs * 2,
+			);
+			this.log.info(
+				`No new Miele devices found - next subnet search in ${Math.round(this.scanPauseMs / 60000)} min`,
+			);
+		}
 	}
 
 	private triggerDiscovery(): void {
@@ -359,33 +431,60 @@ export class MieleUnbound extends utils.Adapter {
 					continue;
 				}
 
-				// Query Live State
-				const state = await dev.api.getState(dev.route);
-				if (state) {
-					const wasConnected = dev.connected;
-					dev.connected = true;
-					dev.lastSeen = Date.now();
-					anyConnected = true;
-					if (!wasConnected) {
-						this.log.info(
-							`Connected to Miele appliance at ${ip} (${dev.serial} - ${dev.model || dev.name || 'Device'})`,
-						);
+				// Query Live State with a retry for transient XKM socket drops (e.g. ECONNRESET)
+				let state: MieleStateResponse | null = null;
+				let lastErr: Error | null = null;
+				for (let attempt = 1; attempt <= 2; attempt++) {
+					try {
+						state = await dev.api.getState(dev.route);
+						if (state) {
+							lastErr = null;
+							break;
+						}
+					} catch (e) {
+						lastErr = e as Error;
+						if (attempt === 1) {
+							await this.delay(250);
+						}
 					}
-					await this.processState(dev, state);
 				}
+
+				if (lastErr || !state) {
+					throw lastErr || new Error('Empty state response');
+				}
+
+				const wasConnected = dev.connected;
+				dev.connected = true;
+				dev.lastSeen = Date.now();
+				anyConnected = true;
+
+				if (!wasConnected) {
+					const min = dev.disconnectedSince
+						? Math.round(
+								(Date.now() - dev.disconnectedSince) / 60000,
+							)
+						: null;
+					this.log.info(
+						`Connected to Miele appliance at ${ip} (${dev.serial || dev.name || 'Device'}${min !== null && min > 0 ? ` after ${min} min` : ''})`,
+					);
+					dev.disconnectedSince = undefined;
+				}
+				await this.processState(dev, state);
 				dev.nextPoll =
 					Date.now() + getDeviceIntervalMs(dev, activeMs, idleMs);
 			} catch (err) {
 				dev.nextPoll = Date.now() + idleMs;
 				const wasConnected = dev.connected;
 				dev.connected = false;
-				if (dev.lastSeen === 0) {
-					this.log.warn(
-						`Could not connect to Miele appliance at ${ip}: ${(err as Error).message}`,
+				if (wasConnected) {
+					dev.disconnectedSince = Date.now();
+					this.log.info(
+						`${dev.serial || ip} (${ip}) not reachable: ${(err as Error).message} - still trying every ${Math.round(idleMs / 1000)} s`,
 					);
-				} else if (wasConnected) {
-					this.log.warn(
-						`Connection lost to Miele appliance at ${ip} (${dev.serial || 'unknown'}): ${(err as Error).message}`,
+				} else if (dev.lastSeen === 0 && !dev.disconnectedSince) {
+					dev.disconnectedSince = Date.now();
+					this.log.info(
+						`Could not connect to Miele appliance at ${ip}: ${(err as Error).message} - still trying every ${Math.round(idleMs / 1000)} s`,
 					);
 				} else {
 					this.log.debug(
@@ -405,6 +504,14 @@ export class MieleUnbound extends utils.Adapter {
 			val: anyConnected,
 			ack: true,
 		});
+
+		// Check subnet fallback if any devices are disconnected
+		if (
+			!anyConnected ||
+			Array.from(this.devices.values()).some((d) => !d.connected)
+		) {
+			await this.checkSubnetFallback();
+		}
 	}
 
 	private async processIdent(
@@ -648,9 +755,10 @@ export class MieleUnbound extends utils.Adapter {
 		);
 
 		// Times
-		const remMin = timeToMinutes(state.RemainingTime) || 0;
+		const remTime = sanitizeRemainingTime(status, state.RemainingTime);
+		const remMin = timeToMinutes(remTime) || 0;
 		set('state.remainingMinutes', remMin);
-		set('state.remainingHHMM', timeToHHMM(state.RemainingTime));
+		set('state.remainingHHMM', timeToHHMM(remTime));
 
 		const elapMin = timeToMinutes(state.ElapsedTime) || 0;
 		set('state.elapsedMinutes', elapMin);
@@ -826,19 +934,74 @@ export class MieleUnbound extends utils.Adapter {
 		});
 	}
 
+	private async completeCommand(
+		id: string,
+		command: string,
+		reason: string,
+		q: ioBroker.SettableState['q'],
+		logWarn = true,
+	): Promise<void> {
+		if (logWarn) {
+			this.log.warn(`Command '${command}' not executed: ${reason}`);
+		}
+		try {
+			await this.setStateAsync(id, {
+				val: false,
+				ack: true,
+				q,
+				c: `not executed: ${reason}`,
+			});
+		} catch (err) {
+			this.log.debug(
+				`${id}: could not acknowledge command - ${(err as Error).message}`,
+			);
+		}
+	}
+
+	private async cleanupPendingCommands(): Promise<number> {
+		let pending: Record<string, ioBroker.State | null | undefined> = {};
+		try {
+			pending = (await this.getStatesAsync('*.control.*')) || {};
+		} catch (err) {
+			this.log.debug(
+				`Pending commands not checked: ${(err as Error).message}`,
+			);
+			return 0;
+		}
+
+		let count = 0;
+		for (const [id, state] of Object.entries(pending)) {
+			if (state?.ack !== false) {
+				continue;
+			}
+			const since = state.ts
+				? new Date(state.ts).toISOString().slice(0, 10)
+				: 'unknown';
+			this.log.info(
+				`${id}: unacknowledged command from ${since} discarded, not sent to device`,
+			);
+			try {
+				await this.setStateAsync(id, {
+					val: false,
+					ack: true,
+					q: 0x11,
+					c: `not executed: still pending at adapter start (set ${since})`,
+				});
+				count++;
+			} catch (err) {
+				this.log.debug(
+					`${id}: could not acknowledge - ${(err as Error).message}`,
+				);
+			}
+		}
+		return count;
+	}
+
 	private async onStateChange(
 		id: string,
 		state: ioBroker.State | null | undefined,
 	): Promise<void> {
 		if (!state || state.ack) {
-			return;
-		}
-
-		const cfg = this.cfg;
-		if (!cfg.allowControl) {
-			this.log.warn(
-				`Received command for ${id}, but remote control is disabled in adapter settings.`,
-			);
 			return;
 		}
 
@@ -850,10 +1013,32 @@ export class MieleUnbound extends utils.Adapter {
 
 		const serial = parts[2];
 		const command = parts[4];
-		const opcode = CONTROL_OPCODES[command];
 
+		// If user set false, nothing to execute - acknowledge immediately so it does not stay pending
+		if (!state.val) {
+			await this.setStateAsync(id, { val: false, ack: true });
+			return;
+		}
+
+		const cfg = this.cfg;
+		if (!cfg.allowControl) {
+			await this.completeCommand(
+				id,
+				command,
+				'remote control is disabled in adapter settings',
+				0x11,
+			);
+			return;
+		}
+
+		const opcode = CONTROL_OPCODES[command];
 		if (opcode === undefined) {
-			this.log.warn(`Unknown control command: ${command}`);
+			await this.completeCommand(
+				id,
+				command,
+				`unknown control command '${command}'`,
+				0x11,
+			);
 			return;
 		}
 
@@ -861,8 +1046,11 @@ export class MieleUnbound extends utils.Adapter {
 		const dev = ip ? this.devices.get(ip) : undefined;
 
 		if (!dev?.api) {
-			this.log.warn(
-				`Cannot send control command: appliance ${serial} not connected`,
+			await this.completeCommand(
+				id,
+				command,
+				`appliance ${serial} not connected`,
+				0x42,
 			);
 			return;
 		}
@@ -873,18 +1061,24 @@ export class MieleUnbound extends utils.Adapter {
 			);
 			const success = await dev.api.sendAction(dev.route || '0', opcode);
 			if (success) {
-				await this.setStateAsync(id, { val: state.val, ack: true });
+				await this.setStateAsync(id, { val: false, ack: true });
 				// Trigger immediate poll for this appliance after command execution
 				dev.nextPoll = 0;
 				this.scheduleNextPoll(1000);
 			} else {
-				this.log.warn(
-					`Command ${command} rejected by appliance ${serial}`,
+				await this.completeCommand(
+					id,
+					command,
+					`rejected by appliance ${serial} (is MobileStart enabled on the device?)`,
+					0x44,
 				);
 			}
 		} catch (err) {
-			this.log.error(
-				`Failed to execute control command ${command}: ${(err as Error).message}`,
+			await this.completeCommand(
+				id,
+				command,
+				`${serial} - ${(err as Error).message} (remote control might not be supported by firmware)`,
+				0x42,
 			);
 		}
 	}

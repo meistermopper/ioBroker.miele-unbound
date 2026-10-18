@@ -1,3 +1,4 @@
+const { getSubnetTemplates } = require('../build/lib/discovery.js');
 const { expect } = require('chai');
 const { MieleBackup } = require('../build/lib/backup.js');
 const { MieleCrypto } = require('../build/lib/crypto.js');
@@ -8,6 +9,7 @@ const {
 	getProgramText,
 	getProgramTypeText,
 	getStatusText,
+	sanitizeRemainingTime,
 	tempToCelsius,
 	timeToHHMM,
 	timeToMinutes,
@@ -27,6 +29,28 @@ const {
 } = require('../build/lib/push.js');
 
 describe('ioBroker.miele-unbound Unit Tests', () => {
+	describe('Subnet Discovery Helpers', () => {
+		it('should extract one template IP per /24 subnet', () => {
+			const templates = getSubnetTemplates([
+				'192.168.1.25',
+				'192.168.1.30',
+				'10.0.0.15',
+				'192.168.2.100',
+			]);
+			expect(templates).to.deep.equal([
+				'192.168.1.25',
+				'10.0.0.15',
+				'192.168.2.100',
+			]);
+		});
+
+		it('should ignore invalid or malformed IP addresses', () => {
+			expect(
+				getSubnetTemplates(['', 'invalid', '1.2.3', null]),
+			).to.deep.equal([]);
+		});
+	});
+
 	const testGroupId = '12345678-1234-1234-1234-123456789abc';
 	// 64 bytes = 128 hex chars
 	const testGroupKey =
@@ -217,6 +241,14 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(getProgramText(23, 3, 'en')).to.equal('Turbo');
 			expect(getProgramPhaseText(23, 5889, 'de')).to.equal('Saugt');
 			expect(getProgramPhaseText(23, 5903, 'en')).to.equal('Docked');
+		});
+
+		it('should sanitize remaining time when appliance is off, ended or disconnected', () => {
+			expect(sanitizeRemainingTime(1, [0, 1])).to.deep.equal([0, 0]);
+			expect(sanitizeRemainingTime(7, [0, 1])).to.deep.equal([0, 0]);
+			expect(sanitizeRemainingTime(255, [0, 1])).to.deep.equal([0, 0]);
+			expect(sanitizeRemainingTime(5, [1, 20])).to.deep.equal([1, 20]);
+			expect(sanitizeRemainingTime(5, undefined)).to.be.undefined;
 		});
 
 		it('should convert times and temperatures accurately', () => {

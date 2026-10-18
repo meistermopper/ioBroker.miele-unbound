@@ -1,3 +1,4 @@
+import http from 'node:http';
 import os from 'node:os';
 import type { DiscoveredDevice } from './types.js';
 
@@ -250,6 +251,96 @@ export function discoverMieleDevices(
 	});
 }
 
+/**
+ * Checks a single IP address by sending a GET request to /Devices/.
+ * Returns true if the device returns Content-Type containing 'miele'.
+ */
+export function isMieleDevice(ip: string, timeoutMs = 800): Promise<boolean> {
+	return new Promise((resolve) => {
+		const req = http.request(
+			{
+				host: ip,
+				port: 80,
+				path: '/Devices/',
+				method: 'GET',
+				timeout: timeoutMs,
+			},
+			(res) => {
+				const contentType = String(res.headers['content-type'] || '');
+				res.resume();
+				resolve(contentType.toLowerCase().includes('miele'));
+			},
+		);
+		req.on('timeout', () => {
+			req.destroy();
+			resolve(false);
+		});
+		req.on('error', () => resolve(false));
+		req.end();
+	});
+}
+
+/**
+ * Scans a /24 subnet based on a template IP address.
+ * Concurrency is limited to 32 parallel requests to prevent network/socket congestion.
+ */
+export async function scanSubnet(
+	templateIp: string,
+	log?: (msg: string) => void,
+	opt?: { timeoutMs?: number; concurrency?: number },
+): Promise<string[]> {
+	const parts = String(templateIp || '').split('.');
+	if (parts.length !== 4) {
+		return [];
+	}
+	const network = parts.slice(0, 3).join('.');
+	const timeoutMs = opt?.timeoutMs || 800;
+	const concurrency = opt?.concurrency || 32;
+
+	const found: string[] = [];
+	for (let start = 1; start <= 254; start += concurrency) {
+		const block: string[] = [];
+		for (let i = start; i < start + concurrency && i <= 254; i++) {
+			block.push(`${network}.${i}`);
+		}
+		const results = await Promise.all(
+			block.map((ip) => isMieleDevice(ip, timeoutMs)),
+		);
+		results.forEach((isMiele, idx) => {
+			if (isMiele) {
+				found.push(block[idx]);
+			}
+		});
+	}
+	if (log) {
+		log(
+			`Subnet ${network}.0/24 scanned: ${found.length} Miele module(s) - ${found.join(', ') || 'none'}`,
+		);
+	}
+	return found;
+}
+
+/**
+ * Extracts one representative IP per unique /24 subnet from a list of IPs.
+ */
+export function getSubnetTemplates(ips: string[]): string[] {
+	const networks = new Map<string, string>();
+	for (const ip of ips || []) {
+		const parts = String(ip || '').split('.');
+		if (parts.length !== 4) {
+			continue;
+		}
+		const net = parts.slice(0, 3).join('.');
+		if (!networks.has(net)) {
+			networks.set(net, ip);
+		}
+	}
+	return [...networks.values()];
+}
+
 export const MieleDiscovery = {
 	discover: discoverMieleDevices,
+	isMieleDevice,
+	scanSubnet,
+	getSubnetTemplates,
 };
