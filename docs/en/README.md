@@ -116,7 +116,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.3.1 (2026-10-18)
 - Add subnet fallback scan to re-discover appliances after DHCP IP changes
 - Add automatic retry for transient XKM socket drops during polling
 - Discard and acknowledge pending control commands on adapter startup
@@ -140,14 +140,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ### 1.1.1 (2026-09-23)
 - Enable EcoFeedback query and states for dishwashers (device types 7 and 8)
-
-### 1.1.0 (2026-09-23)
-- Parallelize setState calls in processState, add programPhase states map, and unify type aliases
-- Restrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported
-- Fix inUse state calculation to only report true while cycle is actively running
-- Update hood light sensor state from live appliance telemetry
-- Keep backup export and restore buttons active to prevent UI locking in jsonConfig
-- Map raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](../../CHANGELOG_OLD.md).
 

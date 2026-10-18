@@ -1,4 +1,12 @@
 # Older changes
+## 1.1.0 (2026-09-23)
+- Parallelize setState calls in processState, add programPhase states map, and unify type aliases
+- Restrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported
+- Fix inUse state calculation to only report true while cycle is actively running
+- Update hood light sensor state from live appliance telemetry
+- Keep backup export and restore buttons active to prevent UI locking in jsonConfig
+- Map raw Miele API dishwasher phase IDs (1793-1800) to human-readable labels
+
 ## 1.0.1 (2026-09-23)
 - Only update sensor states supported by appliance profile to prevent missing object warnings
 

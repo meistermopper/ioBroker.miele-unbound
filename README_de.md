@@ -118,6 +118,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.3.1 (2026-10-18)
 - Automatischer Subnetz-Fallback-Scan bei geänderten DHCP-IP-Adressen
 - Automatischer Wiederholungsversuch bei kurzzeitigen XKM-Socket-Abbrüchen
 - Ausstehende Steuerbefehle beim Adapterstart verwerfen und quittieren
@@ -142,13 +144,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### 1.1.1 (2026-09-23)
 - EcoFeedback-Abfrage und States für Geschirrspüler (Typ 7 & 8) aktivieren
 
-### 1.1.0 (2026-09-23)
-- setState in processState parallelisieren, programPhase-States mappen & Typ-Aliase bündeln
-- EcoFeedback-States auf Waschmaschinen begrenzen, da DOP2-Abfrage nur für diese aktiv ist
-- inUse-Berechnung korrigieren, sodass nur während aktiver Programmläufe true gemeldet wird
-- Licht-Sensorstatus (sensors.light) bei Dunstabzugshauben aus Telemetrie aktualisieren
-- Backup-Buttons in jsonConfig immer aktiv halten gegen UI-Sperren bei Eingabefeldern
-- Rohe Miele-API-Phasennummern des Geschirrspülers (1793-1800) auf lesbare Bezeichnungen mappen
+[Ältere Einträge](CHANGELOG_OLD.md)
 
 [Ältere Einträge](CHANGELOG_OLD.md)
 

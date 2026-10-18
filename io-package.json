@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.3.0",
+		"version": "1.3.1",
 		"news": {
+			"1.3.1": {
+				"en": "Add subnet fallback scan to re-discover appliances after DHCP IP changes\nAdd automatic retry for transient XKM socket drops during polling\nDiscard and acknowledge pending control commands on adapter startup\nSanitize remaining time to 0 for appliances in off or ended status\nAdd update:dev script and enhance dev-server profile synchronization",
+				"de": "Fügt Subnetz-Fallbackscan hinzu, um Geräte nach DHCP-IP-Änderungen wiederzufinden\nAutomatische Wiederholung bei XKM-Socket-Drops beim Polling\nAusstehende Steuerbefehle beim Adapterstart verwerfen und bestätigen\nRestzeit auf 0 für Geräte im Status Aus oder Aus löschen löschen\nUpdate: Dev-Skript hinzufügen und Serverprofilabgleich verbessern",
+				"ru": "Добавьте резервное сканирование подсети для повторного обнаружения устройств после изменения IP-адреса DHCP\nДобавить автоматическую повторную попытку при временном падении сокетов XKM во время опроса\nОтбросьте и подтвердите отложенные команды управления при запуске адаптера\nДезинфицируйте оставшееся время до 0, если приборы находятся в выключенном или выключенном состоянии\nДобавьте скрипт update:dev и улучшите синхронизацию профилей dev-server",
+				"pt": "Examine a sub-rede para redescobrir dispositivos após mudanças de IP DHCP\nRepetir automaticamente o soquete XKM durante a pesquisa\nDescarte e confirme comandos pendentes ao iniciar o adaptador\nLimpe o tempo restante para 0 para aparelhos desligados ou acabados\nAdicione o script update:dev e sincronize o perfil dev-server",
+				"nl": "Voeg een noodscan voor het subnet toe om apparaten opnieuw te ontdekken na wijzigingen in het DHCP-IP-adres\nVoeg een automatische herpoging toe voor tijdelijke uitvallen van het XKM-stopcontact tijdens de peiling\nBedieningsopdrachten die in behandeling zijn bij het opstarten van de adapter negeren en bevestigen\nOntsmet de resterende tijd tot 0 voor apparaten met een uitgeschakelde of beëindigde status\nUpdate:dev-script toevoegen en de synchronisatie van dev-serverprofielen verbeteren",
+				"fr": "Ajouter un scan de secours pour redécouvrir les appareils après le changement d'IP DHCP\nRéessayer automatiquement en cas de panne de socket XKM lors d'un sondage\nIgnorez et confirmez les commandes en attente au démarrage de l'adaptateur\nPassez le temps restant à 0 pour les appareils éteints ou éteints\nAjoutez le script update:dev et synchronisez les profils dev-server",
+				"it": "Aggiunga una subnet fallback per riscoprire i device dopo i cambi IP DHCP\nRiprova automaticamente per cadute temporanee di socket XKM\nIgnora e conferma i comandi in sospeso all'avvio dell'adattatore\nRiduci il tempo residuo a 0 per gli apparecchi spenti o spenti\nAggiunga lo script Update:dev e migliori la sincronizzazione dev-server",
+				"es": "Añada un análisis de subred para redescubrir los dispositivos tras cambiar la IP de DHCP\nAñadir reintento automático para caídas transitorias de XKM durante el sondeo\nDescartar y confirmar los comandos de control pendientes al iniciar el adaptador\nDesinfecte el tiempo restante a 0 para los aparatos apagados o agotados\nAñada el script update:dev y mejore la sincronización del perfil dev-server",
+				"pl": "Dodaj skanowanie awaryjne podsieci, aby ponownie wykryć urządzenia po zmianie adresu IP DHCP\nDodawanie automatycznej próby ponownej próby przejściowego spadku gniazda XKM podczas głosowania\nOdrzuć i potwierdzić oczekujące polecenia kontrolne podczas uruchamiania adaptera\nZdezynfekuj pozostały czas do 0 dla urządzeń w stanie wyłączonym lub zakończonym\nDodaj skrypt update:dev i ulepsz synchronizację profilu dev-server",
+				"uk": "Додайте резервне сканування підмережі, щоб знову виявити пристрої після зміни IP DHCP\nДодати автоматичну повторну спробу для перехідних падінь розетки XKM під час опитування\nВідхилити та підтвердити відкладені команди керування під час запуску адаптера\nПродезінфікуйте час, що залишився, до 0 для приладів у вимкненому або закінченому стані\nДодайте сценарій update:dev та покращуйте синхронізацію профілів dev-server",
+				"zh-cn": "添加子网备用扫描，以便在 DHCP IP 更改后重新发现设备\n为轮询期间暂时 XKM 套接字丢失添加自动重试功能\n适配器启动时丢弃并确认待处理的控制命令\n将处于关闭或已结束状态的设备的剩余时间消毒为 0\n添加 update: dev 脚本并增强开发服务器配置文件同步"
+			},
 			"1.3.0": {
 				"en": "Add per-device polling scheduler protecting XKM modules with active/idle intervals",
 				"de": "Abfragescheduler pro Gerät zum Schutz von XKM-Modulen mit Aktiv-/Leerlauf hinzufügen",
@@ -80,19 +93,6 @@
 				"pl": "Aktualizuj tylko stany czujników obsługiwane przez profil urządzenia, aby zapobiec brakującym ostrzeżeniom o obiektach",
 				"uk": "Оновлюйте лише стани датчиків, що підтримуються профілем приладу, щоб запобігти появі попереджень про відсутність об'єктів",
 				"zh-cn": "仅更新设备配置文件支持的传感器状态，以防止丢失对象警告"
-			},
-			"1.0.0": {
-				"en": "Initial release of miele-unbound: Local-First Miele@Home adapter with enriched device profiles",
-				"de": "Erstveröffentlichung von miele-unbound: Lokaler Miele@Home-Adapter mit umfassenden Geräteprofilen",
-				"ru": "Первоначальный выпуск miele-unbound: локальный адаптер Miele@Home с расширенными профилями устройств",
-				"pt": "Lançamento inicial de miele-unbound: adaptador Miele@Home local com perfis de dispositivos aprimorados",
-				"nl": "Eerste uitgave van miele-unbound: lokale Miele@Home-adapter met verrijkte apparaatprofielen",
-				"fr": "Version initiale de miele-unbound : adaptateur Miele@Home local avec profils d'appareils enrichis",
-				"it": "Versione iniziale di miele-unbound: adattatore locale Miele@Home con profili dispositivo arricchiti",
-				"es": "Versión inicial de miele-unbound: adaptador local Miele@Home con perfiles de dispositivos enriquecidos",
-				"pl": "Początkowe wydanie miele-unbound: lokalny adapter Miele@Home z rozszerzonymi profilami urządzeń",
-				"uk": "Початковий випуск miele-unbound: локальний адаптер Miele@Home із розширеними профілями пристроїв",
-				"zh-cn": "miele-unbound 的初始版本：具有丰富设备配置文件的本地优先 Miele@Home 适配器"
 			}
 		},
 		"titleLang": {
