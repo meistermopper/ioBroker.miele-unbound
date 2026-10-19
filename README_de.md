@@ -146,10 +146,6 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 
 [Ältere Einträge](CHANGELOG_OLD.md)
 
-[Ältere Einträge](CHANGELOG_OLD.md)
-
-[Ältere Einträge](CHANGELOG_OLD.md)
-
 ## Lizenz
 
 MIT License
