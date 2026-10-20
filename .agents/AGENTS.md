@@ -86,6 +86,14 @@ This file defines style guidelines, constraints, and general instructions for AI
 
 - **Constraint:** AI agents MUST NEVER perform `git commit` or `git push` operations automatically without explicit, prior user approval in the chat.
 - **Workflow:** Always prepare code modifications locally and ask the user for explicit confirmation before staging, committing, or pushing changes to remote repositories.
+- **Co-Author Attribution:** Every commit created or suggested with AI assistance must include the Git trailer:
+  ```git
+  Co-authored-by: Gemini <noreply@google.com>
+  ```
+  Example:
+  ```bash
+  git commit -m "feat: add device status parsing" -m "Co-authored-by: Gemini <noreply@google.com>"
+  ```
 
 ## 11. Active Links for References (Commits, Releases, Issues, Files)
 
