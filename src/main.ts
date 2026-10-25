@@ -61,6 +61,7 @@ interface ManagedDevice extends SchedulableDevice {
 	lastSeen: number;
 	knownProfile: boolean;
 	disconnectedSince?: number;
+	lastStateTs?: number;
 }
 
 const CONTROL_OPCODES: Record<string, number> = {
@@ -72,6 +73,9 @@ const CONTROL_OPCODES: Record<string, number> = {
 	lightOn: 0x0d,
 	lightOff: 0x0e,
 };
+
+/** Upper bound of per-client time server channels to avoid unbounded object creation */
+const MAX_TIME_SERVER_CLIENTS = 50;
 
 export class MieleUnbound extends utils.Adapter {
 	private pollTimer?: ioBroker.Timeout;
@@ -92,6 +96,8 @@ export class MieleUnbound extends utils.Adapter {
 	private timeServerChain: Promise<void> = Promise.resolve();
 	private clockTimer?: ioBroker.Timeout;
 	private clockInitializedDevices: Set<string> = new Set();
+	private isSubnetScanning = false;
+	private readonly abortController = new AbortController();
 
 	private get cfg(): AdapterConfig {
 		return this.config as unknown as AdapterConfig;
@@ -103,8 +109,20 @@ export class MieleUnbound extends utils.Adapter {
 			name: 'miele-unbound',
 		});
 
-		this.on('ready', this.onReady.bind(this));
-		this.on('stateChange', this.onStateChange.bind(this));
+		this.on('ready', () => {
+			this.onReady().catch((err) =>
+				this.log.error(
+					`Adapter initialization failed: ${(err as Error).message}`,
+				),
+			);
+		});
+		this.on('stateChange', (id, state) => {
+			this.onStateChange(id, state).catch((err) =>
+				this.log.error(
+					`State change handler error for ${id}: ${(err as Error).message}`,
+				),
+			);
+		});
 		this.on('message', this.onMessage.bind(this));
 		this.on('unload', this.onUnload.bind(this));
 	}
@@ -202,19 +220,14 @@ export class MieleUnbound extends utils.Adapter {
 
 		// Start optional appliance clock synchronizer
 		if (cfg.keepDeviceClock) {
-			this.checkDeviceClocks().catch((err) =>
-				this.log.debug(
-					`Device clock sync error: ${(err as Error).message}`,
-				),
-			);
-			this.scheduleClockCheck();
+			// First check shortly after start, once appliances have been identified
+			this.scheduleClockCheck(2 * 60 * 1000);
 		}
 
-		// Clean up any unacknowledged commands left over from before restart
-		await this.cleanupPendingCommands();
-
-		// Subscribe to states for control actions
+		// Subscribe first so commands set during cleanup are not lost,
+		// then discard unacknowledged commands left over from before restart
 		this.subscribeStates('*.control.*');
+		await this.cleanupPendingCommands();
 
 		// Start SuperVision push listener if enabled
 		if (cfg.enablePush) {
@@ -259,8 +272,11 @@ export class MieleUnbound extends utils.Adapter {
 		let newCount = 0;
 		for (const template of templates) {
 			try {
-				const found = await MieleDiscovery.scanSubnet(template, (msg) =>
-					this.log.info(msg),
+				// Skip known appliance IPs to avoid extra connections to busy XKM modules
+				const found = await MieleDiscovery.scanSubnet(
+					template,
+					(msg) => this.log.info(msg),
+					{ exclude: Array.from(this.devices.keys()) },
 				);
 				for (const ip of found) {
 					if (!this.devices.has(ip)) {
@@ -303,6 +319,7 @@ export class MieleUnbound extends utils.Adapter {
 				setTimeout: (fn, ms) => this.setTimeout(fn, ms),
 				clearTimeout: (id) => this.clearTimeout(id as ioBroker.Timeout),
 			},
+			this.abortController.signal,
 		)
 			.then(async (discovered) => {
 				await this.setStateAsync('info.discoveredDevices', {
@@ -344,7 +361,10 @@ export class MieleUnbound extends utils.Adapter {
 			`Registering Miele device at ${ip}${name ? ` (${name})` : ''}`,
 		);
 
-		const api = new MieleDeviceApi(ip, this.mc, { timeout: 8000 });
+		const api = new MieleDeviceApi(ip, this.mc, {
+			timeout: 8000,
+			signal: this.abortController.signal,
+		});
 		this.devices.set(ip, {
 			ip,
 			name,
@@ -424,6 +444,9 @@ export class MieleUnbound extends utils.Adapter {
 		);
 
 		for (const [ip, dev] of this.devices.entries()) {
+			if (this.isUnloading) {
+				return;
+			}
 			if (!dev.api) {
 				continue;
 			}
@@ -479,6 +502,7 @@ export class MieleUnbound extends utils.Adapter {
 				}
 
 				// Query Live State with a retry for transient XKM socket drops (e.g. ECONNRESET)
+				const requestedAt = Date.now();
 				let state: MieleStateResponse | null = null;
 				let lastErr: Error | null = null;
 				for (let attempt = 1; attempt <= 2; attempt++) {
@@ -516,7 +540,14 @@ export class MieleUnbound extends utils.Adapter {
 					);
 					dev.disconnectedSince = undefined;
 				}
-				await this.processState(dev, state);
+				try {
+					await this.processState(dev, state, requestedAt);
+				} catch (stateErr) {
+					// Appliance is reachable; a state write failure must not mark it as disconnected
+					this.log.warn(
+						`Failed to update states for ${ip}: ${(stateErr as Error).message}`,
+					);
+				}
 				dev.nextPoll =
 					Date.now() + getDeviceIntervalMs(dev, activeMs, idleMs);
 			} catch (err) {
@@ -552,12 +583,23 @@ export class MieleUnbound extends utils.Adapter {
 			ack: true,
 		});
 
-		// Check subnet fallback if any devices are disconnected
+		// Check subnet fallback if any devices are disconnected.
+		// Runs detached so a subnet scan does not delay polling of active appliances.
 		if (
-			!anyConnected ||
-			Array.from(this.devices.values()).some((d) => !d.connected)
+			!this.isSubnetScanning &&
+			(!anyConnected ||
+				Array.from(this.devices.values()).some((d) => !d.connected))
 		) {
-			await this.checkSubnetFallback();
+			this.isSubnetScanning = true;
+			this.checkSubnetFallback()
+				.catch((err) =>
+					this.log.debug(
+						`Subnet fallback error: ${(err as Error).message}`,
+					),
+				)
+				.finally(() => {
+					this.isSubnetScanning = false;
+				});
 		}
 	}
 
@@ -763,10 +805,20 @@ export class MieleUnbound extends utils.Adapter {
 	private async processState(
 		dev: ManagedDevice,
 		state: MieleStateResponse,
+		snapshotTs = Date.now(),
 	): Promise<void> {
 		if (!dev.serial) {
 			return;
 		}
+		// Discard snapshots older than the last processed one (e.g. a poll response
+		// requested before a newer push event arrived)
+		if (dev.lastStateTs !== undefined && snapshotTs < dev.lastStateTs) {
+			this.log.debug(
+				`Discarding outdated state snapshot for ${dev.serial}`,
+			);
+			return;
+		}
+		dev.lastStateTs = snapshotTs;
 		const sId = dev.serial;
 		const cfg = this.cfg;
 		const lang = cfg.language || 'de';
@@ -1436,7 +1488,16 @@ export class MieleUnbound extends utils.Adapter {
 				}
 
 				case 'discover': {
-					const discovered = await MieleDiscovery.discover(4000);
+					const discovered = await MieleDiscovery.discover(
+						4000,
+						undefined,
+						{
+							setTimeout: (fn, ms) => this.setTimeout(fn, ms),
+							clearTimeout: (id) =>
+								this.clearTimeout(id as ioBroker.Timeout),
+						},
+						this.abortController.signal,
+					);
 					respond({ success: true, devices: discovered });
 					break;
 				}
@@ -1461,10 +1522,13 @@ export class MieleUnbound extends utils.Adapter {
 		try {
 			return path.join(
 				utils.getAbsoluteDefaultDataDir(),
-				'miele_oauth_challenge.json',
+				`miele_oauth_challenge_${this.namespace}.json`,
 			);
 		} catch {
-			return path.join(process.cwd(), '.miele_oauth_challenge.json');
+			return path.join(
+				process.cwd(),
+				`.miele_oauth_challenge_${this.namespace}.json`,
+			);
 		}
 	}
 
@@ -1668,6 +1732,11 @@ export class MieleUnbound extends utils.Adapter {
 		const sanitizedIp = this.sanitizeId(ip.replace(/[.:]/g, '_'));
 		const clientChannel = `info.timeServer.clients.${sanitizedIp}`;
 		let client = this.timeServerClients.get(clientChannel);
+
+		if (!client && this.timeServerClients.size >= MAX_TIME_SERVER_CLIENTS) {
+			// Beyond the client limit only the total counters are tracked
+			return;
+		}
 
 		if (!client) {
 			const lang = this.cfg.language || 'de';
@@ -1882,29 +1951,30 @@ export class MieleUnbound extends utils.Adapter {
 	}
 
 	/**
-	 * Schedules the hourly clock synchronization check.
+	 * Schedules the next clock synchronization check (hourly by default).
+	 *
+	 * @param delayMs Delay until the next check in milliseconds
 	 */
-	private scheduleClockCheck(): void {
+	private scheduleClockCheck(delayMs = 60 * 60 * 1000): void {
 		if (this.isUnloading || !this.cfg.keepDeviceClock) {
 			return;
 		}
-		this.clockTimer = this.setTimeout(
-			() => {
-				this.checkDeviceClocks()
-					.catch((err) =>
-						this.log.debug(
-							`Device clock sync error: ${(err as Error).message}`,
-						),
-					)
-					.finally(() => this.scheduleClockCheck());
-			},
-			60 * 60 * 1000,
-		);
+		this.clockTimer = this.setTimeout(() => {
+			this.checkDeviceClocks()
+				.catch((err) =>
+					this.log.debug(
+						`Device clock sync error: ${(err as Error).message}`,
+					),
+				)
+				.finally(() => this.scheduleClockCheck());
+		}, delayMs);
 	}
 
 	private async onUnload(callback: () => void): Promise<void> {
 		try {
 			this.isUnloading = true;
+			// Cancel pending appliance requests and running mDNS discoveries
+			this.abortController.abort();
 			if (this.pollTimer) {
 				this.clearTimeout(this.pollTimer);
 			}

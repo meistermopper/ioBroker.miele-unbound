@@ -7,6 +7,8 @@ const SERVICE = '_mieleathome._tcp.local';
 const CONTENT_TYPE = 'application/vnd.miele.v1+json; charset=utf-8';
 const MIELE_OUI_EUI64 = '001D63FFFE';
 export const OUR_FAB = '000000000001';
+/** Maximum accepted request body size; real push payloads are far below 1 KB */
+const MAX_BODY_BYTES = 64 * 1024;
 
 function cleanJsonText(buf: Buffer): string {
 	let str = buf.toString('utf8');
@@ -195,8 +197,34 @@ export class MielePushListener {
 		res: http.ServerResponse,
 	): void {
 		const chunks: Buffer[] = [];
-		req.on('data', (c: Buffer) => chunks.push(c));
+		let size = 0;
+		let rejected = false;
+		req.on('error', (err: Error) => {
+			this.log.debug(`Push request stream error: ${err.message}`);
+		});
+		req.on('data', (c: Buffer) => {
+			if (rejected) {
+				return;
+			}
+			size += c.length;
+			if (size > MAX_BODY_BYTES) {
+				// Protect memory against oversized bodies from the LAN
+				rejected = true;
+				chunks.length = 0;
+				this.log.debug(
+					`Push request from ${req.socket.remoteAddress} exceeds ${MAX_BODY_BYTES} bytes - rejected`,
+				);
+				res.writeHead(413, { Connection: 'close' });
+				res.end();
+				req.destroy();
+				return;
+			}
+			chunks.push(c);
+		});
 		req.on('end', () => {
+			if (rejected) {
+				return;
+			}
 			const body = Buffer.concat(chunks);
 			const path = (req.url || '').split('?')[0];
 			try {
@@ -377,9 +405,9 @@ export class MielePushListener {
 		});
 
 		respond();
-		const schedule = this.adapter
-			? this.adapter.setTimeout.bind(this.adapter)
-			: setTimeout;
-		schedule(respond, 1000);
+		// Second announcement only via adapter-managed timers (cleared on unload)
+		if (this.adapter) {
+			this.adapter.setTimeout(respond, 1000);
+		}
 	}
 }

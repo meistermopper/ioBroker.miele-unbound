@@ -213,19 +213,16 @@ export function discoverMieleDevices(
 		};
 
 		let timerDone = false;
+		const onAbort = (): void => {
+			if (!timerDone) {
+				timerDone = true;
+				clearT(q2);
+				destroySockets();
+				resolve([]);
+			}
+		};
 		if (signal) {
-			signal.addEventListener(
-				'abort',
-				() => {
-					if (!timerDone) {
-						timerDone = true;
-						clearT(q2);
-						destroySockets();
-						resolve([]);
-					}
-				},
-				{ once: true },
-			);
+			signal.addEventListener('abort', onAbort, { once: true });
 		}
 
 		setT(() => {
@@ -233,6 +230,8 @@ export function discoverMieleDevices(
 				return;
 			}
 			timerDone = true;
+			// Long-lived adapter signals must not accumulate listeners
+			signal?.removeEventListener('abort', onAbort);
 			clearT(q2);
 			destroySockets();
 
@@ -295,7 +294,7 @@ export function isMieleDevice(ip: string, timeoutMs = 800): Promise<boolean> {
 export async function scanSubnet(
 	templateIp: string,
 	log?: (msg: string) => void,
-	opt?: { timeoutMs?: number; concurrency?: number },
+	opt?: { timeoutMs?: number; concurrency?: number; exclude?: string[] },
 ): Promise<string[]> {
 	const parts = String(templateIp || '').split('.');
 	if (parts.length !== 4) {
@@ -304,12 +303,16 @@ export async function scanSubnet(
 	const network = parts.slice(0, 3).join('.');
 	const timeoutMs = opt?.timeoutMs || 800;
 	const concurrency = opt?.concurrency || 32;
+	const exclude = new Set(opt?.exclude || []);
 
 	const found: string[] = [];
 	for (let start = 1; start <= 254; start += concurrency) {
 		const block: string[] = [];
 		for (let i = start; i < start + concurrency && i <= 254; i++) {
-			block.push(`${network}.${i}`);
+			const ip = `${network}.${i}`;
+			if (!exclude.has(ip)) {
+				block.push(ip);
+			}
 		}
 		const results = await Promise.all(
 			block.map((ip) => isMieleDevice(ip, timeoutMs)),
