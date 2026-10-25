@@ -497,6 +497,61 @@
 					"sm": 12,
 					"md": 6,
 					"hidden": "!data.enablePush"
+				},
+				"dividerSettings4": {
+					"type": "divider"
+				},
+				"headerTimeServer": {
+					"type": "header",
+					"size": 5,
+					"text": "headerTimeServer"
+				},
+				"timeServer": {
+					"type": "checkbox",
+					"label": "timeServer",
+					"help": "timeServer_help",
+					"sm": 12,
+					"md": 12
+				},
+				"timeServerPort": {
+					"type": "number",
+					"label": "timeServerPort",
+					"help": "timeServerPort_help",
+					"min": 1,
+					"max": 65535,
+					"sm": 12,
+					"md": 6,
+					"hidden": "!data.timeServer"
+				},
+				"timeServerBind": {
+					"type": "text",
+					"label": "timeServerBind",
+					"help": "timeServerBind_help",
+					"sm": 12,
+					"md": 6,
+					"hidden": "!data.timeServer"
+				},
+				"timeServerText": {
+					"type": "staticText",
+					"text": "timeServerText",
+					"sm": 12,
+					"md": 12,
+					"hidden": "!data.timeServer"
+				},
+				"dividerSettings5": {
+					"type": "divider"
+				},
+				"headerDeviceClock": {
+					"type": "header",
+					"size": 5,
+					"text": "headerDeviceClock"
+				},
+				"keepDeviceClock": {
+					"type": "checkbox",
+					"label": "keepDeviceClock",
+					"help": "keepDeviceClock_help",
+					"sm": 12,
+					"md": 12
 				}
 			}
 		}

@@ -50,5 +50,16 @@
 	"step2_header": "Stap 2: Meld u aan met Miele",
 	"step2_text": "1. Voer het e-mailadres en wachtwoord van uw Miele-app-account in en klik op 'Aanmelden'.\n2. Let op: Na het inloggen blijft de pagina hangen aan een draaiend laadwiel (of geeft een foutmelding weer). Dit is volkomen normaal en duidt op succes!",
 	"step3_header": "Stap 3: Kopieer de omleidings-URL en haal GroupKey op",
-	"step3_text": "1. Scroll op het tabblad Netwerk (F12) naar het allerlaatste (vaak rode) verzoek dat begint met 'redirect?redirect_uri=miele...' of 'miele://oauth2-code/...'.\n2. Klik met de rechtermuisknop op dat item ➔ 'URL kopiëren' / 'Linkadres kopiëren'.\n3. Plak het vastgelegde adres in het onderstaande veld en klik op 'Fetch GroupKey'."
+	"step3_text": "1. Scroll op het tabblad Netwerk (F12) naar het allerlaatste (vaak rode) verzoek dat begint met 'redirect?redirect_uri=miele...' of 'miele://oauth2-code/...'.\n2. Klik met de rechtermuisknop op dat item ➔ 'URL kopiëren' / 'Linkadres kopiëren'.\n3. Plak het vastgelegde adres in het onderstaande veld en klik op 'Fetch GroupKey'.",
+	"headerTimeServer": "Miele-tijdserver",
+	"timeServer": "Tijdaanvraag van apparaten beantwoorden (Miele-tijdserver)",
+	"timeServer_help": "Miele-apparaten vragen tijd op via HTTP, niet via NTP. Standaard uit; omleiding vereist.",
+	"timeServerPort": "Tijdserverpoort (TCP)",
+	"timeServerPort_help": "Poort waarop deze service luistert (standaard: 8780). Poort 80 omleiden via router of Docker.",
+	"timeServerBind": "Bind-adres (leeg = alle interfaces)",
+	"timeServerBind_help": "Leeg laten om op alle netwerkinterfaces te luisteren.",
+	"timeServerText": "Miele-apparaten halen tijd via HTTP van ntp.mcs2.miele.com:80. Leid apparaten om via NAT of DNS.",
+	"headerDeviceClock": "Klok van het apparaat synchroniseren",
+	"keepDeviceClock": "Apparaatklok op lokale tijd houden",
+	"keepDeviceClock_help": "Controleert Settings/TimeSync bij opstarten en elk uur. Corrigeert afwijkingen > 2 minuten."
 }

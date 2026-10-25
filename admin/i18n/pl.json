@@ -50,5 +50,16 @@
 	"step2_header": "Krok 2: Zaloguj się w Miele",
 	"step2_text": "1. Wprowadź adres e-mail i hasło do konta aplikacji Miele i kliknij „Zaloguj się”.\n2. Uwaga: po zalogowaniu strona zawiesza się na obracającym się kole ładującym (lub wyświetla błąd). Jest to całkowicie normalne i oznacza sukces!",
 	"step3_header": "Krok 3: Skopiuj adres URL przekierowania i pobierz GroupKey",
-	"step3_text": "1. W zakładce Sieć (F12) przewiń do ostatniego (często czerwonego) żądania zaczynającego się od „redirect?redirect_uri=miele...” lub „miele://oauth2-code/...”.\n2. Kliknij prawym przyciskiem myszy ten wpis ➔ „Kopiuj adres URL” / „Kopiuj adres łącza”.\n3. Wklej przechwycony adres w polu poniżej i kliknij „Pobierz klucz grupy”."
+	"step3_text": "1. W zakładce Sieć (F12) przewiń do ostatniego (często czerwonego) żądania zaczynającego się od „redirect?redirect_uri=miele...” lub „miele://oauth2-code/...”.\n2. Kliknij prawym przyciskiem myszy ten wpis ➔ „Kopiuj adres URL” / „Kopiuj adres łącza”.\n3. Wklej przechwycony adres w polu poniżej i kliknij „Pobierz klucz grupy”.",
+	"headerTimeServer": "Serwer czasu Miele",
+	"timeServer": "Odpowiadaj na zapytania o czas urządzeń (serwer czasu Miele)",
+	"timeServer_help": "Urządzenia Miele pobierają czas przez HTTP, a nie NTP. Domyślnie wyłączone; wymagane przekierowanie.",
+	"timeServerPort": "Port serwera czasu (TCP)",
+	"timeServerPort_help": "Port nasłuchiwania usługi (domyślnie: 8780). Przekieruj port 80 przez router lub Docker.",
+	"timeServerBind": "Adres powiązania (pusty = wszystkie)",
+	"timeServerBind_help": "Pozostaw puste, aby nasłuchiwać na wszystkich interfejsach sieciowych.",
+	"timeServerText": "Urządzenia Miele pobierają czas przez HTTP z ntp.mcs2.miele.com:80. Przekieruj przez NAT lub DNS.",
+	"headerDeviceClock": "Synchronizacja zegara urządzenia",
+	"keepDeviceClock": "Utrzymuj zegar urządzenia w czasie lokalnym",
+	"keepDeviceClock_help": "Sprawdza Settings/TimeSync przy starcie i co godzinę. Koryguje odchylenia > 2 minuty."
 }

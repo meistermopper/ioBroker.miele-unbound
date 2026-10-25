@@ -50,5 +50,16 @@
 	"step2_header": "Passaggio 2: accedi con Miele",
 	"step2_text": "1. Inserisci l'e-mail e la password del tuo account dell'app Miele e fai clic su \"Accedi\".\n2. Nota: dopo l'accesso, la pagina si bloccherà su una rotella di caricamento che gira (o mostrerà un errore). Questo è del tutto normale e indica il successo!",
 	"step3_header": "Passaggio 3: copia l'URL di reindirizzamento e recupera GroupKey",
-	"step3_text": "1. Nella scheda Rete (F12), scorri fino all'ultima richiesta (spesso rossa) che inizia con 'redirect?redirect_uri=miele...' o 'miele://oauth2-code/...'.\n2. Fare clic con il pulsante destro del mouse sulla voce ➔ \"Copia URL\" / \"Copia indirizzo collegamento\".\n3. Incolla l'indirizzo catturato nel campo sottostante e fai clic su \"Recupera GroupKey\"."
+	"step3_text": "1. Nella scheda Rete (F12), scorri fino all'ultima richiesta (spesso rossa) che inizia con 'redirect?redirect_uri=miele...' o 'miele://oauth2-code/...'.\n2. Fare clic con il pulsante destro del mouse sulla voce ➔ \"Copia URL\" / \"Copia indirizzo collegamento\".\n3. Incolla l'indirizzo catturato nel campo sottostante e fai clic su \"Recupera GroupKey\".",
+	"headerTimeServer": "Server dell’ora Miele",
+	"timeServer": "Rispondi alla richiesta dell’ora degli apparecchi (server dell’ora Miele)",
+	"timeServer_help": "Gli apparecchi Miele richiedono l’ora tramite HTTP e non NTP. Disattivato per impostazione predefinita.",
+	"timeServerPort": "Porta del server dell’ora (TCP)",
+	"timeServerPort_help": "Porta di ascolto del servizio (predefinito: 8780). Reindirizzare la porta 80 per porte inferiori a 1024.",
+	"timeServerBind": "Indirizzo di bind (vuoto = tutti)",
+	"timeServerBind_help": "Lasciare vuoto per ascoltare su tutte le interfacce di rete.",
+	"timeServerText": "Gli apparecchi Miele recuperano l’ora via HTTP da ntp.mcs2.miele.com:80. Reindirizzare tramite NAT o DNS.",
+	"headerDeviceClock": "Sincronizzazione orologio dell’apparecchio",
+	"keepDeviceClock": "Mantieni l’orologio dell’apparecchio sull’ora locale",
+	"keepDeviceClock_help": "Controlla Settings/TimeSync all’avvio e ogni ora. Corregge scostamenti superiori a 2 minuti."
 }

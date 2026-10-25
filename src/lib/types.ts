@@ -14,6 +14,10 @@ export interface AdapterConfig {
 	language: 'de' | 'en';
 	enablePush?: boolean;
 	pushPort?: number;
+	timeServer?: boolean;
+	timeServerPort?: number;
+	timeServerBind?: string;
+	keepDeviceClock?: boolean;
 	manualDevices: ManualDevice[];
 }
 
@@ -72,6 +76,14 @@ export interface MieleStateResponse {
 	BatteryLevel?: number;
 	VentilationStep?: number;
 	PlateStep?: number;
+	[key: string]: unknown;
+}
+
+export interface MieleTimeSyncResponse {
+	DateTime?: [number, number, number, number, number, number];
+	NTPEnabled?: boolean;
+	UTCOffset?: number;
+	TimeMaster?: boolean;
 	[key: string]: unknown;
 }
 

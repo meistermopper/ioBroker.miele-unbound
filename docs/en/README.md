@@ -92,6 +92,26 @@ Containers with bridge networking do not forward multicast UDP traffic. In this 
 1. Run the container with `network_mode: host` to enable multicast auto-discovery.
 2. Or enter the IP addresses of your Miele appliances manually in the **Appliances** tab.
 
+## Appliance Time Server & Clock Synchronization (Optional)
+
+Miele appliances synchronize their clock using a custom HTTP request rather than standard NTP:
+
+```
+GET http://ntp.mcs2.miele.com/V2/NTP/ HTTP/1.1
+Host: ntp.mcs2.miele.com
+Accept: application/vnd.miele.v1+json
+```
+
+Appliances without internet connectivity (isolated IoT VLANs) drift over time and fail to switch Daylight Saving Time automatically. The adapter can answer these requests locally:
+
+1. **Enable Time Server:** On the **Settings** tab, enable **Miele Time Server** and choose a port (default: 8780).
+2. **Redirect Traffic:** Because the target is hardcoded in appliance firmware, redirect appliances via:
+   - **Router Destination-NAT:** Source = Miele devices, Destination = `ntp.mcs2.miele.com` TCP 80, translated to ioBroker IP and configured port. If ioBroker is in the same subnet, configure Source-NAT (masquerade) as well.
+   - **DNS Rewrite:** Resolve `ntp.mcs2.miele.com` to ioBroker IP (requires port 80 or Docker container mapping `-p 80:8780`).
+
+**Appliance Clock Synchronization (keepDeviceClock):**
+Some appliances (e.g. ovens) maintain local wall clock time in `Settings/TimeSync`. Enabling **Keep appliance clock on local time** checks appliances hourly and corrects deviations larger than 2 minutes via a signed PUT request.
+
 ## Privacy & Local Operation
 
 The adapter operates **strictly local-first**. The one-time Miele account login only serves to retrieve the household encryption key (`GroupKey`). During normal day-to-day operation:
@@ -117,6 +137,9 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Add optional Miele HTTP time server answering /V2/NTP/ requests for offline appliances
+- Add optional appliance clock synchronization (keepDeviceClock) for Settings/TimeSync
+- Add timeServer and keepDeviceClock settings to admin JSONConfig with full i18n
 
 ### 1.3.1 (2026-10-18)
 - Add subnet fallback scan to re-discover appliances after DHCP IP changes

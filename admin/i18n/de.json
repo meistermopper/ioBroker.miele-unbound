@@ -50,5 +50,16 @@
 	"step2_header": "Schritt 2: Bei Miele anmelden",
 	"step2_text": "1. E-Mail und Passwort deines Miele-App-Kontos eingeben und auf „Anmelden“ klicken.\n2. Wichtig: Nach dem Login bleibt die Seite bei einem sich drehenden Laderad stehen (oder meldet einen Fehler). Das ist völlig normal und bedeutet, dass die Anmeldung erfolgreich war!",
 	"step3_header": "Schritt 3: Weiterleitungs-URL kopieren & GroupKey abrufen",
-	"step3_text": "1. Im Netzwerk-Tab (F12) ganz nach unten zur letzten (meist rot markierten) Zeile scrollen. Sie beginnt mit „redirect?redirect_uri=miele...“ oder „miele://oauth2-code/...“.\n2. Rechtsklick auf diese Zeile ➔ „URL kopieren“ (bzw. „Adresse des Links kopieren“).\n3. Die kopierte Adresse unten in das Feld einfügen und auf „GroupKey abrufen“ klicken."
+	"step3_text": "1. Im Netzwerk-Tab (F12) ganz nach unten zur letzten (meist rot markierten) Zeile scrollen. Sie beginnt mit „redirect?redirect_uri=miele...“ oder „miele://oauth2-code/...“.\n2. Rechtsklick auf diese Zeile ➔ „URL kopieren“ (bzw. „Adresse des Links kopieren“).\n3. Die kopierte Adresse unten in das Feld einfügen und auf „GroupKey abrufen“ klicken.",
+	"headerTimeServer": "Miele-Zeitdienst",
+	"timeServer": "Zeitabfrage der Geräte beantworten (Miele-Zeitdienst)",
+	"timeServer_help": "Miele-Geräte holen ihre Uhrzeit per HTTP, nicht per NTP. Standardmäßig aus; Umleitung erforderlich (siehe README).",
+	"timeServerPort": "Zeitdienst-Port (TCP)",
+	"timeServerPort_help": "Port, auf dem der Dienst lauscht (Vorgabe: 8780). Für Ports unter 1024 Port 80 am Router oder Docker umleiten.",
+	"timeServerBind": "Bind-Adresse (leer = alle Schnittstellen)",
+	"timeServerBind_help": "Leer lassen für alle Schnittstellen oder eine lokale IP-Adresse eingeben.",
+	"timeServerText": "Miele-Geräte holen die Uhrzeit per HTTP von ntp.mcs2.miele.com auf Port 80 (GET /V2/NTP/). Geräte per Router Ziel-NAT (Port 80 -> dieser Port) oder DNS-Umschreibung umleiten. Details siehe README.",
+	"headerDeviceClock": "Geräteuhr auf Ortszeit halten",
+	"keepDeviceClock": "Geräteuhr auf Ortszeit halten",
+	"keepDeviceClock_help": "Prüft Settings/TimeSync beim Start und stündlich. Korrigiert Abweichungen > 2 Min. zur lokalen Hostzeit."
 }

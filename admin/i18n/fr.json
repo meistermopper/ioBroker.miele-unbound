@@ -50,5 +50,16 @@
 	"step2_header": "Étape 2 : Connectez-vous avec Miele",
 	"step2_text": "1. Saisissez l'e-mail et le mot de passe de votre compte d'application Miele et cliquez sur « Se connecter ».\n2. Remarque : Après la connexion, la page se bloquera sur une roue de chargement en rotation (ou affichera une erreur). C'est tout à fait normal et cela indique un succès !",
 	"step3_header": "Étape 3 : Copiez l'URL de redirection et récupérez GroupKey",
-	"step3_text": "1. Dans l'onglet Réseau (F12), faites défiler jusqu'à la toute dernière requête (souvent rouge) commençant par 'redirect?redirect_uri=miele...' ou 'miele://oauth2-code/...'.\n2. Cliquez avec le bouton droit sur cette entrée ➔ « Copier l'URL » / « Copier l'adresse du lien ».\n3. Collez l'adresse capturée dans le champ ci-dessous et cliquez sur « Récupérer la clé de groupe »."
+	"step3_text": "1. Dans l'onglet Réseau (F12), faites défiler jusqu'à la toute dernière requête (souvent rouge) commençant par 'redirect?redirect_uri=miele...' ou 'miele://oauth2-code/...'.\n2. Cliquez avec le bouton droit sur cette entrée ➔ « Copier l'URL » / « Copier l'adresse du lien ».\n3. Collez l'adresse capturée dans le champ ci-dessous et cliquez sur « Récupérer la clé de groupe ».",
+	"headerTimeServer": "Serveur de temps Miele",
+	"timeServer": "Répondre aux demandes d’heure des appareils (serveur de temps Miele)",
+	"timeServer_help": "Les appareils Miele demandent l’heure via HTTP et non NTP. Désactivé par défaut ; redirection requise.",
+	"timeServerPort": "Port du serveur de temps (TCP)",
+	"timeServerPort_help": "Port d’écoute du service (par défaut : 8780). Rediriger le port 80 pour les ports inférieurs à 1024.",
+	"timeServerBind": "Adresse de liaison (vide = toutes)",
+	"timeServerBind_help": "Laisser vide pour écouter sur toutes les interfaces réseau.",
+	"timeServerText": "Les appareils Miele obtiennent l’heure via HTTP sur ntp.mcs2.miele.com:80. Rediriger via NAT ou DNS.",
+	"headerDeviceClock": "Synchronisation de l’horloge de l’appareil",
+	"keepDeviceClock": "Maintenir l’horloge de l’appareil à l’heure locale",
+	"keepDeviceClock_help": "Vérifie Settings/TimeSync au démarrage et toutes les heures. Corrige les écarts > 2 minutes."
 }

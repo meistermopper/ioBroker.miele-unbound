@@ -92,6 +92,26 @@ In Containern mit Bridge-Netzwerk werden Multicast-Pakete (mDNS) nicht durchgele
 1. Den Container mit `network_mode: host` betreiben, damit mDNS direkt funktioniert.
 2. Oder die IP-Adressen der Miele-Geräte im Reiter **Geräte** manuell eintragen.
 
+## Zeitdienst für Geräte & Geräteuhr (optional)
+
+Miele-Geräte stellen ihre Uhr **per HTTP-Anfrage und nicht per NTP**:
+
+```
+GET http://ntp.mcs2.miele.com/V2/NTP/ HTTP/1.1
+Host: ntp.mcs2.miele.com
+Accept: application/vnd.miele.v1+json
+```
+
+Geräte in isolierten IoT-Netzen ohne Internetzugang driften mit der Zeit ab und schalten nicht zuverlässig zwischen Sommer- und Winterzeit um. Der Adapter kann diese Abfragen im lokalen Netz beantworten:
+
+1. **Zeitdienst aktivieren:** Unter **Einstellungen** den **Miele-Zeitdienst** aktivieren und Port wählen (Vorgabe: 8780).
+2. **Umleitung einrichten:** Da das Ziel fest im Kommunikationsmodul hinterlegt ist, muss der Datenverkehr umgeleitet werden:
+   - **Router: Ziel-NAT / Portweiterleitung:** Quelle = Miele-Geräte, Ziel = `ntp.mcs2.miele.com` TCP 80, umgesetzt auf die ioBroker-IP und den gewählten Port. Liegt ioBroker im selben Subnetz wie die Geräte, zusätzlich Quell-NAT (Masquerade) aktivieren.
+   - **DNS-Umschreibung:** `ntp.mcs2.miele.com` auf die ioBroker-IP auflösen (benötigt Port 80 oder Docker-Portweiterleitung `-p 80:8780`).
+
+**Geräteuhr auf Ortszeit halten (keepDeviceClock):**
+Manche Geräte (z. B. Backöfen) führen eine eigene Wanduhrzeit unter `Settings/TimeSync`. Die Option **Geräteuhr auf Ortszeit halten** prüft Geräte beim Start und stündlich und korrigiert Abweichungen über 2 Minuten automatisch per signiertem PUT.
+
 ## Datenschutz & Lokaler Betrieb
 
 Der Adapter arbeitet **vollständig lokal** (*local-first*). Die einmalige Anmeldung dient ausschließlich dazu, den haushaltsweiten Verschlüsselungsschlüssel (`GroupKey`) abzurufen. Im laufenden Normalbetrieb:
@@ -118,6 +138,9 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Neuer optionaler Miele-Zeitdienst für HTTP-Zeitabfragen (/V2/NTP/) im lokalen Netz
+- Optionale Synchronisation der Geräteuhr (keepDeviceClock) via Settings/TimeSync
+- Einstellungen für timeServer und keepDeviceClock im Admin-JSONConfig mit 11 Sprachen
 
 ### 1.3.1 (2026-10-18)
 - Automatischer Subnetz-Fallback-Scan bei geänderten DHCP-IP-Adressen

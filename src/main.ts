@@ -4,6 +4,12 @@ import * as utils from '@iobroker/adapter-core';
 import { MieleDeviceApi } from './lib/api.js';
 import { type BackupData, MieleBackup } from './lib/backup.js';
 import {
+	calculateClockDeviation,
+	checkClockAdjustment,
+	createClockPayload,
+	getTimeZone,
+} from './lib/clock.js';
+import {
 	buildAuthorizeUrl,
 	exchangeCode,
 	fetchGroupKey,
@@ -32,10 +38,12 @@ import {
 	isDeviceDue,
 	type SchedulableDevice,
 } from './lib/scheduler.js';
+import { MieleTimeServer } from './lib/timeserver.js';
 import type {
 	AdapterConfig,
 	MieleIdentResponse,
 	MieleStateResponse,
+	MieleTimeSyncResponse,
 	StateDefinition,
 } from './lib/types.js';
 
@@ -76,6 +84,12 @@ export class MieleUnbound extends utils.Adapter {
 	private pushListener?: MielePushListener;
 	private lastSubnetScan = 0;
 	private scanPauseMs = 30 * 60 * 1000;
+	private timeServer?: MieleTimeServer;
+	private timeServerRequests = 0;
+	private timeServerClients: Map<string, { count: number }> = new Map();
+	private timeServerChain: Promise<void> = Promise.resolve();
+	private clockTimer?: ioBroker.Timeout;
+	private clockInitializedDevices: Set<string> = new Set();
 
 	private get cfg(): AdapterConfig {
 		return this.config as unknown as AdapterConfig;
@@ -179,6 +193,19 @@ export class MieleUnbound extends utils.Adapter {
 		// Start mDNS discovery if enabled
 		if (cfg.autoDiscovery) {
 			this.triggerDiscovery();
+		}
+
+		// Start optional Miele time server
+		await this.startTimeServer();
+
+		// Start optional appliance clock synchronizer
+		if (cfg.keepDeviceClock) {
+			this.checkDeviceClocks().catch((err) =>
+				this.log.debug(
+					`Device clock sync error: ${(err as Error).message}`,
+				),
+			);
+			this.scheduleClockCheck();
 		}
 
 		// Clean up any unacknowledged commands left over from before restart
@@ -1452,11 +1479,411 @@ export class MieleUnbound extends utils.Adapter {
 		this.pushListener.start();
 	}
 
+	/**
+	 * Starts the built-in Miele time server if configured.
+	 */
+	private async startTimeServer(): Promise<void> {
+		const cfg = this.cfg;
+		if (!cfg.timeServer) {
+			const obj = await this.getObjectAsync('info.timeServer.running');
+			if (obj) {
+				await this.setStateAsync('info.timeServer.running', {
+					val: false,
+					ack: true,
+				});
+			}
+			return;
+		}
+
+		const lang = cfg.language || 'de';
+		await this.setObjectNotExistsAsync('info.timeServer', {
+			type: 'channel',
+			common: {
+				name: lang === 'de' ? 'Miele-Zeitdienst' : 'Miele time server',
+			},
+			native: {},
+		});
+		await this.setObjectNotExistsAsync('info.timeServer.clients', {
+			type: 'channel',
+			common: {
+				name: lang === 'de' ? 'Abrufer' : 'Requesting devices',
+			},
+			native: {},
+		});
+
+		const states: [string, string, ioBroker.CommonType, string, unknown][] =
+			[
+				[
+					'running',
+					lang === 'de' ? 'Zeitdienst läuft' : 'Time server running',
+					'boolean',
+					'indicator',
+					false,
+				],
+				[
+					'requests',
+					lang === 'de'
+						? 'Zeitabfragen gesamt'
+						: 'Time requests (total)',
+					'number',
+					'value',
+					0,
+				],
+				[
+					'lastRequest',
+					lang === 'de' ? 'Letzte Zeitabfrage' : 'Last time request',
+					'number',
+					'date',
+					0,
+				],
+				[
+					'lastClient',
+					lang === 'de'
+						? 'Letzter Abrufer (IP)'
+						: 'Last requesting device (IP)',
+					'string',
+					'text',
+					'',
+				],
+			];
+
+		for (const [id, name, type, role, def] of states) {
+			await this.setObjectNotExistsAsync(`info.timeServer.${id}`, {
+				type: 'state',
+				common: { name, type, role, read: true, write: false, def },
+				native: {},
+			});
+		}
+
+		const previousRequests = await this.getStateAsync(
+			'info.timeServer.requests',
+		);
+		this.timeServerRequests =
+			previousRequests && typeof previousRequests.val === 'number'
+				? previousRequests.val
+				: 0;
+		this.timeServerClients.clear();
+
+		const port = Math.round(Number(cfg.timeServerPort)) || 8780;
+		const bind = (cfg.timeServerBind || '').trim();
+
+		this.timeServer = new MieleTimeServer({
+			port,
+			bind,
+			log: this.log,
+			onHit: (ip, timestamp) => {
+				this.timeServerChain = this.timeServerChain
+					.then(() => this.recordTimeRequest(ip, timestamp))
+					.catch((err) =>
+						this.log.warn(
+							`Time server: could not update states: ${(err as Error).message}`,
+						),
+					);
+			},
+		});
+
+		try {
+			await this.timeServer.start();
+			this.log.info(
+				`Miele time server listening on ${bind || '*'}:${port}`,
+			);
+			await this.setStateAsync('info.timeServer.running', {
+				val: true,
+				ack: true,
+			});
+		} catch (e) {
+			this.timeServer = undefined;
+			const err = e as { code?: string; message: string };
+			const hint =
+				err.code === 'EACCES'
+					? ' - ports below 1024 require elevated privileges; use port >= 1024 and redirect 80 to it'
+					: err.code === 'EADDRINUSE'
+						? ' - the port is already in use'
+						: '';
+			this.log.error(
+				`Miele time server could not start on ${bind || '*'}:${port}: ${err.message}${hint}`,
+			);
+			await this.setStateAsync('info.timeServer.running', {
+				val: false,
+				ack: true,
+			});
+		}
+	}
+
+	/**
+	 * Records an answered time query in adapter states.
+	 */
+	private async recordTimeRequest(
+		ip: string,
+		timestamp: number,
+	): Promise<void> {
+		if (this.isUnloading) {
+			return;
+		}
+		this.timeServerRequests++;
+		await this.setStateAsync('info.timeServer.requests', {
+			val: this.timeServerRequests,
+			ack: true,
+		});
+		await this.setStateAsync('info.timeServer.lastRequest', {
+			val: timestamp,
+			ack: true,
+		});
+		await this.setStateAsync('info.timeServer.lastClient', {
+			val: ip,
+			ack: true,
+		});
+
+		const sanitizedIp = this.sanitizeId(ip.replace(/[.:]/g, '_'));
+		const clientChannel = `info.timeServer.clients.${sanitizedIp}`;
+		let client = this.timeServerClients.get(clientChannel);
+
+		if (!client) {
+			const lang = this.cfg.language || 'de';
+			await this.setObjectNotExistsAsync(clientChannel, {
+				type: 'channel',
+				common: { name: ip },
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${clientChannel}.requests`, {
+				type: 'state',
+				common: {
+					name: lang === 'de' ? 'Zeitabfragen' : 'Time requests',
+					type: 'number',
+					role: 'value',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			});
+			await this.setObjectNotExistsAsync(`${clientChannel}.lastRequest`, {
+				type: 'state',
+				common: {
+					name:
+						lang === 'de'
+							? 'Letzte Zeitabfrage'
+							: 'Last time request',
+					type: 'number',
+					role: 'date',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			});
+
+			const existingState = await this.getStateAsync(
+				`${clientChannel}.requests`,
+			);
+			client = {
+				count:
+					existingState && typeof existingState.val === 'number'
+						? existingState.val
+						: 0,
+			};
+			this.timeServerClients.set(clientChannel, client);
+		}
+
+		client.count++;
+		await this.setStateAsync(`${clientChannel}.requests`, {
+			val: client.count,
+			ack: true,
+		});
+		await this.setStateAsync(`${clientChannel}.lastRequest`, {
+			val: timestamp,
+			ack: true,
+		});
+	}
+
+	/**
+	 * Checks appliance clocks against local process time and adjusts if necessary.
+	 */
+	private async checkDeviceClocks(): Promise<void> {
+		const zone = getTimeZone();
+		for (const [ip, dev] of this.devices) {
+			if (this.isUnloading) {
+				return;
+			}
+			if (!dev.api || !dev.route || !dev.serial) {
+				continue;
+			}
+
+			const resource = `Devices/${dev.route}/Settings/TimeSync/`;
+			let ts: MieleTimeSyncResponse | null = null;
+			try {
+				ts = await dev.api.get<MieleTimeSyncResponse>(resource);
+			} catch (e) {
+				this.log.debug(
+					`Device clock ${dev.serial} (${ip}): TimeSync not readable (${(e as Error).message})`,
+				);
+				continue;
+			}
+
+			const { deviationS, shouldAdjust } = checkClockAdjustment(
+				ts,
+				Date.now(),
+				zone,
+			);
+
+			if (deviationS === null) {
+				this.log.debug(
+					`Device clock ${dev.serial} (${ip}): TimeSync without usable DateTime`,
+				);
+				continue;
+			}
+
+			await this.initDeviceClockStates(dev.serial);
+			await this.setStateAsync(
+				`${dev.serial}.info.timeSync.lastDeviation`,
+				{
+					val: deviationS,
+					ack: true,
+				},
+			);
+
+			if (!shouldAdjust) {
+				this.log.debug(
+					`Device clock ${dev.serial} (${ip}): deviation ${deviationS} s, within limit`,
+				);
+				continue;
+			}
+
+			const payload = createClockPayload(Date.now(), zone);
+			let status = 0;
+			try {
+				status = await dev.api.put(resource, payload);
+			} catch (e) {
+				this.log.warn(
+					`Device clock ${dev.serial} (${ip}): setting clock failed (${(e as Error).message})`,
+				);
+				continue;
+			}
+
+			if (status < 200 || status >= 300) {
+				this.log.warn(
+					`Device clock ${dev.serial} (${ip}): setting clock failed (HTTP ${status})`,
+				);
+				continue;
+			}
+
+			let deviationAfter: number | null = null;
+			try {
+				const refreshed =
+					await dev.api.get<MieleTimeSyncResponse>(resource);
+				deviationAfter = calculateClockDeviation(
+					refreshed,
+					Date.now(),
+					zone,
+				);
+			} catch {
+				// Non-critical verification read
+			}
+
+			const oldDt = ts?.DateTime;
+			const pad2 = (n: number) => String(n).padStart(2, '0');
+			const beforeStr = oldDt
+				? `${pad2(oldDt[3])}:${pad2(oldDt[4])}:${pad2(oldDt[5])}`
+				: 'unknown';
+			const sign = deviationS > 0 ? '+' : '';
+			const afterStr =
+				deviationAfter === null
+					? ''
+					: ` - deviation now ${deviationAfter} s`;
+
+			this.log.info(
+				`Device clock ${dev.serial} (${ip}): was ${beforeStr} (${sign}${deviationS} s against local time ${zone}), set to local time${afterStr}`,
+			);
+			await this.setStateAsync(`${dev.serial}.info.timeSync.lastSet`, {
+				val: Date.now(),
+				ack: true,
+			});
+		}
+	}
+
+	/**
+	 * Initializes appliance clock synchronization data points.
+	 */
+	private async initDeviceClockStates(serial: string): Promise<void> {
+		if (this.clockInitializedDevices.has(serial)) {
+			return;
+		}
+		const lang = this.cfg.language || 'de';
+		await this.setObjectNotExistsAsync(`${serial}.info.timeSync`, {
+			type: 'folder',
+			common: {
+				name: lang === 'de' ? 'Geräteuhr' : 'Appliance clock',
+			},
+			native: {},
+		});
+		await this.setObjectNotExistsAsync(`${serial}.info.timeSync.lastSet`, {
+			type: 'state',
+			common: {
+				name: lang === 'de' ? 'Uhr zuletzt gestellt' : 'Clock last set',
+				type: 'number',
+				role: 'date',
+				read: true,
+				write: false,
+				def: 0,
+			},
+			native: {},
+		});
+		await this.setObjectNotExistsAsync(
+			`${serial}.info.timeSync.lastDeviation`,
+			{
+				type: 'state',
+				common: {
+					name:
+						lang === 'de'
+							? 'Abweichung von der Ortszeit'
+							: 'Deviation from local time',
+					type: 'number',
+					role: 'value',
+					unit: 's',
+					read: true,
+					write: false,
+					def: 0,
+				},
+				native: {},
+			},
+		);
+		this.clockInitializedDevices.add(serial);
+	}
+
+	/**
+	 * Schedules the hourly clock synchronization check.
+	 */
+	private scheduleClockCheck(): void {
+		if (this.isUnloading || !this.cfg.keepDeviceClock) {
+			return;
+		}
+		this.clockTimer = this.setTimeout(
+			() => {
+				this.checkDeviceClocks().finally(() =>
+					this.scheduleClockCheck(),
+				);
+			},
+			60 * 60 * 1000,
+		);
+	}
+
 	private async onUnload(callback: () => void): Promise<void> {
 		try {
 			this.isUnloading = true;
 			if (this.pollTimer) {
 				this.clearTimeout(this.pollTimer);
+			}
+			if (this.clockTimer) {
+				this.clearTimeout(this.clockTimer);
+				this.clockTimer = undefined;
+			}
+			if (this.timeServer) {
+				await this.timeServer.stop();
+				this.timeServer = undefined;
+				await this.setStateAsync('info.timeServer.running', {
+					val: false,
+					ack: true,
+				});
 			}
 			if (this.pushListener) {
 				await this.pushListener.stop();

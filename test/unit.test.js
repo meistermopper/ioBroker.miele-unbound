@@ -1,3 +1,20 @@
+const net = require('node:net');
+const {
+	MieleTimeServer,
+	isTimeRequest,
+	formatTimeResponseBody,
+	sanitizeRemoteAddress,
+} = require('../build/lib/timeserver.js');
+const {
+	CLOCK_DEVIATION_THRESHOLD_S,
+	toApplianceDateTime,
+	isApplianceDateTime,
+	toWallClockSeconds,
+	calculateClockDeviation,
+	checkClockAdjustment,
+	createClockPayload,
+} = require('../build/lib/clock.js');
+
 const { getSubnetTemplates } = require('../build/lib/discovery.js');
 const { expect } = require('chai');
 const { MieleBackup } = require('../build/lib/backup.js');
@@ -394,6 +411,214 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 
 		it('should fallback to idle interval when no devices are registered', () => {
 			expect(getNextWakeDelayMs([], Date.now(), 20000)).to.equal(20000);
+		});
+	});
+	describe('MieleTimeServer', () => {
+		const silentLogger = {
+			debug() {},
+			info() {},
+			warn() {},
+			error() {},
+		};
+
+		describe('isTimeRequest', () => {
+			for (const valid of [
+				'/V2/NTP/',
+				'/V2/NTP',
+				'/v2/ntp/',
+				'http://ntp.mcs2.miele.com/V2/NTP/',
+				'http://ntp.mcs2.miele.com/V2/NTP',
+				'http://ntp.mcs2.miele.com:80/V2/NTP/',
+				'/V2/NTP/?param=1',
+			]) {
+				it(`should accept ${valid}`, () => {
+					expect(isTimeRequest(valid)).to.be.true;
+				});
+			}
+
+			for (const invalid of [
+				'/',
+				'/V2/',
+				'/V2/NTP/other',
+				'/V3/NTP/',
+				'http://ntp.mcs2.miele.com/',
+				'',
+				undefined,
+			]) {
+				it(`should reject ${String(invalid)}`, () => {
+					expect(isTimeRequest(invalid)).to.be.false;
+				});
+			}
+		});
+
+		it('should format unix epoch in seconds', () => {
+			expect(formatTimeResponseBody(1761400000999)).to.equal(
+				'{"time":1761400000}',
+			);
+		});
+
+		it('should sanitize remote addresses', () => {
+			expect(sanitizeRemoteAddress('::ffff:192.168.1.50')).to.equal(
+				'192.168.1.50',
+			);
+			expect(sanitizeRemoteAddress('192.168.1.50')).to.equal(
+				'192.168.1.50',
+			);
+			expect(sanitizeRemoteAddress(undefined)).to.equal('unknown');
+		});
+
+		describe('Server lifecycle & raw HTTP handshake', () => {
+			let server;
+			let boundPort;
+			const hits = [];
+
+			before(async () => {
+				server = new MieleTimeServer({
+					port: 0,
+					bind: '127.0.0.1',
+					log: silentLogger,
+					now: () => 1761400000123,
+					onHit: (ip, t) => hits.push({ ip, t }),
+				});
+				boundPort = await server.start();
+			});
+
+			after(async () => {
+				await server.stop();
+			});
+
+			function sendRaw(port, text) {
+				return new Promise((resolve, reject) => {
+					const s = net.connect(port, '127.0.0.1', () =>
+						s.write(text),
+					);
+					let data = '';
+					s.setEncoding('utf8');
+					s.on('data', (d) => {
+						data += d;
+						const sep = data.indexOf('\r\n\r\n');
+						if (sep >= 0) {
+							const headers = data.slice(0, sep);
+							const len = Number(
+								(/content-length:\s*(\d+)/i.exec(headers) ||
+									[])[1] || 0,
+							);
+							const body = data.slice(sep + 4);
+							if (Buffer.byteLength(body) >= len) {
+								s.destroy();
+								resolve({
+									status: Number(headers.split(' ')[1]),
+									headers,
+									body,
+								});
+							}
+						}
+					});
+					s.on('error', reject);
+					s.setTimeout(3000, () => {
+						s.destroy();
+						reject(new Error('Timeout'));
+					});
+				});
+			}
+
+			it('should answer real Miele module request with absolute URI', async () => {
+				const req =
+					'GET http://ntp.mcs2.miele.com/V2/NTP/ HTTP/1.1\r\n' +
+					'Host: ntp.mcs2.miele.com\r\n' +
+					'Accept: application/vnd.miele.v1+json\r\n' +
+					'Content-Length: 0\r\n\r\n';
+				const res = await sendRaw(boundPort, req);
+				expect(res.status).to.equal(200);
+				expect(res.headers).to.match(
+					/content-type: application\/json/i,
+				);
+				expect(JSON.parse(res.body)).to.deep.equal({
+					time: 1761400000,
+				});
+				expect(hits[hits.length - 1]).to.deep.equal({
+					ip: '127.0.0.1',
+					t: 1761400000123,
+				});
+			});
+
+			it('should answer standard path request without trailing slash', async () => {
+				const res = await sendRaw(
+					boundPort,
+					'GET /V2/NTP HTTP/1.1\r\nHost: localhost\r\n\r\n',
+				);
+				expect(res.status).to.equal(200);
+				expect(JSON.parse(res.body).time).to.equal(1761400000);
+			});
+
+			it('should respond with 404 for other endpoints', async () => {
+				const beforeCount = hits.length;
+				const res = await sendRaw(
+					boundPort,
+					'GET /Devices/ HTTP/1.1\r\nHost: localhost\r\n\r\n',
+				);
+				expect(res.status).to.equal(404);
+				expect(hits.length).to.equal(beforeCount);
+			});
+		});
+	});
+
+	describe('Appliance Clock Synchronization', () => {
+		it('should validate appliance date-time structures correctly', () => {
+			expect(isApplianceDateTime([25, 10, 2026, 14, 30, 0])).to.be.true;
+			expect(isApplianceDateTime([0, 10, 2026, 14, 30, 0])).to.be.false;
+			expect(isApplianceDateTime([25, 13, 2026, 14, 30, 0])).to.be.false;
+			expect(isApplianceDateTime('2026-10-25')).to.be.false;
+			expect(isApplianceDateTime(null)).to.be.false;
+		});
+
+		it('should convert timestamps to appliance date-time representation', () => {
+			const dt = toApplianceDateTime(
+				Date.UTC(2026, 9, 25, 12, 0, 0),
+				'UTC',
+			);
+			expect(dt).to.deep.equal([25, 10, 2026, 12, 0, 0]);
+		});
+
+		it('should calculate wall clock seconds and deviations correctly', () => {
+			expect(toWallClockSeconds([25, 10, 2026, 12, 0, 0])).to.equal(
+				Date.UTC(2026, 9, 25, 12, 0, 0) / 1000,
+			);
+			const testTs = Date.UTC(2026, 9, 25, 12, 0, 0);
+			const response = { DateTime: [25, 10, 2026, 12, 5, 0] }; // +300 seconds ahead
+			const dev = calculateClockDeviation(response, testTs, 'UTC');
+			expect(dev).to.equal(300);
+
+			const { deviationS, shouldAdjust } = checkClockAdjustment(
+				response,
+				testTs,
+				'UTC',
+			);
+			expect(deviationS).to.equal(300);
+			expect(shouldAdjust).to.be.true;
+		});
+
+		it('should not adjust if deviation is within threshold', () => {
+			const testTs = Date.UTC(2026, 9, 25, 12, 0, 0);
+			const response = { DateTime: [25, 10, 2026, 12, 1, 0] }; // +60 seconds ahead
+			const { deviationS, shouldAdjust } = checkClockAdjustment(
+				response,
+				testTs,
+				'UTC',
+				CLOCK_DEVIATION_THRESHOLD_S,
+			);
+			expect(deviationS).to.equal(60);
+			expect(shouldAdjust).to.be.false;
+		});
+
+		it('should generate valid clock adjustment payload', () => {
+			const payload = createClockPayload(
+				Date.UTC(2026, 9, 25, 12, 0, 0),
+				'UTC',
+			);
+			expect(JSON.parse(payload)).to.deep.equal({
+				DateTime: [25, 10, 2026, 12, 0, 0],
+			});
 		});
 	});
 });

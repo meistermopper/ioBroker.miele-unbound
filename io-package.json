@@ -174,7 +174,11 @@
 		"language": "de",
 		"manualDevices": [],
 		"enablePush": false,
-		"pushPort": 18082
+		"pushPort": 18082,
+		"timeServer": false,
+		"timeServerPort": 8780,
+		"timeServerBind": "",
+		"keepDeviceClock": false
 	},
 	"instanceObjects": [
 		{

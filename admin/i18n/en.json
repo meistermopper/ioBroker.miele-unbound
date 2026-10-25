@@ -50,5 +50,16 @@
 	"enablePush": "Enable SuperVision push listener (real-time updates)",
 	"enablePush_help": "Listens for instant SuperVision HTTP push events from appliances (requires same subnet/VLAN)",
 	"pushPort": "Push server port",
-	"pushPort_help": "Local TCP port for incoming appliance pushes (default: 18082)"
+	"pushPort_help": "Local TCP port for incoming appliance pushes (default: 18082)",
+	"headerTimeServer": "Miele Time Server",
+	"timeServer": "Answer appliances time request (Miele time server)",
+	"timeServer_help": "Miele appliances query time via HTTP, not NTP. Off by default; redirect required (see README).",
+	"timeServerPort": "Time Server Port (TCP)",
+	"timeServerPort_help": "Port this service listens on (Default: 8780). For ports below 1024, redirect port 80 via router or Docker.",
+	"timeServerBind": "Bind Address (empty = all interfaces)",
+	"timeServerBind_help": "Leave empty to listen on all network interfaces, or enter one local IP address.",
+	"timeServerText": "Miele appliances fetch time via HTTP from ntp.mcs2.miele.com on port 80 (GET /V2/NTP/). Redirect appliances via Router Destination-NAT (port 80 -> this port) or DNS rewrite. See README for details.",
+	"headerDeviceClock": "Appliance Clock Synchronization",
+	"keepDeviceClock": "Keep appliance clock on local time",
+	"keepDeviceClock_help": "Checks Settings/TimeSync on startup and hourly. Corrects clock if deviating > 2 minutes from local time."
 }
