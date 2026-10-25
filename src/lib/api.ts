@@ -92,6 +92,18 @@ export class MieleDeviceApi {
 				},
 				(res) => {
 					const chunks: Buffer[] = [];
+					// Connection drops after headers would otherwise leave the promise pending
+					// forever and block the per-device request queue
+					res.on('error', reject);
+					res.on('close', () => {
+						if (!res.complete) {
+							reject(
+								new Error(
+									`Connection to ${this.host}/${cleanResource} closed before response completed`,
+								),
+							);
+						}
+					});
 					res.on('data', (chunk) => chunks.push(chunk));
 					res.on('end', () => {
 						resolve({

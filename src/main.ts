@@ -81,6 +81,8 @@ export class MieleUnbound extends utils.Adapter {
 	private currentChallenge?: OAuthChallenge;
 	private isDiscovering = false;
 	private isUnloading = false;
+	private isPolling = false;
+	private pollRequestedDelay?: number;
 	private pushListener?: MielePushListener;
 	private lastSubnetScan = 0;
 	private scanPauseMs = 30 * 60 * 1000;
@@ -359,6 +361,17 @@ export class MieleUnbound extends utils.Adapter {
 		if (this.isUnloading) {
 			return;
 		}
+		// A cycle is currently running: remember the earliest requested delay
+		// and reschedule once the running cycle has finished
+		if (this.isPolling) {
+			if (delayMs !== undefined) {
+				this.pollRequestedDelay = Math.min(
+					this.pollRequestedDelay ?? delayMs,
+					delayMs,
+				);
+			}
+			return;
+		}
 		if (this.pollTimer) {
 			this.clearTimeout(this.pollTimer);
 		}
@@ -375,13 +388,20 @@ export class MieleUnbound extends utils.Adapter {
 					);
 
 		this.pollTimer = this.setTimeout(() => {
+			this.pollTimer = undefined;
+			this.isPolling = true;
 			this.pollAllDevices()
 				.catch((err) =>
 					this.log.debug(
 						`Polling cycle error: ${(err as Error).message}`,
 					),
 				)
-				.finally(() => this.scheduleNextPoll());
+				.finally(() => {
+					this.isPolling = false;
+					const requested = this.pollRequestedDelay;
+					this.pollRequestedDelay = undefined;
+					this.scheduleNextPoll(requested);
+				});
 		}, nextDelay);
 	}
 
@@ -549,6 +569,17 @@ export class MieleUnbound extends utils.Adapter {
 		const serial = this.sanitizeId(rawSerial || dev.ip.replace(/\./g, '_'));
 		dev.serial = serial;
 		this.serialToIp.set(serial, dev.ip);
+
+		// Remove stale entries of the same appliance registered under a previous IP
+		// (e.g. after a DHCP change), otherwise they keep flipping info.connected
+		for (const [otherIp, other] of this.devices) {
+			if (otherIp !== dev.ip && other.serial === serial) {
+				this.log.info(
+					`Appliance ${serial} moved from ${otherIp} to ${dev.ip} - removing stale entry`,
+				);
+				this.devices.delete(otherIp);
+			}
+		}
 
 		dev.deviceType = ident.DeviceType || 0;
 		dev.model = ident.DeviceIdentLabel?.TechType || '';
@@ -1859,9 +1890,13 @@ export class MieleUnbound extends utils.Adapter {
 		}
 		this.clockTimer = this.setTimeout(
 			() => {
-				this.checkDeviceClocks().finally(() =>
-					this.scheduleClockCheck(),
-				);
+				this.checkDeviceClocks()
+					.catch((err) =>
+						this.log.debug(
+							`Device clock sync error: ${(err as Error).message}`,
+						),
+					)
+					.finally(() => this.scheduleClockCheck());
 			},
 			60 * 60 * 1000,
 		);

@@ -153,6 +153,14 @@ export function discoverMieleDevices(
 					? multicastDns({ interface: iface })
 					: multicastDns();
 				mdnsList.push(mdns);
+				// Socket errors (e.g. interface removed) must not crash the adapter
+				mdns.on('error', (err: Error) => {
+					if (log) {
+						log(
+							`mDNS socket error on interface ${iface}: ${err.message}`,
+						);
+					}
+				});
 				mdns.on(
 					'response',
 					(res: {

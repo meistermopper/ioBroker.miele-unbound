@@ -300,6 +300,10 @@ export class MielePushListener {
 			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const multicastDns = require('multicast-dns');
 			this.mdns = multicastDns();
+			// Socket errors (e.g. interface removed) must not crash the adapter
+			this.mdns.on('error', (err: Error) => {
+				this.log.debug(`Push mDNS socket error: ${err.message}`);
+			});
 		} catch (err) {
 			this.log.warn(
 				`Failed to initialize multicast-dns for push: ${(err as Error).message}`,

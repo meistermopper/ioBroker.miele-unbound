@@ -141,6 +141,11 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Neuer optionaler Miele-Zeitdienst für HTTP-Zeitabfragen (/V2/NTP/) im lokalen Netz
 - Optionale Synchronisation der Geräteuhr (keepDeviceClock) via Settings/TimeSync
 - Einstellungen für timeServer und keepDeviceClock im Admin-JSONConfig mit 11 Sprachen
+- Unbehandelte Promise-Rejection im stündlichen Geräteuhr-Abgleich behoben
+- Absturz bei mDNS-Socket-Fehlern in Discovery und Push-Listener behoben
+- Dauerhaft hängende Geräte-Anfragewarteschlange bei abgebrochenen HTTP-Antworten behoben
+- Überlappende Polling-Zyklen durch Push, Befehle oder Discovery verhindert
+- Veralteten Geräteeintrag nach IP-Wechsel entfernen (kein Flackern von info.connected)
 
 ### 1.3.1 (2026-10-18)
 - Automatischer Subnetz-Fallback-Scan bei geänderten DHCP-IP-Adressen

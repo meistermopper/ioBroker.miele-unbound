@@ -140,6 +140,11 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Add optional Miele HTTP time server answering /V2/NTP/ requests for offline appliances
 - Add optional appliance clock synchronization (keepDeviceClock) for Settings/TimeSync
 - Add timeServer and keepDeviceClock settings to admin JSONConfig with full i18n
+- Fix unhandled rejection in hourly appliance clock check
+- Fix crash on mDNS socket errors in discovery and push listener
+- Fix device request queue hanging forever on aborted HTTP responses
+- Prevent overlapping polling cycles triggered by push, commands or discovery
+- Remove stale device entry after IP change to stop info.connected flapping
 
 ### 1.3.1 (2026-10-18)
 - Add subnet fallback scan to re-discover appliances after DHCP IP changes
