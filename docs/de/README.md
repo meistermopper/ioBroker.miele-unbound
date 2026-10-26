@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.4.0 (2026-10-26)
 - Neuer optionaler Miele-Zeitdienst für HTTP-Zeitabfragen (/V2/NTP/) im lokalen Netz
 - Optionale Synchronisation der Geräteuhr (keepDeviceClock) via Settings/TimeSync
 - Einstellungen für timeServer und keepDeviceClock im Admin-JSONConfig mit 11 Sprachen
@@ -177,8 +179,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### 1.1.2 (2026-09-23)
 - EcoFeedback für Geschirrspüler zurücknehmen, da DOP2 Leaf 2/6195 nicht existiert
 
-### 1.1.1 (2026-09-23)
-- EcoFeedback-Abfrage und States für Geschirrspüler (Typ 7 & 8) aktivieren
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

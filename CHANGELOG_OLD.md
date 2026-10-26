@@ -1,4 +1,7 @@
 # Older changes
+## 1.1.1 (2026-09-23)
+- Enable EcoFeedback query and states for dishwashers (device types 7 and 8)
+
 ## 1.1.0 (2026-09-23)
 - Parallelize setState calls in processState, add programPhase states map, and unify type aliases
 - Restrict EcoFeedback states to washing machines until dryer/dishwasher DOP2 is supported

@@ -136,7 +136,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.4.0 (2026-10-26)
 - Add optional Miele HTTP time server answering /V2/NTP/ requests for offline appliances
 - Add optional appliance clock synchronization (keepDeviceClock) for Settings/TimeSync
 - Add timeServer and keepDeviceClock settings to admin JSONConfig with full i18n
@@ -175,9 +175,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ### 1.1.2 (2026-09-23)
 - Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195
-
-### 1.1.1 (2026-09-23)
-- Enable EcoFeedback query and states for dishwashers (device types 7 and 8)
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
