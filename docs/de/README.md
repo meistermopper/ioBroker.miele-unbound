@@ -138,6 +138,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Abhängigkeits-Overrides zur Behebung von Dependabot-Warnungen aktualisiert
 
 ### 1.4.0 (2026-10-26)
 - Neuer optionaler Miele-Zeitdienst für HTTP-Zeitabfragen (/V2/NTP/) im lokalen Netz
