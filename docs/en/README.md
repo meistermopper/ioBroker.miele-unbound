@@ -138,6 +138,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 ## Changelog
 ### **WORK IN PROGRESS**
 - Update dependency overrides to resolve Dependabot security alerts
+- Update Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting
 
 ### 1.4.0 (2026-10-26)
 - Add optional Miele HTTP time server answering /V2/NTP/ requests for offline appliances
