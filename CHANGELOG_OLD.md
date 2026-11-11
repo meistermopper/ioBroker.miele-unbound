@@ -1,4 +1,13 @@
 # Older changes
+## 1.2.0 (2026-09-27)
+- Add optional SuperVision real-time push HTTP listener with mDNS service announce
+- Add program and phase definitions for robotic vacuum cleaners and coffee systems
+- Map local DOP2 raw phase IDs for washers, dryers, dishwashers, and ovens
+- Add SolarSave program (ID 5) for dishwashers
+- Upgrade actions/checkout & setup-node to v7 in auto-translate workflow
+- Format translated files with Biome in auto-translate workflow
+- Add informative logging for device registration, connection transitions and polling errors
+
 ## 1.1.2 (2026-09-23)
 - Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195
 

@@ -136,7 +136,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.5.1 (2026-11-11)
 - Add notice in admin backup settings that instance must be running for restore
 - Auto-disable mDNS auto-discovery when manual device IPs are configured
 - Ensure manual devices are active by default even when enabled is undefined
@@ -176,15 +176,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ### 1.3.0 (2026-10-11)
 - Add per-device polling scheduler protecting XKM modules with active/idle intervals
-
-### 1.2.0 (2026-09-27)
-- Add optional SuperVision real-time push HTTP listener with mDNS service announce
-- Add program and phase definitions for robotic vacuum cleaners and coffee systems
-- Map local DOP2 raw phase IDs for washers, dryers, dishwashers, and ovens
-- Add SolarSave program (ID 5) for dishwashers
-- Upgrade actions/checkout & setup-node to v7 in auto-translate workflow
-- Format translated files with Biome in auto-translate workflow
-- Add informative logging for device registration, connection transitions and polling errors
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.5.0",
+		"version": "1.5.1",
 		"news": {
+			"1.5.1": {
+				"en": "Add notice in admin backup settings that instance must be running for restore\nAuto-disable mDNS auto-discovery when manual device IPs are configured\nEnsure manual devices are active by default even when enabled is undefined\nAdd state.estimatedEndtime state in hh:mm format for appliances",
+				"de": "Hinweisen Sie im Admin-Backup, dass die Instanz zur Wiederherstellung laufen muss\nDeaktiviert die mDNS-Erkennung bei manueller Geräte-IPs\nManuelle Geräte sind standardmäßig aktiv, auch wenn sie undefiniert sind\nState.EstimatedEndTime im Format hh:mm für Geräte hinzufügen",
+				"ru": "Добавьте уведомление в настройках резервного копирования администратора о том, что экземпляр должен быть запущен для восстановления\nАвтоматическое отключение автоматического обнаружения mDNS при ручной настройке IP-адресов устройств\nУбедитесь, что устройства, работающие вручную, активны по умолчанию, даже если включено не определено\nДобавить состояние State.estimatedEndTime в формате hh:mm для устройств",
+				"pt": "Anote no backup do administrador que a instância deve ser restaurada\nDesative a descoberta automática de mDNS ao configurar IPs manuais\nAtivar dispositivos manuais por padrão mesmo quando ativados é indefinido\nAdicione state.estimatedEndTime em hh:mm para aparelhos",
+				"nl": "Voeg in de instellingen voor de back-up van de beheerder een melding toe dat die instantie actief moet zijn om te kunnen worden hersteld\nAutomatische detectie van mDNS automatisch uitschakelen wanneer handmatige IP-adressen van apparaten worden geconfigureerd\nErvoor zorgen dat handmatige apparaten standaard actief zijn, zelfs als ze ingeschakeld zijn, is niet gedefinieerd.\nState.EstimateEndTime-status in u:mm-formaat voor apparaten toevoegen",
+				"fr": "Ajouter un avis indiquant que l'instance doit être en cours d'exécution pour être restaurée\nDésactiver la détection automatique de mDNS lors de la configuration manuelle des IP\nAssurez-vous que les appareils manuels sont actifs par défaut, même s'ils ne sont pas définis\nAjouter l'état State.EstimatedEndTime au format hh:mm pour les appareils",
+				"it": "Aggiunga in admin backup che l'istanza deve essere ripristinata\nDisattiva il rilevamento automatico di mDNS con IP manuali\nAttivare i dispositivi manuali anche se abilitati non è definito\nAggiungi State.EstimatedEndTime in formato hh:mm per elettrodomestici",
+				"es": "Añada un aviso en la configuración de respaldo del administrador de que la instancia se restaure\nDesactivar automáticamente la detección automática de mDNS cuando se configuran IP\nAsegúrese de que los dispositivos manuales estén activos por defecto aunque no esté definido\nAñadir estado. EstimatedEndTime en formato hh:mm para aparatos",
+				"pl": "Dodaj powiadomienie w ustawieniach kopii zapasowej administratora, że instancja musi być uruchomiona w celu przywrócenia\nAutomatyczne wyłączanie automatycznego wykrywania mDNS po skonfigurowaniu ręcznych adresów IP urządzeń\nUpewnij się, że urządzenia ręczne są domyślnie aktywne, nawet jeśli włączona opcja nie jest zdefiniowana\nDodaj stan State.EstimatedEndTime w formacie hh:mm dla urządzeń",
+				"uk": "Додайте повідомлення в налаштуваннях резервного копіювання адміністратора, що екземпляр повинен бути запущений для відновлення\nАвтоматичне вимкнення автоматичного виявлення mDNS при налаштуванні IP-адрес пристрою вручну\nПереконайтеся, що ручні пристрої активні за замовчуванням, навіть якщо увімкнено невизначено\nДодати стан State.estimatedEndTime у форматі hh: mm для приладів",
+				"zh-cn": "在管理员备份设置中添加通知，指出必须运行实例才能恢复\n配置手动设备 IP 时自动禁用 mDNS 自动发现\n即使未定义启用，也要确保手动设备在默认情况下处于活动状态\n以 hh: mm 格式为设备添加 state.estimatedEndTime 状态"
+			},
 			"1.5.0": {
 				"en": "Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586\nAdd wake-up retry on HTTP 500, Dop1 support for coffee machines and status verification\nRemove uuid override breaking browser-sync in dev-server\nUpdate dependency overrides to resolve Dependabot security alerts\nUpdate Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting",
 				"de": "PowerOn/PowerOff wie die offizielle Miele-App mit DOP2 Leaf 2/1586\nWeckruf auf HTTP 500, Dop1-Unterstützung für Kaffeemaschinen und Statusüberprüfung\nUUID entfernen, die Browser-Sync im Dev-Server zerstört\nAktualisieren Sie Dependabot-Sicherheitswarnungen\nAktualisiere Biome auf 2.6.4 und schließe Markdown/YAML aus",
@@ -80,19 +93,6 @@
 				"pl": "Odwróć zmywarkę EcoFeedback, ponieważ zmywarki nie odsłaniają listwy DOP2 2/6195",
 				"uk": "Поверніть посудомийну машину EcoFeedback, оскільки посудомийні машини не оголюють DOP2 лист 2/6195",
 				"zh-cn": "恢复洗碗机的生态反馈，因为洗碗机不会暴露 DOP2 叶子 2/6195"
-			},
-			"1.1.1": {
-				"en": "Enable EcoFeedback query and states for dishwashers (device types 7 and 8)",
-				"de": "ÖkoFeedback-Abfrage und -Status für Spülmaschinen (7 und 8) aktivieren",
-				"ru": "Включите запрос и состояния EcoFeedback для посудомоечных машин (типы устройств 7 и 8)",
-				"pt": "Ative a consulta e os estados do EcoFeedback para lava-louças (tipos 7 e 8)",
-				"nl": "EcoFeedback-query en -staten inschakelen voor vaatwassers (apparaattypes 7 en 8)",
-				"fr": "Activez la requête EcoFeedback et les états pour les lave-vaisselle (types 7 et 8)",
-				"it": "Attiva la query e gli stati EcoFeedback per le lavastoviglie (tipi 7 e 8)",
-				"es": "Activar la consulta y los estados de EcoFeedback para lavavajillas (tipos 7 y 8)",
-				"pl": "Włącz zapytanie i stany EcoFeedback dla zmywarek (typy urządzeń 7 i 8)",
-				"uk": "Включення запиту та станів EcoFeedback для посудомийних машин (типи пристроїв 7 та 8)",
-				"zh-cn": "为洗碗机（设备类型 7 和 8）启用生态反馈查询和状态"
 			}
 		},
 		"titleLang": {

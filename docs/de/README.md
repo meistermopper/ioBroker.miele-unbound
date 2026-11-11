@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.5.1 (2026-11-11)
 - Hinweis in Backup-Einstellungen ergänzt, dass Instanz für Datenübernahme laufen muss
 - mDNS-Auto-Discovery wird automatisch deaktiviert, wenn manuelle IPs vorliegen
 - Manuell eingetragene Geräte sind standardmäßig aktiv (auch wenn enabled undefiniert ist)
@@ -178,14 +180,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### 1.3.0 (2026-10-11)
 - Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)
 
-### 1.2.0 (2026-09-27)
-- Optionalen SuperVision-Echtzeit-Push-Listener mit mDNS-Service-Announce ergänzen
-- Programm- und Phasendefinitionen für Saugroboter und Kaffeevollautomaten hinzufügen
-- Lokale DOP2-Rohphasen-IDs für Waschmaschinen, Trockner, Spüler und Öfen mappen
-- SolarSave-Spülprogramm (ID 5) für Geschirrspüler ergänzen
-- actions/checkout & setup-node im Auto-Translate-Workflow auf v7 aktualisieren
-- Auto-Translate-Workflow um Biome-Formatierung für io-package.json ergänzen
-- Aufschlussreiches Logging für Geräteregistrierung, Verbindungsstatus und Polling-Fehler
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 
