@@ -233,6 +233,33 @@ export class MieleDeviceApi {
 		);
 	}
 
+	public async anfrage(
+		method: string,
+		resource: string,
+		bodyPlain?: Buffer | string | null,
+		timeoutMs?: number,
+	): Promise<{ status: number; body: Buffer }> {
+		const res = await this.request(method, resource, bodyPlain, timeoutMs);
+		let body = res.body || Buffer.alloc(0);
+		const xsig = res.headers?.['x-signature'];
+		if (
+			xsig &&
+			typeof xsig === 'string' &&
+			body.length > 0 &&
+			body.length % 16 === 0
+		) {
+			try {
+				const sigHex = xsig.includes(':')
+					? xsig.split(':')[1].trim()
+					: xsig.trim();
+				body = this.mc.decryptResponse(sigHex, body);
+			} catch {
+				/* ignore decryption error, fallback to raw body for logging */
+			}
+		}
+		return { status: res.status, body };
+	}
+
 	public async sendAction(route: string, opcode: number): Promise<boolean> {
 		// DOP2 UserRequest structure on unit 2, attr 1583 (0x062f)
 		const payload = JSON.stringify({

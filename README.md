@@ -137,6 +137,8 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586
+- Add wake-up retry on HTTP 500, Dop1 support for coffee machines and status verification
 - Update dependency overrides to resolve Dependabot security alerts
 - Update Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting
 

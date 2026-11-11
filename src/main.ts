@@ -30,6 +30,7 @@ import {
 } from './lib/definitions.js';
 import { MieleDiscovery } from './lib/discovery.js';
 import { MieleEco } from './lib/eco.js';
+import { type PowerSwitchResult, schalten } from './lib/power.js';
 import { DeviceProfiles } from './lib/profiles.js';
 import { MielePushListener } from './lib/push.js';
 import {
@@ -53,6 +54,7 @@ interface ManagedDevice extends SchedulableDevice {
 	name?: string;
 	serial?: string;
 	deviceType?: number;
+	protocolVersion?: number;
 	model?: string;
 	route?: string;
 	api?: MieleDeviceApi;
@@ -624,6 +626,7 @@ export class MieleUnbound extends utils.Adapter {
 		}
 
 		dev.deviceType = ident.DeviceType || 0;
+		dev.protocolVersion = ident.ProtocolVersion;
 		dev.model = ident.DeviceIdentLabel?.TechType || '';
 		dev.name = dev.model || dev.name;
 
@@ -1141,17 +1144,6 @@ export class MieleUnbound extends utils.Adapter {
 			return;
 		}
 
-		const opcode = CONTROL_OPCODES[command];
-		if (opcode === undefined) {
-			await this.completeCommand(
-				id,
-				command,
-				`unknown control command '${command}'`,
-				0x11,
-			);
-			return;
-		}
-
 		const ip = this.serialToIp.get(serial);
 		const dev = ip ? this.devices.get(ip) : undefined;
 
@@ -1161,6 +1153,22 @@ export class MieleUnbound extends utils.Adapter {
 				command,
 				`appliance ${serial} not connected`,
 				0x42,
+			);
+			return;
+		}
+
+		if (command === 'powerOn' || command === 'powerOff') {
+			await this.executePowerSwitch(id, serial, command, dev);
+			return;
+		}
+
+		const opcode = CONTROL_OPCODES[command];
+		if (opcode === undefined) {
+			await this.completeCommand(
+				id,
+				command,
+				`unknown control command '${command}'`,
+				0x11,
 			);
 			return;
 		}
@@ -1191,6 +1199,86 @@ export class MieleUnbound extends utils.Adapter {
 				0x42,
 			);
 		}
+	}
+
+	private async executePowerSwitch(
+		id: string,
+		serial: string,
+		command: 'powerOn' | 'powerOff',
+		dev: ManagedDevice,
+	): Promise<void> {
+		if (!dev.api || !dev.route) {
+			await this.completeCommand(
+				id,
+				command,
+				`appliance ${serial} not connected`,
+				0x42,
+			);
+			return;
+		}
+
+		const an = command === 'powerOn';
+		let result: PowerSwitchResult;
+		try {
+			result = await schalten(dev.api, dev.route, an, {
+				deviceType: dev.deviceType,
+				protocolVersion: dev.protocolVersion,
+				log: this.log,
+				name: dev.name || serial,
+				warten: (ms) =>
+					new Promise((resolve) => {
+						this.setTimeout(resolve, ms);
+					}),
+			});
+		} catch (err) {
+			await this.completeCommand(
+				id,
+				command,
+				`${serial} - ${(err as Error).message}`,
+				0x42,
+			);
+			return;
+		}
+
+		if (!result.angenommen) {
+			await this.completeCommand(
+				id,
+				command,
+				`${serial}: ${result.fehler}`,
+				result.status === null ? 0x42 : 0x44,
+			);
+			return;
+		}
+
+		const weg = `via ${result.weg} (HTTP ${result.status})`;
+		if (result.wirkung === false) {
+			const text = `accepted ${weg}, but status did not change (still ${result.statusNachher})`;
+			this.log.warn(`Command '${command}' for ${serial}: ${text}`);
+			await this.setStateAsync(id, {
+				val: false,
+				ack: true,
+				q: 0x44,
+				c: text,
+			});
+			return;
+		}
+
+		const nachher =
+			result.wirkung === true
+				? `, status ${result.statusVorher} -> ${result.statusNachher}`
+				: '';
+		this.log.info(
+			`Command '${command}' sent to ${serial} ${weg}${nachher}`,
+		);
+		await this.setStateAsync(id, {
+			val: false,
+			ack: true,
+			c: `done ${weg}${nachher}`,
+		});
+
+		// Trigger immediate poll for this appliance after command execution
+		dev.nextPoll = 0;
+		this.scheduleNextPoll(1000);
 	}
 
 	private async onMessage(obj: ioBroker.Message): Promise<void> {

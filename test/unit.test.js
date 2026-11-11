@@ -14,6 +14,22 @@ const {
 	checkClockAdjustment,
 	createClockPayload,
 } = require('../build/lib/clock.js');
+const {
+	LEAF_UNIT,
+	LEAF_ATTR,
+	ZUSTAND_AN,
+	ZUSTAND_AUS,
+	TYP_KAFFEE,
+	WECKRUNDEN_MAX,
+	benutzerwunsch,
+	festerRumpf,
+	leafAendern,
+	dop1Rumpf,
+	statusDeutung,
+	wichtigsterStatus,
+	wirkungPruefen,
+	schalten,
+} = require('../build/lib/power.js');
 
 const { getSubnetTemplates } = require('../build/lib/discovery.js');
 const { expect } = require('chai');
@@ -619,6 +635,279 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(JSON.parse(payload)).to.deep.equal({
 				DateTime: [25, 10, 2026, 12, 0, 0],
 			});
+		});
+	});
+
+	describe('Appliance Power Switching (powerOn / powerOff)', () => {
+		const ROUTE = '000111111111';
+		const LEAF = `Devices/${ROUTE}/DOP2/2/1586?idx1=0&idx2=0`;
+		const UREQ = `Devices/${ROUTE}/DOP2/2/1583?idx1=0&idx2=0`;
+		const STATE = `Devices/${ROUTE}/State`;
+
+		const LEAF_GELESEN = Buffer.concat([
+			Buffer.from(
+				'001600020632000000000003000104010002040200030403',
+				'hex',
+			),
+			Buffer.alloc(8, 0x20),
+		]);
+
+		function mockDevice(antworten, statusFolge = [1, 2]) {
+			const anfragen = [];
+			let stIdx = 0;
+			return {
+				anfragen,
+				api: {
+					anfrage: async (method, resource, body) => {
+						const k = `${method} ${resource}`;
+						anfragen.push({ k, body });
+						const liste = antworten[k] || [404];
+						const s = liste.length > 1 ? liste.shift() : liste[0];
+						if (s === 'timeout') {
+							throw new Error(`Timeout 192.0.2.10/${resource}`);
+						}
+						const rumpf =
+							k === `GET ${LEAF}` && s === 200
+								? LEAF_GELESEN
+								: Buffer.alloc(0);
+						return { status: s, body: rumpf };
+					},
+					getState: async () => {
+						const s =
+							statusFolge[
+								Math.min(stIdx, statusFolge.length - 1)
+							];
+						stIdx++;
+						return {
+							Status: s,
+							RemoteEnable: [15, 0, 0],
+							StandbyState: 1,
+						};
+					},
+				},
+			};
+		}
+
+		function testOptions(extra = {}) {
+			const logs = [];
+			return {
+				logs,
+				opt: {
+					log: {
+						debug: (m) => logs.push(m),
+						info: (m) => logs.push(m),
+						warn: (m) => logs.push(m),
+					},
+					warten: async () => {},
+					deviceType: 7,
+					protocolVersion: 4,
+					...extra,
+				},
+			};
+		}
+
+		it('should build fixed body with expected structure and padding', () => {
+			const hexAn = festerRumpf(true).toString('hex');
+			expect(hexAn).to.equal(
+				`000e0002063200000000000100010404${'20'.repeat(16)}`,
+			);
+			expect(festerRumpf(false).toString('hex').slice(30, 32)).to.equal(
+				'01',
+			);
+			expect(festerRumpf(true)).to.have.length(32);
+		});
+
+		it('should replace field 1 in read leaf while preserving other fields', () => {
+			const neu = leafAendern(LEAF_GELESEN, true);
+			expect(neu).to.have.length(32);
+			expect(neu.subarray(0, 24).toString('hex')).to.equal(
+				'001600020632000000000003000104040002040200030403',
+			);
+			expect(leafAendern(LEAF_GELESEN, false)[15]).to.equal(1);
+		});
+
+		it('should return null for unexpected leaf structure', () => {
+			expect(leafAendern(Buffer.from('0010000106'), true)).to.be.null;
+			const fremd = Buffer.from(LEAF_GELESEN);
+			fremd.writeUInt16BE(1583, 4);
+			expect(leafAendern(fremd, true)).to.be.null;
+			const struktur = Buffer.from(LEAF_GELESEN);
+			struktur[14] = 16;
+			expect(leafAendern(struktur, true)).to.be.null;
+		});
+
+		it('should maintain user request structure for fallback 2/1583', () => {
+			expect(benutzerwunsch(0x10).toString('hex')).to.equal(
+				`00100001062f0000000000010001070010${'20'.repeat(15)}`,
+			);
+		});
+
+		it('should explain HTTP statuses correctly', () => {
+			expect(statusDeutung(404)).to.match(/does not offer DOP2 control/);
+			expect(statusDeutung(403)).to.match(
+				/remote control is switched off/,
+			);
+			expect(statusDeutung(500)).to.match(/does not accept the command/);
+			expect(statusDeutung(null)).to.match(
+				/no answer from the appliance/,
+			);
+			expect(statusDeutung(502)).to.equal(
+				'the appliance answered HTTP 502',
+			);
+		});
+
+		it('should prioritize descriptive statuses', () => {
+			expect(wichtigsterStatus([null, 500, 404])).to.equal(404);
+			expect(wichtigsterStatus([null, 500])).to.equal(500);
+			expect(wichtigsterStatus([null, 403, 500])).to.equal(403);
+			expect(wichtigsterStatus([502, null])).to.equal(502);
+			expect(wichtigsterStatus([null])).to.be.null;
+		});
+
+		it('should switch via 2/1586 on HTTP 204 and verify effect', async () => {
+			const g = mockDevice({
+				[`GET ${LEAF}`]: [200],
+				[`PUT ${LEAF}`]: [204],
+			});
+			const { opt, logs } = testOptions();
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg).to.include({
+				angenommen: true,
+				weg: '1586',
+				status: 204,
+				wirkung: true,
+				statusVorher: 1,
+			});
+			expect(erg.statusNachher).to.equal(2);
+			const put = g.anfragen.find((a) => a.k === `PUT ${LEAF}`);
+			expect(put.body.toString('hex')).to.equal(
+				festerRumpf(true).toString('hex'),
+			);
+			expect(g.anfragen.some((a) => a.k === `PUT ${UREQ}`)).to.be.false;
+			expect(
+				logs.some(
+					(m) => m.includes(`PUT ${LEAF}`) && m.includes('HTTP 204'),
+				),
+			).to.be.true;
+		});
+
+		it('should explain failure when appliance returns 404', async () => {
+			const g = mockDevice({}, [1]);
+			const { opt } = testOptions();
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg.angenommen).to.be.false;
+			expect(erg.status).to.equal(404);
+			expect(erg.fehler).to.match(/does not offer DOP2 control/);
+			expect(g.anfragen.map((a) => a.k)).to.deep.equal([
+				`GET ${LEAF}`,
+				`PUT ${LEAF}`,
+				`PUT ${UREQ}`,
+			]);
+		});
+
+		it('should wake appliance on HTTP 500 and retry successfully', async () => {
+			const g = mockDevice({
+				[`GET ${LEAF}`]: [500, 200],
+				[`PUT ${STATE}`]: [204],
+				[`PUT ${LEAF}`]: [204],
+			});
+			const { opt } = testOptions();
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg).to.include({
+				angenommen: true,
+				weg: '1586+wake',
+				wirkung: true,
+			});
+			const weck = g.anfragen.find((a) => a.k === `PUT ${STATE}`);
+			expect(JSON.parse(weck.body)).to.deep.equal({ DeviceAction: 2 });
+		});
+
+		it('should fallback to 2/1583 when 2/1586 repeatedly returns 500', async () => {
+			const g = mockDevice({
+				[`GET ${LEAF}`]: [500],
+				[`PUT ${STATE}`]: [204],
+				[`PUT ${LEAF}`]: [500],
+				[`PUT ${UREQ}`]: [204],
+			});
+			const { opt } = testOptions();
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg).to.include({
+				angenommen: true,
+				weg: '1583',
+				status: 204,
+			});
+			expect(
+				g.anfragen.filter((a) => a.k === `PUT ${STATE}`),
+			).to.have.length(WECKRUNDEN_MAX);
+			const ureq = g.anfragen.find((a) => a.k === `PUT ${UREQ}`);
+			expect(ureq.body.toString('hex').slice(0, 34)).to.equal(
+				'00100001062f0000000000010001070010',
+			);
+		});
+
+		it('should detect target reached by wake-up alone even if write was refused', async () => {
+			const g = mockDevice(
+				{
+					[`GET ${LEAF}`]: [500, 200],
+					[`PUT ${STATE}`]: [200],
+					[`PUT ${LEAF}`]: [500],
+					[`PUT ${UREQ}`]: [500],
+				},
+				[1, 2],
+			);
+			const { opt } = testOptions({ deviceType: 1 });
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg).to.include({
+				angenommen: true,
+				weg: 'wake',
+				wirkung: true,
+				statusNachher: 2,
+			});
+		});
+
+		it('should write back whole leaf for coffee machines (deviceType 17)', async () => {
+			const g = mockDevice({
+				[`GET ${LEAF}`]: [200],
+				[`PUT ${LEAF}`]: [204],
+			});
+			const { opt } = testOptions({ deviceType: 17 });
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg).to.include({
+				angenommen: true,
+				weg: '1586',
+				ganz: true,
+				wirkung: true,
+			});
+			const put = g.anfragen.find((a) => a.k === `PUT ${LEAF}`);
+			expect(put.body.subarray(0, 24).toString('hex')).to.equal(
+				'001600020632000000000003000104040002040200030403',
+			);
+		});
+
+		it('should use Dop1 1101 for coffee machines with ProtocolVersion 2', async () => {
+			const g = mockDevice({
+				[`POST Devices/${ROUTE}/DOP/`]: [204],
+			});
+			const { opt } = testOptions({ deviceType: 17, protocolVersion: 2 });
+			const erg = await schalten(g.api, ROUTE, true, opt);
+			expect(erg).to.include({ angenommen: true, weg: 'dop1' });
+			expect(g.anfragen).to.have.length(1);
+			expect(JSON.parse(g.anfragen[0].body)).to.deep.equal({
+				Request: '110102000102',
+			});
+		});
+
+		it('should switch coffee machines off via Dop1 1101 action 3', async () => {
+			const g = mockDevice(
+				{ [`POST Devices/${ROUTE}/DOP/`]: [204] },
+				[2, 1],
+			);
+			const { opt } = testOptions({ deviceType: 17, protocolVersion: 2 });
+			const erg = await schalten(g.api, ROUTE, false, opt);
+			expect(JSON.parse(g.anfragen[0].body).Request).to.equal(
+				'110102000103',
+			);
+			expect(erg.wirkung).to.be.true;
 		});
 	});
 });
