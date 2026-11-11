@@ -140,6 +140,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### **WORK IN PROGRESS**
 - control.powerOn/powerOff schalten wie die Miele-App über DOP2-Leaf 2/1586
 - Wecken schlafender Geräte bei HTTP 500, Dop1 für Kaffeevollautomaten und Status-Prüfung
+- Inkompatiblen uuid-Override für browser-sync im dev-server entfernt
 - Abhängigkeits-Overrides zur Behebung von Dependabot-Warnungen aktualisiert
 - Biome auf 2.6.4 aktualisiert und Markdown-/YAML-Dateien von der Formatierung ausgenommen
 
