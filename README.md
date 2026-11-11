@@ -136,6 +136,8 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+
 ### 1.5.1 (2026-11-11)
 - Add notice in admin backup settings that instance must be running for restore
 - Auto-disable mDNS auto-discovery when manual device IPs are configured
