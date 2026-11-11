@@ -73,8 +73,8 @@ Der lokale `GroupKey` ist der kryptografische Generalschlüssel für die Steueru
   * Sicherer Industriestandard **AES-256-GCM** (authentifizierte Verschlüsselung mit Manipulationsschutz).
   * Schlüsselableitung aus deiner gewählten **Passphrase** via **PBKDF2** mit 100.000 Runden (SHA-256) und zufälligem 16-Byte Salt.
   * Dadurch kann der erzeugte Backup-String bedenkenlos extern abgespeichert werden, ohne dass der geheime LAN-Schlüssel im Klartext vorliegt.
-* **Exportieren:** Eigene Passphrase vergeben ➔ Klick auf **Backup exportieren** ➔ Den generierten Backup-Text kopieren und sicher aufbewahren.
-* **Wiederherstellen:** Auf der neuen oder zurückgesetzten Instanz einfach den Backup-Text und die Passphrase eingeben ➔ Klick auf **Backup importieren** ➔ Alle Zugangsdaten und manuellen IPs sind sofort wieder aktiv.
+* **Exportieren:** Sicherstellen, dass die Instanz läuft ➔ Eigene Passphrase vergeben ➔ Klick auf **Backup exportieren** ➔ Den generierten Backup-Text kopieren und sicher aufbewahren.
+* **Wiederherstellen:** Auf der neuen oder zurückgesetzten Instanz sicherstellen, dass die Instanz gestartet ist (grüner Status) ➔ Backup-Text und Passphrase eingeben ➔ Klick auf **Importieren / Wiederherstellen** ➔ Alle Zugangsdaten und manuellen IPs sind sofort wieder aktiv.
 
 #### Manuelle Eingabe
 Alternativ kannst du die Haushalts-GroupID und den 64-stelligen hexadezimalen GroupKey auch direkt aus einer Textnotiz oder einer früheren Instanz von Hand in die entsprechenden Felder eintragen.
@@ -138,6 +138,10 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Hinweis in Backup-Einstellungen ergänzt, dass Instanz für Datenübernahme laufen muss
+- mDNS-Auto-Discovery wird automatisch deaktiviert, wenn manuelle IPs vorliegen
+- Manuell eingetragene Geräte sind standardmäßig aktiv (auch wenn enabled undefiniert ist)
+- Neuen Datenpunkt state.estimatedEndtime im Format hh:mm hinzugefügt
 
 ### 1.5.0 (2026-11-11)
 - control.powerOn/powerOff schalten wie die Miele-App über DOP2-Leaf 2/1586

@@ -196,9 +196,30 @@ export class MieleUnbound extends utils.Adapter {
 		// Register configured manual devices
 		if (Array.isArray(cfg.manualDevices)) {
 			for (const dev of cfg.manualDevices) {
-				if (dev.enabled && dev.ip?.trim()) {
+				if (dev.enabled !== false && dev.ip?.trim()) {
 					this.registerDevice(dev.ip.trim(), dev.name);
 				}
+			}
+		}
+
+		// Option B: Automatically disable autoDiscovery when manual device IPs are configured
+		const hasManualDevices =
+			Array.isArray(cfg.manualDevices) &&
+			cfg.manualDevices.some(
+				(dev) => dev.ip?.trim() && dev.enabled !== false,
+			);
+
+		if (hasManualDevices && cfg.autoDiscovery) {
+			this.log.info(
+				'Manual device IP(s) configured: automatically disabling mDNS auto-discovery.',
+			);
+			cfg.autoDiscovery = false;
+			try {
+				await this.updateConfig({ autoDiscovery: false });
+			} catch (err) {
+				this.log.debug(
+					`Failed to update autoDiscovery setting in config: ${(err as Error).message}`,
+				);
 			}
 		}
 
@@ -889,9 +910,11 @@ export class MieleUnbound extends utils.Adapter {
 			const mm = String(d.getMinutes()).padStart(2, '0');
 			set('state.estimatedEndTime', finishTime);
 			set('state.estimatedEndTimeText', `${hh}:${mm}`);
+			set('state.estimatedEndtime', `${hh}:${mm}`);
 		} else {
 			set('state.estimatedEndTime', 0);
 			set('state.estimatedEndTimeText', '');
+			set('state.estimatedEndtime', '');
 		}
 
 		// Binary signals
@@ -1536,13 +1559,23 @@ export class MieleUnbound extends utils.Adapter {
 							return;
 						}
 
+						const restoredManualDevices =
+							data.manualDevices || this.cfg.manualDevices;
+						const disableAutoDiscovery =
+							Array.isArray(restoredManualDevices) &&
+							restoredManualDevices.some(
+								(d) => d.ip?.trim() && d.enabled !== false,
+							);
+
 						await this.updateConfig({
 							manualGroupId: data.groupId,
 							manualGroupKey: data.groupKey,
 							groupId: data.groupId,
 							groupKey: data.groupKey,
-							manualDevices:
-								data.manualDevices || this.cfg.manualDevices,
+							manualDevices: restoredManualDevices,
+							...(disableAutoDiscovery
+								? { autoDiscovery: false }
+								: {}),
 						});
 
 						this.log.info(
@@ -1558,9 +1591,10 @@ export class MieleUnbound extends utils.Adapter {
 								manualGroupKey: data.groupKey,
 								groupId: data.groupId,
 								groupKey: data.groupKey,
-								manualDevices:
-									data.manualDevices ||
-									this.cfg.manualDevices,
+								manualDevices: restoredManualDevices,
+								...(disableAutoDiscovery
+									? { autoDiscovery: false }
+									: {}),
 							},
 						});
 					} catch (err) {

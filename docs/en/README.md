@@ -73,8 +73,8 @@ The local `GroupKey` is the master cryptographic key granting local LAN access t
   * Strong industry-standard **AES-256-GCM** (authenticated encryption with built-in tampering protection).
   * Key derivation from your chosen **Passphrase** via **PBKDF2** with 100,000 rounds (SHA-256) and a cryptographically random 16-byte salt.
   * This guarantees that your sensitive local LAN key is never exported or stored in plain text and can safely be stored in external notes or backups.
-* **Exporting:** Enter a strong passphrase ➔ click **Export Backup** ➔ copy and store the generated backup string safely.
-* **Restoring:** On a new or reinstalled instance, simply paste the backup string and enter your passphrase ➔ click **Import Backup** ➔ your credentials and manual appliance IPs are immediately restored.
+* **Exporting:** Ensure the instance is running ➔ enter a strong passphrase ➔ click **Export Backup** ➔ copy and store the generated backup string safely.
+* **Restoring:** On a new or reinstalled instance, ensure the adapter instance is running (green status) ➔ paste the backup string and enter your passphrase ➔ click **Import / Restore** ➔ your credentials and manual appliance IPs are immediately restored.
 
 #### Manual Entry
 Alternatively, if you already have your household GroupID and 64-character hexadecimal GroupKey saved from a previous installation, you can paste them directly into the respective fields.
@@ -137,6 +137,10 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Add notice in admin backup settings that instance must be running for restore
+- Auto-disable mDNS auto-discovery when manual device IPs are configured
+- Ensure manual devices are active by default even when enabled is undefined
+- Add state.estimatedEndtime state in hh:mm format for appliances
 
 ### 1.5.0 (2026-11-11)
 - Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586

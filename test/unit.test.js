@@ -359,6 +359,22 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(phaseState.states).to.be.an('object');
 			expect(phaseState.states[3]).to.equal('Hauptwäsche');
 		});
+
+		it('should provide estimatedEndtime and estimatedEndTimeText states', () => {
+			const profile = DeviceProfiles.getProfile(1, 'de');
+			const endtimeState = profile.states.find(
+				(s) => s.id === 'state.estimatedEndtime',
+			);
+			expect(endtimeState).to.exist;
+			expect(endtimeState.type).to.equal('string');
+			expect(endtimeState.role).to.equal('text');
+
+			const textState = profile.states.find(
+				(s) => s.id === 'state.estimatedEndTimeText',
+			);
+			expect(textState).to.exist;
+			expect(textState.type).to.equal('string');
+		});
 	});
 
 	describe('MielePushListener', () => {

@@ -306,6 +306,16 @@
 					"size": 4,
 					"text": "Restore Backup"
 				},
+				"restoreNote": {
+					"type": "staticText",
+					"text": "restore_note",
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
 				"backupPayload": {
 					"type": "text",
 					"label": "Encrypted Backup Data (Paste here to restore)",
@@ -346,7 +356,7 @@
 				"autoDiscovery": {
 					"type": "checkbox",
 					"label": "Auto-Discovery via mDNS (_mieleathome._tcp)",
-					"help": "Enable automatic detection on the local network (may not work across Docker bridge)",
+					"help": "autoDiscovery_help",
 					"xs": 12,
 					"sm": 12,
 					"md": 12,
