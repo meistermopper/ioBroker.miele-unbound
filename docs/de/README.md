@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.5.0 (2026-11-11)
 - control.powerOn/powerOff schalten wie die Miele-App über DOP2-Leaf 2/1586
 - Wecken schlafender Geräte bei HTTP 500, Dop1 für Kaffeevollautomaten und Status-Prüfung
 - Inkompatiblen uuid-Override für browser-sync im dev-server entfernt
@@ -181,8 +183,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Auto-Translate-Workflow um Biome-Formatierung für io-package.json ergänzen
 - Aufschlussreiches Logging für Geräteregistrierung, Verbindungsstatus und Polling-Fehler
 
-### 1.1.2 (2026-09-23)
-- EcoFeedback für Geschirrspüler zurücknehmen, da DOP2 Leaf 2/6195 nicht existiert
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

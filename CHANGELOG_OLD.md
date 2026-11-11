@@ -1,4 +1,7 @@
 # Older changes
+## 1.1.2 (2026-09-23)
+- Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195
+
 ## 1.1.1 (2026-09-23)
 - Enable EcoFeedback query and states for dishwashers (device types 7 and 8)
 
