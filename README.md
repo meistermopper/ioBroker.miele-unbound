@@ -136,6 +136,8 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+
 ### 1.6.1 (2026-11-12)
 - Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
 - Device Manager cards render status, programme, phase, type and drying step in system language
