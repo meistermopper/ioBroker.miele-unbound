@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.6.1 (2026-11-12)
 - Überflüssigen Datenpunkt state.estimatedEndtime zugunsten von estimatedEndTimeText entfernt
 - Gerätekarten im Geräte-Manager zeigen Status, Programm, Phase, Programmart in Systemsprache
 - Rohwerte (state.status, programId etc.) nutzen Wertetabellen in der ioBroker-Systemsprache
@@ -180,12 +182,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Body-Größe von Push-Anfragen und Zeitdienst-Abrufer-Kanäle (max. 50) begrenzt
 - Instanzspezifischer Dateiname für die Pairing-Challenge
 
-### 1.3.1 (2026-10-18)
-- Automatischer Subnetz-Fallback-Scan bei geänderten DHCP-IP-Adressen
-- Automatischer Wiederholungsversuch bei kurzzeitigen XKM-Socket-Abbrüchen
-- Ausstehende Steuerbefehle beim Adapterstart verwerfen und quittieren
-- Restlaufzeit im ausgeschalteten oder beendeten Gerätestatus auf 0 bereinigen
-- Skript update:dev ergänzt und dev-server Profilsynchronisation verbessert
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

@@ -136,7 +136,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.6.1 (2026-11-12)
 - Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
 - Device Manager cards render status, programme, phase, type and drying step in system language
 - Raw states (status, programId, etc.) use localized option tables in ioBroker system language
@@ -178,13 +178,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - First appliance clock check now runs 2 minutes after start instead of after 1 hour
 - Limit push request body size and time server client channels (max. 50)
 - Use per-instance file name for the pairing challenge
-
-### 1.3.1 (2026-10-18)
-- Add subnet fallback scan to re-discover appliances after DHCP IP changes
-- Add automatic retry for transient XKM socket drops during polling
-- Discard and acknowledge pending control commands on adapter startup
-- Sanitize remaining time to 0 for appliances in off or ended status
-- Add update:dev script and enhance dev-server profile synchronization
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 
