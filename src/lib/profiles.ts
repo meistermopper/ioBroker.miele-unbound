@@ -234,6 +234,19 @@ export class DeviceProfiles {
 				def: '',
 			},
 			{
+				id: 'state.progress',
+				name: {
+					en: 'Programme progress',
+					de: 'Programmfortschritt',
+				},
+				role: 'value',
+				type: 'number',
+				unit: '%',
+				read: true,
+				write: false,
+				def: 0,
+			},
+			{
 				id: 'state.door',
 				name: { en: 'Door Open', de: 'Tür geöffnet' },
 				role: 'sensor.door',

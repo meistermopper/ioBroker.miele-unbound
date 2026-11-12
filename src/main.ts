@@ -28,6 +28,12 @@ import {
 	timeToHHMM,
 	timeToMinutes,
 } from './lib/definitions.js';
+import {
+	angebot,
+	fortschritt,
+	KANN_ID,
+	MieleDeviceManager,
+} from './lib/devicemanager.js';
 import { MieleDiscovery } from './lib/discovery.js';
 import { MieleEco } from './lib/eco.js';
 import { type PowerSwitchResult, schalten } from './lib/power.js';
@@ -100,6 +106,7 @@ export class MieleUnbound extends utils.Adapter {
 	private clockInitializedDevices: Set<string> = new Set();
 	private isSubnetScanning = false;
 	private readonly abortController = new AbortController();
+	private deviceManager?: MieleDeviceManager;
 
 	private get cfg(): AdapterConfig {
 		return this.config as unknown as AdapterConfig;
@@ -110,6 +117,8 @@ export class MieleUnbound extends utils.Adapter {
 			...options,
 			name: 'miele-unbound',
 		});
+
+		this.deviceManager = new MieleDeviceManager(this);
 
 		this.on('ready', () => {
 			this.onReady().catch((err) =>
@@ -597,6 +606,9 @@ export class MieleUnbound extends utils.Adapter {
 						val: false,
 						ack: true,
 					});
+					await this.updateCapabilities(dev.serial, false).catch(
+						() => {},
+					);
 				}
 			}
 		}
@@ -818,6 +830,62 @@ export class MieleUnbound extends utils.Adapter {
 					ack: true,
 				});
 			}
+
+			const canDefs = [
+				{
+					id: 'canPowerOn',
+					name: {
+						en: 'Switching on possible',
+						de: 'Einschalten möglich',
+					},
+					role: 'indicator',
+				},
+				{
+					id: 'canPowerOff',
+					name: {
+						en: 'Switching off possible',
+						de: 'Ausschalten möglich',
+					},
+					role: 'indicator',
+				},
+				{
+					id: 'canStart',
+					name: { en: 'Starting possible', de: 'Starten möglich' },
+					role: 'indicator',
+				},
+				{
+					id: 'canPause',
+					name: { en: 'Pausing possible', de: 'Pausieren möglich' },
+					role: 'indicator',
+				},
+				{
+					id: 'canStop',
+					name: { en: 'Stopping possible', de: 'Stoppen möglich' },
+					role: 'indicator',
+				},
+			];
+
+			for (const c of canDefs) {
+				await this.setObjectNotExistsAsync(
+					`${serial}.control.${c.id}`,
+					{
+						type: 'state',
+						common: {
+							name: c.name,
+							role: c.role,
+							type: 'boolean',
+							read: true,
+							write: false,
+							def: false,
+						},
+						native: {},
+					},
+				);
+				await this.setStateAsync(`${serial}.control.${c.id}`, {
+					val: false,
+					ack: true,
+				});
+			}
 		}
 
 		dev.knownProfile = true;
@@ -896,6 +964,9 @@ export class MieleUnbound extends utils.Adapter {
 
 		const elapMin = timeToMinutes(state.ElapsedTime) || 0;
 		set('state.elapsedMinutes', elapMin);
+
+		const progress = fortschritt(status, elapMin, remMin);
+		set('state.progress', progress);
 
 		const startMin =
 			status === 3 || status === 4
@@ -1044,6 +1115,61 @@ export class MieleUnbound extends utils.Adapter {
 		}
 
 		await Promise.all(updates);
+
+		if (cfg.allowControl) {
+			await this.updateCapabilities(sId, true);
+		}
+	}
+
+	private async updateCapabilities(
+		serial: string,
+		connected?: boolean,
+	): Promise<void> {
+		if (!this.cfg.allowControl) {
+			return;
+		}
+		const dev = Array.from(this.devices.values()).find(
+			(d) => d.serial === serial,
+		);
+		const readVal = async (sub: string): Promise<unknown> => {
+			const st = await this.getStateAsync(`${serial}.${sub}`);
+			return st?.val;
+		};
+		const deviceType =
+			dev && dev.deviceType !== undefined
+				? dev.deviceType
+				: Number(await readVal('info.deviceType'));
+		const statusVal = await readVal('state.status');
+		const status =
+			statusVal !== null && statusVal !== undefined
+				? Number(statusVal)
+				: null;
+		const mobileStart = Boolean(await readVal('state.mobileStart'));
+		const verbunden =
+			connected !== undefined
+				? connected
+				: Boolean(await readVal('info.connected'));
+
+		const z = {
+			deviceType,
+			status,
+			mobileStart,
+			verbunden,
+		};
+		const activeOffers = angebot(z);
+
+		for (const [befehl, kannState] of Object.entries(KANN_ID)) {
+			const targetVal = activeOffers.includes(befehl);
+			const cur = await this.getStateAsync(
+				`${serial}.control.${kannState}`,
+			);
+			if (!cur || cur.val !== targetVal) {
+				await this.setStateAsync(`${serial}.control.${kannState}`, {
+					val: targetVal,
+					ack: true,
+				});
+			}
+		}
 	}
 
 	private async ensureStateObject(
@@ -1306,6 +1432,9 @@ export class MieleUnbound extends utils.Adapter {
 
 	private async onMessage(obj: ioBroker.Message): Promise<void> {
 		if (!obj?.command) {
+			return;
+		}
+		if (obj.command.startsWith('dm:')) {
 			return;
 		}
 

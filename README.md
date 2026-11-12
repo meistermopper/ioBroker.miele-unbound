@@ -137,6 +137,9 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Add ioBroker Device-Manager integration with live cards, status indicators, and actions
+- Add state.progress (programme progress in percent 0..99%)
+- Add control.canPowerOn, canPowerOff, canStart, canPause, canStop indicators
 
 ### 1.5.1 (2026-11-11)
 - Add notice in admin backup settings that instance must be running for restore

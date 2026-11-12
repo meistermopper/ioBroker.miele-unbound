@@ -138,6 +138,10 @@
 		"type": "household",
 		"compact": true,
 		"messagebox": true,
+		"supportedMessages": {
+			"custom": true,
+			"deviceManager": true
+		},
 		"connectionType": "local",
 		"dataSource": "poll",
 		"adminUI": {

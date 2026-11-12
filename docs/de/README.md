@@ -138,6 +138,9 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Integration des ioBroker Geräte-Managers mit Live-Karten, Statusanzeigen und Aktionen
+- Neuer Datenpunkt state.progress für den Programmfortschritt in Prozent (0..99 %)
+- Neue Datenpunkte control.canPowerOn, canPowerOff, canStart, canPause, canStop
 
 ### 1.5.1 (2026-11-11)
 - Hinweis in Backup-Einstellungen ergänzt, dass Instanz für Datenübernahme laufen muss

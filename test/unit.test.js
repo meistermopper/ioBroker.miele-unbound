@@ -1,3 +1,19 @@
+const {
+	TEXTE,
+	KANN_ID,
+	KNOPFSYMBOL,
+	PFADE,
+	fortschritt,
+	angebot,
+	artKann,
+	titel,
+	text,
+	tooltip,
+	karte,
+	details,
+	befehlAusfuehren,
+	MieleDeviceManager,
+} = require('../build/lib/devicemanager.js');
 const net = require('node:net');
 const {
 	MieleTimeServer,
@@ -374,6 +390,18 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			);
 			expect(textState).to.exist;
 			expect(textState.type).to.equal('string');
+		});
+
+		it('should provide state.progress state in common profile states', () => {
+			const profile = DeviceProfiles.getProfile(1, 'de');
+			const progressState = profile.states.find(
+				(s) => s.id === 'state.progress',
+			);
+			expect(progressState).to.exist;
+			expect(progressState.type).to.equal('number');
+			expect(progressState.role).to.equal('value');
+			expect(progressState.unit).to.equal('%');
+			expect(progressState.def).to.equal(0);
 		});
 	});
 
@@ -924,6 +952,330 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				'110102000103',
 			);
 			expect(erg.wirkung).to.be.true;
+		});
+	});
+
+	describe('Device Management & Capabilities (dm-utils)', () => {
+		const SPRACHEN = [
+			'en',
+			'de',
+			'ru',
+			'pt',
+			'nl',
+			'fr',
+			'it',
+			'es',
+			'pl',
+			'uk',
+			'zh-cn',
+		];
+
+		it('should have all 11 languages with non-empty strings in TEXTE', () => {
+			for (const [key, trans] of Object.entries(TEXTE)) {
+				expect(Object.keys(trans), key).to.have.members(SPRACHEN);
+				for (const [lang, str] of Object.entries(trans)) {
+					expect(str, `${key}.${lang}`).to.be.a('string').and.not.be
+						.empty;
+				}
+			}
+		});
+
+		it('should replace placeholders in text template per language', () => {
+			const res = text('confirm', { befehl: TEXTE.start });
+			expect(res.de).to.equal('Befehl „Start“ am Gerät ausführen?');
+			expect(res.en).to.equal(
+				'Execute command ‘Start’ on the appliance?',
+			);
+			expect(res.fr).to.contain('Démarrer');
+
+			const failedRes = text('failed', { grund: 'HTTP 403' });
+			expect(failedRes.en).to.equal('Command failed: HTTP 403');
+			expect(failedRes.de).to.equal('Befehl fehlgeschlagen: HTTP 403');
+		});
+
+		it('should sanitize title and strip serial numbers', () => {
+			expect(
+				titel(
+					{ common: { name: 'Waschmaschine (000111111111)' } },
+					'000111111111',
+				),
+			).to.equal('Waschmaschine');
+			expect(
+				titel(
+					{ common: { name: { de: 'Ofen (x1)', en: 'Oven (x1)' } } },
+					'x1',
+				),
+			).to.deep.equal({
+				de: 'Ofen',
+				en: 'Oven',
+			});
+			expect(titel(undefined, 'dev1')).to.equal('dev1');
+		});
+
+		it('should calculate program progress correctly', () => {
+			// Running status (5) and Pause (6)
+			expect(fortschritt(5, 30, 90)).to.equal(25);
+			expect(fortschritt(6, 60, 60)).to.equal(50);
+			expect(fortschritt(5, 1, 500)).to.equal(1);
+			expect(fortschritt(5, 500, 1)).to.equal(99);
+
+			// Inactive or invalid statuses
+			expect(fortschritt(5, 0, 90)).to.equal(0);
+			expect(fortschritt(5, 30, 0)).to.equal(0);
+			expect(fortschritt(1, 78, 0)).to.equal(0);
+			expect(fortschritt(7, 30, 5)).to.equal(0);
+			expect(fortschritt(null, 30, 5)).to.equal(0);
+		});
+
+		it('should filter allowable commands by status, mobileStart and connection', () => {
+			const wm = (status, mobileStart = true) =>
+				angebot({
+					deviceType: 1,
+					status,
+					mobileStart,
+					verbunden: true,
+				});
+
+			expect(wm(1)).to.deep.equal(['powerOn']);
+			expect(wm(2)).to.deep.equal(['powerOff', 'start']);
+			expect(wm(3)).to.deep.equal(['powerOff', 'start']);
+			expect(wm(4)).to.deep.equal(['powerOff', 'start', 'stop']);
+			expect(wm(5)).to.deep.equal(['pause', 'stop']);
+			expect(wm(6)).to.deep.equal(['start', 'stop']);
+			expect(wm(7)).to.deep.equal(['powerOff']);
+			expect(wm(8)).to.deep.equal(['powerOff']);
+			expect(wm(9)).to.deep.equal(['powerOff', 'stop']);
+			expect(wm(10)).to.deep.equal(['powerOff']);
+			expect(wm(11)).to.deep.equal(['start', 'stop']);
+
+			// Without mobileStart, start is not offered
+			expect(wm(3, false)).to.deep.equal(['powerOff']);
+			expect(wm(6, false)).to.deep.equal(['stop']);
+
+			// Disconnected device offers no commands
+			expect(
+				angebot({
+					deviceType: 1,
+					status: 5,
+					mobileStart: true,
+					verbunden: false,
+				}),
+			).to.deep.equal([]);
+		});
+
+		it('should respect device capabilities per deviceType (artKann)', () => {
+			// Dishwasher (7) and Oven (12) cannot pause
+			expect(
+				angebot({
+					deviceType: 7,
+					status: 5,
+					mobileStart: true,
+					verbunden: true,
+				}),
+			).to.deep.equal(['stop']);
+			expect(
+				angebot({
+					deviceType: 12,
+					status: 5,
+					mobileStart: true,
+					verbunden: true,
+				}),
+			).to.deep.equal(['stop']);
+
+			// Fridge (19) and Hob (25) have no powerOn/powerOff commands
+			expect(
+				angebot({
+					deviceType: 19,
+					status: 1,
+					mobileStart: true,
+					verbunden: true,
+				}),
+			).to.deep.equal([]);
+
+			// Coffee system (17): only powerOn / powerOff
+			expect(
+				angebot({
+					deviceType: 17,
+					status: 1,
+					mobileStart: true,
+					verbunden: true,
+				}),
+			).to.deep.equal(['powerOn']);
+			expect(
+				angebot({
+					deviceType: 17,
+					status: 3,
+					mobileStart: true,
+					verbunden: true,
+				}),
+			).to.deep.equal(['powerOff']);
+		});
+
+		it('should build interactive device card with indicators and actions', () => {
+			const id = '000123456789';
+			const ns = 'miele-unbound.0';
+			const obj = {
+				_id: `${ns}.${id}`,
+				type: 'device',
+				common: { name: `Washing Machine (${id})` },
+			};
+			const objekte = new Map([
+				[`${id}.info.connected`, { type: 'state', common: {} }],
+				[`${id}.state.status`, { type: 'state', common: {} }],
+				[`${id}.state.statusText`, { type: 'state', common: {} }],
+				[`${id}.state.progress`, { type: 'state', common: {} }],
+				[`${id}.control.start`, { type: 'state', common: {} }],
+				[`${id}.control.stop`, { type: 'state', common: {} }],
+				[`${id}.control.pause`, { type: 'state', common: {} }],
+				[`${id}.control.powerOn`, { type: 'state', common: {} }],
+				[`${id}.control.powerOff`, { type: 'state', common: {} }],
+				[`${id}.control.canStart`, { type: 'state', common: {} }],
+				[`${id}.control.canStop`, { type: 'state', common: {} }],
+				[`${id}.control.canPause`, { type: 'state', common: {} }],
+				[`${id}.control.canPowerOn`, { type: 'state', common: {} }],
+				[`${id}.control.canPowerOff`, { type: 'state', common: {} }],
+			]);
+
+			const k = karte({
+				ns,
+				id,
+				obj,
+				objekte,
+				deviceType: 1,
+				steuerung: true,
+			});
+
+			expect(k.id).to.equal(id);
+			expect(k.identifier).to.equal(id);
+			expect(k.name).to.equal('Washing Machine');
+			expect(k.status.connection.stateId).to.equal(
+				`${ns}.${id}.info.connected`,
+			);
+			expect(k.actions).to.have.length(5);
+			expect(k.indicators).to.have.length(5);
+			expect(k.customInfo.schema.items._state_progress).to.exist;
+			expect(k.customInfo.schema.items._state_progress.text).to.contain(
+				'Math.max(0, Math.min(100',
+			);
+		});
+
+		it('should create light toggle action and indicator for oven/hood', () => {
+			const id = '000987654321';
+			const ns = 'miele-unbound.0';
+			const obj = {
+				_id: `${ns}.${id}`,
+				type: 'device',
+				common: { name: `Oven (${id})` },
+			};
+			const objekte = new Map([
+				[`${id}.info.connected`, { type: 'state', common: {} }],
+				[`${id}.sensors.light`, { type: 'state', common: {} }],
+				[`${id}.control.powerOn`, { type: 'state', common: {} }],
+				[`${id}.control.powerOff`, { type: 'state', common: {} }],
+				[`${id}.control.start`, { type: 'state', common: {} }],
+				[`${id}.control.stop`, { type: 'state', common: {} }],
+				[`${id}.control.lightOn`, { type: 'state', common: {} }],
+				[`${id}.control.lightOff`, { type: 'state', common: {} }],
+				[`${id}.control.canPowerOn`, { type: 'state', common: {} }],
+				[`${id}.control.canPowerOff`, { type: 'state', common: {} }],
+				[`${id}.control.canStart`, { type: 'state', common: {} }],
+				[`${id}.control.canStop`, { type: 'state', common: {} }],
+			]);
+
+			const k = karte({
+				ns,
+				id,
+				obj,
+				objekte,
+				deviceType: 12,
+				steuerung: true,
+			});
+
+			const lightAct = k.actions.find((a) => a.id === 'lightToggle');
+			expect(lightAct).to.exist;
+			const lightInd = k.indicators.find(
+				(i) => i.actionId === 'lightToggle',
+			);
+			expect(lightInd).to.exist;
+			expect(lightInd.value.stateId).to.equal(
+				`${ns}.${id}.sensors.light`,
+			);
+		});
+
+		it('should return apiVersion v3 in getInstanceInfo', () => {
+			const mockAdapter = {
+				namespace: 'miele-unbound.0',
+				on() {},
+				config: {},
+				log: { debug() {}, info() {}, warn() {}, error() {} },
+			};
+			const mgr = new MieleDeviceManager(mockAdapter);
+			const info = mgr.getInstanceInfo();
+			expect(info.apiVersion).to.equal('v3');
+		});
+
+		it('should execute command and report timeout when ack not received', async () => {
+			const written = [];
+			const states = {};
+			const mockAdapter = {
+				namespace: 'miele-unbound.0',
+				config: {},
+				log: { debug() {}, info() {}, warn() {}, error() {} },
+				on() {},
+				setStateAsync: async (id, st) => {
+					written.push({ id, ...st });
+					states[id] = { ...st, ts: Date.now() };
+				},
+				getStateAsync: async (id) => states[id] || null,
+				setTimeout: (fn, ms) => setTimeout(fn, ms),
+			};
+
+			const erg = await befehlAusfuehren(
+				mockAdapter,
+				'dev1.control.powerOn',
+				{ wartezeit: 30, takt: 10 },
+			);
+			expect(erg).to.deep.equal({ zeitueberschreitung: true });
+			expect(written).to.have.length(1);
+			expect(written[0]).to.deep.include({
+				id: 'dev1.control.powerOn',
+				val: true,
+				ack: false,
+			});
+		});
+
+		it('should execute command and report success when ack received', async () => {
+			const written = [];
+			const states = {};
+			const mockAdapter = {
+				namespace: 'miele-unbound.0',
+				config: {},
+				log: { debug() {}, info() {}, warn() {}, error() {} },
+				on() {},
+				setStateAsync: async (id, st) => {
+					written.push({ id, ...st });
+					states[id] = { ...st, ts: Date.now() };
+					if (st.ack === false) {
+						setTimeout(() => {
+							states[id] = {
+								val: false,
+								ack: true,
+								ts: Date.now(),
+								c: 'done',
+							};
+						}, 5);
+					}
+				},
+				getStateAsync: async (id) => states[id] || null,
+				setTimeout: (fn, ms) => setTimeout(fn, ms),
+			};
+
+			const erg = await befehlAusfuehren(
+				mockAdapter,
+				'dev1.control.powerOn',
+				{ wartezeit: 100, takt: 10 },
+			);
+			expect(erg).to.deep.equal({ ok: true });
 		});
 	});
 });
