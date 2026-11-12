@@ -1,4 +1,7 @@
 # Older changes
+## 1.3.0 (2026-10-11)
+- Add per-device polling scheduler protecting XKM modules with active/idle intervals
+
 ## 1.2.0 (2026-09-27)
 - Add optional SuperVision real-time push HTTP listener with mDNS service announce
 - Add program and phase definitions for robotic vacuum cleaners and coffee systems

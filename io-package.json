@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.5.1",
+		"version": "1.6.0",
 		"news": {
+			"1.6.0": {
+				"en": "Add ioBroker Device-Manager integration with live cards, status indicators, and actions\nAdd state.progress (programme progress in percent 0..99%)\nAdd control.canPowerOn, canPowerOff, canStart, canPause, canStop indicators",
+				"de": "ioBroker Device-Manager mit Live-Karten, Statusanzeigen und Aktionen hinzufügen\nState.progress hinzufügen (Programmfortschritt in% 0,99%)\nAdd Control. Anzeigen CanPowerOn, CanPowerOff, CanStart, CanPause, CanStop",
+				"ru": "Добавьте интеграцию IOBroker Device-Manager с живыми картами, индикаторами состояния и действиями\nДобавить состояние и прогресс (ход выполнения программы в процентах 0,99%)\nДобавить управление. Может включать, выключать, запускать, приостанавливать, может останавливать индикаторы",
+				"pt": "Adicione o IOBroker Device-Manager a cartões ativos, indicadores de status e ações\nAdicione state.progress (progresso do programa em 0,99%)\nAdicionar controle. Indicadores CanPowerOn, CanPowerOff, CanStart, CanPause",
+				"nl": "Voeg IOBroker Device-Manager-integratie toe met live-kaarten, statusindicatoren en acties\nVoeg state.progress toe (voortgang van het programma in procenten 0.99%)\nControle toevoegen. Kan de lampjes inschakelen, kan uitschakelen, CANstart, CANpauze, CANstop",
+				"fr": "Intégrer IObroker Device-Manager aux live cards, aux indicateurs d'état et aux actions\nAjouter state.progress (progression du programme en % 0,99 %)\nAjouter un contrôle. Indicateurs CanPowerOn, CanPowerOff, CanStart, CanPause, CanStop",
+				"it": "Aggiungere IOBroker Device-Manager con carte live, indicatori di stato e azioni\nAggiungere state.progress (percentuale del programma 0,99%)\nAggiungi CTRL. CanPowerOn, CanStart, CanPause, CanStop",
+				"es": "Añada la integración de ioBroker DeviceManager con tarjetas, indicadores de estado y acciones\nAñada state.progress (progreso del programa en% 0,99%)\nAñadir control. Indicadores CanPower, Can Apagar, Can Start, Can Pause",
+				"pl": "Dodaj integrację ioBroker Device-Manager z kartami na żywo, wskaźnikami stanu i akcjami\nDodaj state.progress (postęp programu w procentach 0,99%)\nDodaj wskaźniki Control.canPowerOn, CanPowerOff, CanStart, CanPause, CanStop",
+				"uk": "Додайте інтеграцію IObroker Device-Manager з живими картками, індикаторами статусу та діями\nДодати стан прогресу (прогрес програми у відсотках 0..99%)\nДодайте контроль.Індикатори CanPower On, CanPowerOff, CanStart, CanPause, CanStop",
+				"zh-cn": "添加包含实时卡片、状态指示器和操作的 IOBroker 设备管理器集成\n添加 state.progress（程序进度百分比 0.99%）\n添加控制。可以开机、可以关机、可以启动、可以暂停、可以停止指示灯"
+			},
 			"1.5.1": {
 				"en": "Add notice in admin backup settings that instance must be running for restore\nAuto-disable mDNS auto-discovery when manual device IPs are configured\nEnsure manual devices are active by default even when enabled is undefined\nAdd state.estimatedEndtime state in hh:mm format for appliances",
 				"de": "Hinweisen Sie im Admin-Backup, dass die Instanz zur Wiederherstellung laufen muss\nDeaktiviert die mDNS-Erkennung bei manueller Geräte-IPs\nManuelle Geräte sind standardmäßig aktiv, auch wenn sie undefiniert sind\nState.EstimatedEndTime im Format hh:mm für Geräte hinzufügen",
@@ -80,19 +93,6 @@
 				"pl": "Dodaj opcjonalny słuchacz HTTP push SuperVision w czasie rzeczywistym z ogłoszeniem usługi mDNS\nDodaj definicje programów i faz dla automatycznych odkurzaczy i systemów kawy\nMapuj lokalne identyfikatory fazy surowej DOP2 dla pralek, suszarek, zmywarek i piekarników\nDodaj program SolarSave (ID 5) do zmywarek\nUaktualnij akcje/kasę i węzeł konfiguracyjny do wersji 7 w przepływie pracy automatycznego tłumaczenia\nFormatuj przetłumaczone pliki za pomocą Biome w przepływie pracy automatycznego tłumaczenia\nDodaj rejestrowanie informacyjne dotyczące rejestracji urządzenia, przejść połączeń i błędów ankietowania",
 				"uk": "Додайте додатковий HTTP-слухач у режимі реального часу SuperVision з повідомленням служби mDNS\nДодайте визначення програм і фаз для роботизованих пилососів і кавових систем\nКарта локальних ідентифікаторів вихідної фази DOP2 для пральних машин, сушильних машин, посудомийних машин та духовок\nДодати програму SolarSave (ID 5) для посудомийних машин\nОновлення дії/оформлення та налаштування вузла до версії 7 у робочому процесі автоматичного перекладу\nФорматування перекладених файлів за допомогою Biome у робочому процесі автоматичного перекладу\nДодайте інформативне журналювання для реєстрації пристроїв, переходів з'єднань та помилок опитування",
 				"zh-cn": "添加带有 mDNS 服务公告的可选监督实时推送 HTTP 监听器\n为机器人吸尘器和咖啡系统添加程序和阶段定义\n绘制清洗机、烘干机、洗碗机和烤箱的本地 DOP2 原始相 ID\n为洗碗机添加 SolarSave 程序 (ID 5)\n在自动翻译工作流程中将操作/签出和设置节点升级到 v7\n在自动翻译工作流程中使用 Biome 格式化已翻译的文件\n为设备注册、连接转换和轮询错误添加信息日志"
-			},
-			"1.1.2": {
-				"en": "Revert dishwasher EcoFeedback as dishwashers do not expose DOP2 leaf 2/6195",
-				"de": "ÖkoFeedback rückgängig machen, da DOP2 Leaf 2/6195 nicht aussetzt",
-				"ru": "Отмените систему EcoFeedback для посудомоечной машины, поскольку посудомоечные машины не подвергают воздействию DOP2 leaf 2/6195",
-				"pt": "Reverta o EcoFeedback, pois as lava-louças não expõem DOP2, folha 2/6195",
-				"nl": "De EcoFeedback van de vaatwasser terugdraaien, want vaatwassers stellen DOP2-blad 2/6195 niet bloot",
-				"fr": "Révertissez l'EcoFeedback car les lave-vaisselle n'exposent pas la feuille DOP2 2/6195",
-				"it": "Revert EcoFeedback poiché le lavastoviglie non espongono la foglia DOP2 2/6195",
-				"es": "Revertir el EcoFeedback del lavavajillas, ya que no exponen la hoja DOP2 2/6195",
-				"pl": "Odwróć zmywarkę EcoFeedback, ponieważ zmywarki nie odsłaniają listwy DOP2 2/6195",
-				"uk": "Поверніть посудомийну машину EcoFeedback, оскільки посудомийні машини не оголюють DOP2 лист 2/6195",
-				"zh-cn": "恢复洗碗机的生态反馈，因为洗碗机不会暴露 DOP2 叶子 2/6195"
 			}
 		},
 		"titleLang": {

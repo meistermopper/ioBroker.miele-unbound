@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.6.0 (2026-11-12)
 - Integration des ioBroker Geräte-Managers mit Live-Karten, Statusanzeigen und Aktionen
 - Neuer Datenpunkt state.progress für den Programmfortschritt in Prozent (0..99 %)
 - Neue Datenpunkte control.canPowerOn, canPowerOff, canStart, canPause, canStop
@@ -180,8 +182,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Restlaufzeit im ausgeschalteten oder beendeten Gerätestatus auf 0 bereinigen
 - Skript update:dev ergänzt und dev-server Profilsynchronisation verbessert
 
-### 1.3.0 (2026-10-11)
-- Neuer geräteindividueller Abfragetakt (Aktiv-/Ruhe-Intervall zum Schutz der XKM-Module)
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 
