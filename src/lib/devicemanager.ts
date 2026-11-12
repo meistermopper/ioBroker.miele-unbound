@@ -13,6 +13,7 @@ import {
 	type StatusIndicator,
 } from '@iobroker/dm-utils';
 import { getDeviceCategory } from './definitions.js';
+import { normalizeSprache, type WertArt, werteTabelle } from './werte.js';
 
 export const TEXTE = {
 	serial: {
@@ -418,6 +419,33 @@ export function text(
 	return aus;
 }
 
+export const ROHWERT: Record<string, [string, WertArt]> = {
+	'state.statusText': ['state.status', 'status'],
+	'state.programText': ['state.programId', 'program'],
+	'state.programPhaseText': ['state.programPhase', 'phase'],
+	'state.programTypeText': ['state.programType', 'programType'],
+	'state.dryingStepText': ['state.dryingStep', 'dryingStep'],
+	'sensors.dryingStepText': ['sensors.dryingStep', 'dryingStep'],
+};
+
+export function rohAnzeige(
+	sub: string,
+	hat: (sub: string) => boolean,
+	sprache: string,
+	deviceType: number | null,
+): {
+	sub: string;
+	options: { value: number; label: string }[];
+	leer: number[];
+} | null {
+	const r = ROHWERT[sub];
+	if (!r || !hat(r[0])) {
+		return null;
+	}
+	const t = werteTabelle(r[1], sprache, deviceType);
+	return t ? { sub: r[0], options: t.options, leer: t.leer } : null;
+}
+
 export const DETAILS = [
 	'state.programTypeText',
 	'state.elapsedHHMM',
@@ -688,6 +716,7 @@ export interface KarteParams {
 	objekte: Map<string, ioBroker.Object>;
 	deviceType: number | null;
 	steuerung: boolean;
+	sprache?: string;
 	handler?: (
 		geraet: string,
 		befehl: string,
@@ -702,6 +731,7 @@ export function karte({
 	objekte,
 	deviceType,
 	steuerung,
+	sprache,
 	handler,
 }: KarteParams): DeviceInfo<string> {
 	const hat = (sub: string): boolean => objekte.has(`${id}.${sub}`);
@@ -810,11 +840,31 @@ export function karte({
 			continue;
 		}
 		const o = objekte.get(`${id}.${sub}`);
-		const z = zeile(
-			voll(sub),
-			{ label: name(sub), ...weiteres },
-			sichtbar || undefined,
-		);
+		const roh = rohAnzeige(sub, hat, sprache || 'en', deviceType);
+		let z: Record<string, unknown>;
+		if (roh) {
+			const nichts = roh.leer.length
+				? ` && !${JSON.stringify(roh.leer)}.includes(_states.v?.val)`
+				: '';
+			z = zeile(
+				voll(roh.sub),
+				{
+					label: name(sub),
+					...weiteres,
+					options: roh.options,
+					noTranslation: true,
+				},
+				sichtbar
+					? `_states.v?.val !== undefined && _states.v?.val !== null${nichts}`
+					: undefined,
+			);
+		} else {
+			z = zeile(
+				voll(sub),
+				{ label: name(sub), ...weiteres },
+				sichtbar || undefined,
+			);
+		}
 		if (o?.common && 'unit' in o.common && o.common.unit) {
 			z.unit = o.common.unit;
 		}
@@ -945,21 +995,29 @@ export function karte({
 export function details(
 	id: string,
 	objekte: Map<string, ioBroker.Object>,
+	sprache?: string,
+	deviceType: number | null = null,
 ): DeviceDetails<string> {
 	const items: Record<string, unknown> = {};
+	const hat = (sub: string): boolean => objekte.has(`${id}.${sub}`);
 	for (const sub of DETAILS) {
 		const o = objekte.get(`${id}.${sub}`);
 		if (!o) {
 			continue;
 		}
 		const c = o.common || {};
+		const roh = rohAnzeige(sub, hat, sprache || 'en', deviceType);
 		const item: Record<string, unknown> = {
 			type: 'state',
-			oid: `${id}.${sub}`,
+			oid: `${id}.${roh ? roh.sub : sub}`,
 			label: c.name || sub,
 			control: 'text',
 			sm: 12,
 		};
+		if (roh) {
+			item.options = roh.options;
+			item.noTranslation = true;
+		}
 		if (c.unit) {
 			item.unit = c.unit;
 		}
@@ -1049,11 +1107,32 @@ export class MieleDeviceManager extends DeviceManagement {
 		return { geraete, objekte };
 	}
 
+	public async sprache(): Promise<string> {
+		try {
+			const sys = (await this.adapter.getForeignObjectAsync(
+				'system.config',
+			)) as ioBroker.SystemConfigObject | null;
+			return normalizeSprache(sys?.common?.language);
+		} catch {
+			return 'en';
+		}
+	}
+
+	public async geraeteArt(id: string): Promise<number | null> {
+		try {
+			const s = await this.adapter.getStateAsync(`${id}.info.deviceType`);
+			return s && s.val !== null ? Number(s.val) : null;
+		} catch {
+			return null;
+		}
+	}
+
 	protected async loadDevices(
 		context: DeviceLoadContext<string>,
 	): Promise<void> {
 		const ns = this.adapter.namespace;
 		const { geraete, objekte } = await this.lesen();
+		const sprache = await this.sprache();
 		context.setTotalDevices(geraete.length);
 		const steuerung = Boolean(
 			(this.adapter.config as { allowControl?: boolean }).allowControl,
@@ -1061,15 +1140,7 @@ export class MieleDeviceManager extends DeviceManagement {
 
 		for (const obj of geraete) {
 			const id = obj._id.slice(ns.length + 1);
-			let deviceType: number | null = null;
-			try {
-				const s = await this.adapter.getStateAsync(
-					`${id}.info.deviceType`,
-				);
-				deviceType = s && s.val !== null ? Number(s.val) : null;
-			} catch {
-				/* ignore error */
-			}
+			const deviceType = await this.geraeteArt(id);
 			context.addDevice(
 				karte({
 					ns,
@@ -1078,6 +1149,7 @@ export class MieleDeviceManager extends DeviceManagement {
 					objekte,
 					deviceType,
 					steuerung,
+					sprache,
 					handler: (geraet, befehl, ctx) =>
 						this.befehl(geraet, befehl, ctx),
 				}) as any,
@@ -1089,7 +1161,12 @@ export class MieleDeviceManager extends DeviceManagement {
 		id: string,
 	): Promise<DeviceDetails<string>> {
 		const { objekte } = await this.lesen();
-		return details(id, objekte);
+		return details(
+			id,
+			objekte,
+			await this.sprache(),
+			await this.geraeteArt(id),
+		);
 	}
 
 	public async befehl(

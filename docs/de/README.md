@@ -138,6 +138,10 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Gerätekarten im Geräte-Manager zeigen Status, Programm, Phase, Programmart in Systemsprache
+- Rohwerte (state.status, programId etc.) nutzen Wertetabellen in der ioBroker-Systemsprache
+- Home-Assistant-Übersetzungen und Korrekturen für fehlende Sprachen integriert
+- Mehrsprachige Beschreibungen (common.desc) in allen 11 Sprachen für control.can* und progress
 
 ### 1.6.0 (2026-11-12)
 - Integration des ioBroker Geräte-Managers mit Live-Karten, Statusanzeigen und Aktionen

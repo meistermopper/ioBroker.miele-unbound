@@ -37,7 +37,7 @@ import {
 import { MieleDiscovery } from './lib/discovery.js';
 import { MieleEco } from './lib/eco.js';
 import { type PowerSwitchResult, schalten } from './lib/power.js';
-import { DeviceProfiles } from './lib/profiles.js';
+import { CAN_DESC, DeviceProfiles } from './lib/profiles.js';
 import { MielePushListener } from './lib/push.js';
 import {
 	getDeviceIntervalMs,
@@ -872,6 +872,7 @@ export class MieleUnbound extends utils.Adapter {
 						type: 'state',
 						common: {
 							name: c.name,
+							desc: CAN_DESC,
 							role: c.role,
 							type: 'boolean',
 							read: true,
@@ -1184,6 +1185,7 @@ export class MieleUnbound extends utils.Adapter {
 			type: 'state',
 			common: {
 				name: def.name[lang] || def.name.de,
+				...(def.desc ? { desc: def.desc } : {}),
 				role: def.role,
 				type: def.type,
 				unit: def.unit,

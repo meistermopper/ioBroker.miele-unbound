@@ -13,7 +13,15 @@ const {
 	details,
 	befehlAusfuehren,
 	MieleDeviceManager,
+	ROHWERT,
+	rohAnzeige,
 } = require('../build/lib/devicemanager.js');
+const {
+	wertText,
+	werteTabelle,
+	normalizeSprache,
+	SPRACHEN,
+} = require('../build/lib/werte.js');
 const net = require('node:net');
 const {
 	MieleTimeServer,
@@ -63,7 +71,11 @@ const {
 	timeToHHMM,
 	timeToMinutes,
 } = require('../build/lib/definitions.js');
-const { DeviceProfiles } = require('../build/lib/profiles.js');
+const {
+	DeviceProfiles,
+	PROGRESS_DESC,
+	CAN_DESC,
+} = require('../build/lib/profiles.js');
 const {
 	MIN_POLL_DELAY_MS,
 	getDeviceIntervalMs,
@@ -1276,6 +1288,131 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				{ wartezeit: 100, takt: 10 },
 			);
 			expect(erg).to.deep.equal({ ok: true });
+		});
+
+		it('should translate values in all 11 languages with Home Assistant fallback', () => {
+			expect(SPRACHEN).to.have.length(11);
+			expect(normalizeSprache('fr')).to.equal('fr');
+			expect(normalizeSprache('unknown')).to.equal('en');
+
+			// German / English directly
+			expect(wertText('status', 'de', null, 5)).to.equal('In Betrieb');
+			expect(wertText('status', 'en', null, 5)).to.equal('Running');
+
+			// French, Italian, Spanish from Home Assistant / corrections
+			expect(wertText('status', 'fr', null, 5)).to.equal(
+				'En utilisation',
+			);
+			expect(wertText('status', 'it', null, 6)).to.equal('Pausa');
+			expect(wertText('programType', 'es', null, 2)).to.equal(
+				'Programa automático',
+			);
+
+			// Drying step
+			expect(wertText('dryingStep', 'de', null, 0)).to.equal(
+				'Extratrocken',
+			);
+			expect(wertText('dryingStep', 'nl', null, 0)).to.be.a('string');
+
+			// Unknown raw value returns null
+			expect(wertText('status', 'fr', null, 9999)).to.be.null;
+		});
+
+		it('should generate value options table for device cards', () => {
+			const tabFr = werteTabelle('status', 'fr', null);
+			expect(tabFr).to.exist;
+			expect(tabFr.options.length).to.be.greaterThan(5);
+			const running = tabFr.options.find((o) => o.value === 5);
+			expect(running).to.exist;
+			expect(running.label).to.equal('En utilisation');
+		});
+
+		it('should create raw value card lines with options and noTranslation for system language', () => {
+			const id = '000123456789';
+			const ns = 'miele-unbound.0';
+			const obj = {
+				_id: `${ns}.${id}`,
+				type: 'device',
+				common: { name: 'Washing Machine' },
+			};
+			const objekte = new Map([
+				[`${id}.info.connected`, { type: 'state', common: {} }],
+				[
+					`${id}.state.status`,
+					{ type: 'state', common: { role: 'value' } },
+				],
+				[
+					`${id}.state.statusText`,
+					{ type: 'state', common: { name: 'Status' } },
+				],
+				[
+					`${id}.state.programId`,
+					{ type: 'state', common: { role: 'value' } },
+				],
+				[
+					`${id}.state.programText`,
+					{ type: 'state', common: { name: 'Program' } },
+				],
+			]);
+
+			const k = karte({
+				ns,
+				id,
+				obj,
+				objekte,
+				deviceType: 1,
+				steuerung: false,
+				sprache: 'fr',
+			});
+
+			const items = k.customInfo.schema.items;
+			const statusZeile = items._state_statusText;
+			expect(statusZeile).to.exist;
+			expect(statusZeile.oid).to.equal(`${ns}.${id}.state.status`);
+			expect(statusZeile.noTranslation).to.be.true;
+			expect(statusZeile.options).to.be.an('array');
+			const opt5 = statusZeile.options.find((o) => o.value === 5);
+			expect(opt5.label).to.equal('En utilisation');
+		});
+
+		it('should read system language in MieleDeviceManager from system.config', async () => {
+			const mockAdapter = {
+				namespace: 'miele-unbound.0',
+				on() {},
+				config: {},
+				log: { debug() {}, info() {}, warn() {}, error() {} },
+				getForeignObjectAsync: async (id) => {
+					if (id === 'system.config') {
+						return { common: { language: 'fr' } };
+					}
+					return null;
+				},
+				getStateAsync: async (id) => {
+					if (id.endsWith('info.deviceType')) {
+						return { val: 1 };
+					}
+					return null;
+				},
+			};
+			const mgr = new MieleDeviceManager(mockAdapter);
+			expect(await mgr.sprache()).to.equal('fr');
+			expect(await mgr.geraeteArt('dev1')).to.equal(1);
+
+			// Fallback to en on error
+			mockAdapter.getForeignObjectAsync = async () => {
+				throw new Error('boom');
+			};
+			expect(await mgr.sprache()).to.equal('en');
+		});
+
+		it('should define descriptions for state.progress and control.can* in all 11 languages', () => {
+			for (const sp of SPRACHEN) {
+				expect(PROGRESS_DESC[sp], `PROGRESS_DESC[${sp}]`).to.be.a(
+					'string',
+				).and.not.be.empty;
+				expect(CAN_DESC[sp], `CAN_DESC[${sp}]`).to.be.a('string').and
+					.not.be.empty;
+			}
 		});
 	});
 });

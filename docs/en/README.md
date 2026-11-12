@@ -137,6 +137,10 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Device Manager cards render status, programme, phase, type and drying step in system language
+- Raw states (status, programId, etc.) use localized option tables in ioBroker system language
+- Import Home Assistant translations with corrections for missing languages
+- Add descriptions (common.desc) in all 11 languages for control.can* and state.progress
 
 ### 1.6.0 (2026-11-12)
 - Add ioBroker Device-Manager integration with live cards, status indicators, and actions

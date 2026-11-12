@@ -90,6 +90,7 @@ export interface MieleTimeSyncResponse {
 export interface StateDefinition {
 	id: string;
 	name: { en: string; de: string };
+	desc?: ioBroker.StringOrTranslated;
 	role: string;
 	type: ioBroker.CommonType;
 	unit?: string;
