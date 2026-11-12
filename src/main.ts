@@ -797,6 +797,13 @@ export class MieleUnbound extends utils.Adapter {
 			await this.ensureStateObject(serial, def);
 		}
 
+		// Clean up obsolete duplicate state if previously created
+		try {
+			await this.delObjectAsync(`${serial}.state.estimatedEndtime`);
+		} catch {
+			// Ignore if object does not exist
+		}
+
 		// Create Control States if allowed
 		if (cfg.allowControl) {
 			const controlDefs = [
@@ -982,11 +989,9 @@ export class MieleUnbound extends utils.Adapter {
 			const mm = String(d.getMinutes()).padStart(2, '0');
 			set('state.estimatedEndTime', finishTime);
 			set('state.estimatedEndTimeText', `${hh}:${mm}`);
-			set('state.estimatedEndtime', `${hh}:${mm}`);
 		} else {
 			set('state.estimatedEndTime', 0);
 			set('state.estimatedEndTimeText', '');
-			set('state.estimatedEndtime', '');
 		}
 
 		// Binary signals

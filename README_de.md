@@ -138,6 +138,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Überflüssigen Datenpunkt state.estimatedEndtime zugunsten von estimatedEndTimeText entfernt
 - Gerätekarten im Geräte-Manager zeigen Status, Programm, Phase, Programmart in Systemsprache
 - Rohwerte (state.status, programId etc.) nutzen Wertetabellen in der ioBroker-Systemsprache
 - Home-Assistant-Übersetzungen und Korrekturen für fehlende Sprachen integriert

@@ -137,6 +137,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
 - Device Manager cards render status, programme, phase, type and drying step in system language
 - Raw states (status, programId, etc.) use localized option tables in ioBroker system language
 - Import Home Assistant translations with corrections for missing languages

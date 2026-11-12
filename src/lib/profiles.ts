@@ -240,18 +240,6 @@ export class DeviceProfiles {
 				def: 0,
 			},
 			{
-				id: 'state.estimatedEndtime',
-				name: {
-					en: 'Estimated End Time (hh:mm)',
-					de: 'Voraussichtliche Endzeit (hh:mm)',
-				},
-				role: 'text',
-				type: 'string',
-				read: true,
-				write: false,
-				def: '',
-			},
-			{
 				id: 'state.estimatedEndTimeText',
 				name: {
 					en: 'Estimated End Time (HH:MM)',

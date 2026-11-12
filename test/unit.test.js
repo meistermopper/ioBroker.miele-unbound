@@ -388,20 +388,21 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(phaseState.states[3]).to.equal('Hauptwäsche');
 		});
 
-		it('should provide estimatedEndtime and estimatedEndTimeText states', () => {
+		it('should provide estimatedEndTime and estimatedEndTimeText states', () => {
 			const profile = DeviceProfiles.getProfile(1, 'de');
-			const endtimeState = profile.states.find(
-				(s) => s.id === 'state.estimatedEndtime',
+			const timeState = profile.states.find(
+				(s) => s.id === 'state.estimatedEndTime',
 			);
-			expect(endtimeState).to.exist;
-			expect(endtimeState.type).to.equal('string');
-			expect(endtimeState.role).to.equal('text');
+			expect(timeState).to.exist;
+			expect(timeState.type).to.equal('number');
+			expect(timeState.role).to.equal('date');
 
 			const textState = profile.states.find(
 				(s) => s.id === 'state.estimatedEndTimeText',
 			);
 			expect(textState).to.exist;
 			expect(textState.type).to.equal('string');
+			expect(textState.role).to.equal('text');
 		});
 
 		it('should provide state.progress state in common profile states', () => {
