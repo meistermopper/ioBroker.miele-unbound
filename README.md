@@ -136,7 +136,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.7.0 (2026-11-15)
 - Add remote program selection via control.programId (DOP2 leaf 2/1577) and Device Manager dropdown
 
 ### 1.6.2 (2026-11-15)
@@ -159,13 +159,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Auto-disable mDNS auto-discovery when manual device IPs are configured
 - Ensure manual devices are active by default even when enabled is undefined
 - Add state.estimatedEndtime state in hh:mm format for appliances
-
-### 1.5.0 (2026-11-11)
-- Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586
-- Add wake-up retry on HTTP 500, Dop1 support for coffee machines and status verification
-- Remove uuid override breaking browser-sync in dev-server
-- Update dependency overrides to resolve Dependabot security alerts
-- Update Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

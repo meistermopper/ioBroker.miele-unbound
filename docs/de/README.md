@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.7.0 (2026-11-15)
 - Programmwahl über control.programId (DOP2-Leaf 2/1577) und Auswahlmenü im Konfig-Manager ergänzt
 
 ### 1.6.2 (2026-11-15)
@@ -161,12 +163,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Manuell eingetragene Geräte sind standardmäßig aktiv (auch wenn enabled undefiniert ist)
 - Neuen Datenpunkt state.estimatedEndtime im Format hh:mm hinzugefügt
 
-### 1.5.0 (2026-11-11)
-- control.powerOn/powerOff schalten wie die Miele-App über DOP2-Leaf 2/1586
-- Wecken schlafender Geräte bei HTTP 500, Dop1 für Kaffeevollautomaten und Status-Prüfung
-- Inkompatiblen uuid-Override für browser-sync im dev-server entfernt
-- Abhängigkeits-Overrides zur Behebung von Dependabot-Warnungen aktualisiert
-- Biome auf 2.6.4 aktualisiert und Markdown-/YAML-Dateien von der Formatierung ausgenommen
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

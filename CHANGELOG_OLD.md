@@ -1,4 +1,11 @@
 # Older changes
+## 1.5.0 (2026-11-11)
+- Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586
+- Add wake-up retry on HTTP 500, Dop1 support for coffee machines and status verification
+- Remove uuid override breaking browser-sync in dev-server
+- Update dependency overrides to resolve Dependabot security alerts
+- Update Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting
+
 ## 1.4.0 (2026-10-26)
 - Add optional Miele HTTP time server answering /V2/NTP/ requests for offline appliances
 - Add optional appliance clock synchronization (keepDeviceClock) for Settings/TimeSync
