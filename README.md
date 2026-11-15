@@ -136,7 +136,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.6.2 (2026-11-15)
 - Correct MobileStart detection from RemoteEnable array to enable remote start
 
 ### 1.6.1 (2026-11-12)
@@ -163,24 +163,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Remove uuid override breaking browser-sync in dev-server
 - Update dependency overrides to resolve Dependabot security alerts
 - Update Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting
-
-### 1.4.0 (2026-10-26)
-- Add optional Miele HTTP time server answering /V2/NTP/ requests for offline appliances
-- Add optional appliance clock synchronization (keepDeviceClock) for Settings/TimeSync
-- Add timeServer and keepDeviceClock settings to admin JSONConfig with full i18n
-- Fix unhandled rejection in hourly appliance clock check
-- Fix crash on mDNS socket errors in discovery and push listener
-- Fix device request queue hanging forever on aborted HTTP responses
-- Prevent overlapping polling cycles triggered by push, commands or discovery
-- Remove stale device entry after IP change to stop info.connected flapping
-- Discard outdated poll snapshots that arrive after a newer push update
-- Subscribe to control states before discarding pending commands on startup
-- Capture errors in ready and stateChange handlers instead of rejecting
-- Abort pending appliance requests and mDNS discovery on adapter unload
-- Run subnet fallback scan detached and skip known appliance IPs
-- First appliance clock check now runs 2 minutes after start instead of after 1 hour
-- Limit push request body size and time server client channels (max. 50)
-- Use per-instance file name for the pairing challenge
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

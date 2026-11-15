@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.6.2 (2026-11-15)
 - Erkennung von MobileStart aus RemoteEnable-Array korrigiert, um Fernstart zu erlauben
 
 ### 1.6.1 (2026-11-12)
@@ -165,23 +167,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Abhängigkeits-Overrides zur Behebung von Dependabot-Warnungen aktualisiert
 - Biome auf 2.6.4 aktualisiert und Markdown-/YAML-Dateien von der Formatierung ausgenommen
 
-### 1.4.0 (2026-10-26)
-- Neuer optionaler Miele-Zeitdienst für HTTP-Zeitabfragen (/V2/NTP/) im lokalen Netz
-- Optionale Synchronisation der Geräteuhr (keepDeviceClock) via Settings/TimeSync
-- Einstellungen für timeServer und keepDeviceClock im Admin-JSONConfig mit 11 Sprachen
-- Unbehandelte Promise-Rejection im stündlichen Geräteuhr-Abgleich behoben
-- Absturz bei mDNS-Socket-Fehlern in Discovery und Push-Listener behoben
-- Dauerhaft hängende Geräte-Anfragewarteschlange bei abgebrochenen HTTP-Antworten behoben
-- Überlappende Polling-Zyklen durch Push, Befehle oder Discovery verhindert
-- Veralteten Geräteeintrag nach IP-Wechsel entfernen (kein Flackern von info.connected)
-- Veraltete Poll-Antworten verwerfen, wenn bereits ein neueres Push-Update vorliegt
-- Steuer-States beim Start abonnieren, bevor ausstehende Befehle verworfen werden
-- Fehler in ready- und stateChange-Handlern abfangen statt Promise-Rejection
-- Laufende Geräteanfragen und mDNS-Discovery beim Beenden des Adapters abbrechen
-- Subnetz-Fallback-Scan entkoppelt ausführen und bekannte Geräte-IPs überspringen
-- Erster Geräteuhr-Abgleich jetzt 2 Minuten nach Start statt erst nach 1 Stunde
-- Body-Größe von Push-Anfragen und Zeitdienst-Abrufer-Kanäle (max. 50) begrenzt
-- Instanzspezifischer Dateiname für die Pairing-Challenge
+[Ältere Einträge](CHANGELOG_OLD.md)
 
 [Ältere Einträge](CHANGELOG_OLD.md)
 
