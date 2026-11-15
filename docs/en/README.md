@@ -136,6 +136,8 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
+### **WORK IN PROGRESS**
+
 ### 1.7.0 (2026-11-15)
 - Add remote program selection via control.programId (DOP2 leaf 2/1577) and Device Manager dropdown
 
