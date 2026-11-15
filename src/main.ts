@@ -31,14 +31,17 @@ import {
 } from './lib/definitions.js';
 import {
 	angebot,
+	artKann,
 	fortschritt,
 	KANN_ID,
+	kannProgrammWaehlen,
 	MieleDeviceManager,
 } from './lib/devicemanager.js';
 import { MieleDiscovery } from './lib/discovery.js';
 import { MieleEco } from './lib/eco.js';
 import { type PowerSwitchResult, schalten } from './lib/power.js';
 import { CAN_DESC, DeviceProfiles } from './lib/profiles.js';
+import { type ProgramSelectResult, programmWaehlen } from './lib/program.js';
 import { MielePushListener } from './lib/push.js';
 import {
 	getDeviceIntervalMs,
@@ -54,6 +57,7 @@ import type {
 	MieleTimeSyncResponse,
 	StateDefinition,
 } from './lib/types.js';
+import { werteTabelle } from './lib/werte.js';
 
 interface ManagedDevice extends SchedulableDevice {
 	nextPoll?: number;
@@ -107,7 +111,6 @@ export class MieleUnbound extends utils.Adapter {
 	private clockInitializedDevices: Set<string> = new Set();
 	private isSubnetScanning = false;
 	private readonly abortController = new AbortController();
-	private deviceManager?: MieleDeviceManager;
 
 	private get cfg(): AdapterConfig {
 		return this.config as unknown as AdapterConfig;
@@ -119,7 +122,7 @@ export class MieleUnbound extends utils.Adapter {
 			name: 'miele-unbound',
 		});
 
-		this.deviceManager = new MieleDeviceManager(this);
+		new MieleDeviceManager(this);
 
 		this.on('ready', () => {
 			this.onReady().catch((err) =>
@@ -871,6 +874,14 @@ export class MieleUnbound extends utils.Adapter {
 					name: { en: 'Stopping possible', de: 'Stoppen möglich' },
 					role: 'indicator',
 				},
+				{
+					id: 'canSelectProgram',
+					name: {
+						en: 'Selecting programme possible',
+						de: 'Programmwahl möglich',
+					},
+					role: 'indicator',
+				},
 			];
 
 			for (const c of canDefs) {
@@ -894,6 +905,45 @@ export class MieleUnbound extends utils.Adapter {
 					val: false,
 					ack: true,
 				});
+			}
+
+			if (artKann('selectProgram', dev.deviceType)) {
+				const progTab = werteTabelle('program', lang, dev.deviceType);
+				const progStates: Record<number, string> | undefined = progTab
+					? Object.fromEntries(
+							progTab.options.map((o) => [o.value, o.label]),
+						)
+					: undefined;
+				await this.setObjectNotExistsAsync(
+					`${serial}.control.programId`,
+					{
+						type: 'state',
+						common: {
+							name: {
+								en: 'Select Program (ID)',
+								de: 'Programm wählen (ID)',
+							},
+							role: 'level',
+							type: 'number',
+							read: true,
+							write: true,
+							def: 0,
+							states: progStates,
+						},
+						native: {},
+					},
+				);
+				if (
+					progStates &&
+					typeof this.extendObjectAsync === 'function'
+				) {
+					await this.extendObjectAsync(
+						`${serial}.control.programId`,
+						{
+							common: { states: progStates },
+						},
+					).catch(() => {});
+				}
 			}
 		}
 
@@ -957,6 +1007,9 @@ export class MieleUnbound extends utils.Adapter {
 		const pId = state.ProgramID ?? 0;
 		set('state.programId', pId);
 		set('state.programText', getProgramText(devType, pId, lang));
+		if (cfg.allowControl && artKann('selectProgram', devType)) {
+			set('control.programId', pId);
+		}
 
 		const phase = state.ProgramPhase ?? 0;
 		set('state.programPhase', phase);
@@ -1178,6 +1231,17 @@ export class MieleUnbound extends utils.Adapter {
 				});
 			}
 		}
+
+		const canSelect = kannProgrammWaehlen(z);
+		const curSelect = await this.getStateAsync(
+			`${serial}.control.canSelectProgram`,
+		);
+		if (!curSelect || curSelect.val !== canSelect) {
+			await this.setStateAsync(`${serial}.control.canSelectProgram`, {
+				val: canSelect,
+				ack: true,
+			});
+		}
 	}
 
 	private async ensureStateObject(
@@ -1252,8 +1316,18 @@ export class MieleUnbound extends utils.Adapter {
 				`${id}: unacknowledged command from ${since} discarded, not sent to device`,
 			);
 			try {
+				let resetVal: ioBroker.StateValue = false;
+				if (id.endsWith('.control.programId')) {
+					const curProg = await this.getStateAsync(
+						id.replace(/\.control\.programId$/, '.state.programId'),
+					);
+					resetVal =
+						curProg && typeof curProg.val === 'number'
+							? curProg.val
+							: 0;
+				}
 				await this.setStateAsync(id, {
-					val: false,
+					val: resetVal,
 					ack: true,
 					q: 0x11,
 					c: `not executed: still pending at adapter start (set ${since})`,
@@ -1284,6 +1358,43 @@ export class MieleUnbound extends utils.Adapter {
 
 		const serial = parts[2];
 		const command = parts[4];
+
+		if (command === 'programId') {
+			const progId = Math.round(Number(state.val));
+			if (!Number.isFinite(progId) || progId <= 0) {
+				await this.setStateAsync(id, { val: 0, ack: true });
+				return;
+			}
+			const cfg = this.cfg;
+			if (!cfg.allowControl) {
+				this.log.warn(
+					`Command 'programId' not executed: remote control is disabled in adapter settings`,
+				);
+				await this.setStateAsync(id, {
+					val: progId,
+					ack: true,
+					q: 0x11,
+					c: 'not executed: remote control is disabled in adapter settings',
+				});
+				return;
+			}
+			const ip = this.serialToIp.get(serial);
+			const dev = ip ? this.devices.get(ip) : undefined;
+			if (!dev?.api) {
+				this.log.warn(
+					`Command 'programId' not executed: appliance ${serial} not connected`,
+				);
+				await this.setStateAsync(id, {
+					val: progId,
+					ack: true,
+					q: 0x42,
+					c: `not executed: appliance ${serial} not connected`,
+				});
+				return;
+			}
+			await this.executeProgramSelect(id, serial, progId, dev);
+			return;
+		}
 
 		// If user set false, nothing to execute - acknowledge immediately so it does not stay pending
 		if (!state.val) {
@@ -1435,6 +1546,93 @@ export class MieleUnbound extends utils.Adapter {
 		});
 
 		// Trigger immediate poll for this appliance after command execution
+		dev.nextPoll = 0;
+		this.scheduleNextPoll(1000);
+	}
+
+	private async executeProgramSelect(
+		id: string,
+		serial: string,
+		programId: number,
+		dev: ManagedDevice,
+	): Promise<void> {
+		if (!dev.api || !dev.route) {
+			this.log.warn(
+				`Command 'programId' not executed: appliance ${serial} not connected`,
+			);
+			await this.setStateAsync(id, {
+				val: programId,
+				ack: true,
+				q: 0x42,
+				c: `not executed: appliance ${serial} not connected`,
+			});
+			return;
+		}
+
+		let result: ProgramSelectResult;
+		try {
+			result = await programmWaehlen(dev.api, dev.route, programId, {
+				deviceType: dev.deviceType,
+				protocolVersion: dev.protocolVersion,
+				log: this.log,
+				name: dev.name || serial,
+				warten: (ms) =>
+					new Promise((resolve) => {
+						this.setTimeout(resolve, ms);
+					}),
+			});
+		} catch (err) {
+			const msg = `${serial} - ${(err as Error).message}`;
+			this.log.warn(`Command 'programId' not executed: ${msg}`);
+			await this.setStateAsync(id, {
+				val: programId,
+				ack: true,
+				q: 0x42,
+				c: `not executed: ${msg}`,
+			});
+			return;
+		}
+
+		if (!result.angenommen) {
+			const msg = `${serial}: ${result.fehler}`;
+			this.log.warn(`Command 'programId' not executed: ${msg}`);
+			await this.setStateAsync(id, {
+				val: result.programVorher ?? programId,
+				ack: true,
+				q: result.status === null ? 0x42 : 0x44,
+				c: `not executed: ${msg}`,
+			});
+			return;
+		}
+
+		const weg = `via ${result.weg} (HTTP ${result.status})`;
+		if (result.wirkung === false) {
+			const text = `accepted ${weg}, but ProgramID did not change (still ${result.programNachher})`;
+			this.log.warn(
+				`Command 'programId' (${programId}) for ${serial}: ${text}`,
+			);
+			await this.setStateAsync(id, {
+				val: result.programNachher ?? programId,
+				ack: true,
+				q: 0x44,
+				c: text,
+			});
+			return;
+		}
+
+		const nachher =
+			result.wirkung === true
+				? `, programId ${result.programVorher} -> ${result.programNachher}`
+				: '';
+		this.log.info(
+			`Command 'programId' (${programId}) sent to ${serial} ${weg}${nachher}`,
+		);
+		await this.setStateAsync(id, {
+			val: programId,
+			ack: true,
+			c: `done ${weg}${nachher}`,
+		});
+
 		dev.nextPoll = 0;
 		this.scheduleNextPoll(1000);
 	}

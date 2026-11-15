@@ -127,7 +127,7 @@ Each appliance is represented by its serial number as the device object:
 - **`<serial>.state`**: Operating status, program ID and name, phase, remaining time, door, errors.
 - **`<serial>.sensors`**: Temperature zones, spin speeds, drying steps, battery, ventilation.
 - **`<serial>.eco`**: Targeted EcoFeedback energy (kWh/Wh), water consumption, and heating metrics.
-- **`<serial>.control`**: Remote actions (start, stop, pause, power, lighting) when enabled.
+- **`<serial>.control`**: Remote actions (start, stop, pause, power, lighting, and program selection via `control.programId`) when enabled.
 
 ## Legal Disclaimer
 
@@ -137,6 +137,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Add remote program selection via control.programId (DOP2 leaf 2/1577) and Device Manager dropdown
 
 ### 1.6.2 (2026-11-15)
 - Correct MobileStart detection from RemoteEnable array to enable remote start

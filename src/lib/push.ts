@@ -72,7 +72,7 @@ export interface MielePushOptions {
 	}) => Promise<void>;
 	hostIp?: string;
 	adapter?: {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: ioBroker adapter setTimeout signature
 		setTimeout: (handler: (...args: any[]) => void, timeout: number) => any;
 	};
 }
@@ -87,7 +87,7 @@ export class MielePushListener {
 	private readonly hostname: string;
 	private readonly instance: string;
 	private server: http.Server | null = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	// biome-ignore lint/suspicious/noExplicitAny: untyped multicast-dns instance
 	private mdns: any = null;
 	private sockets = new Set<net.Socket>();
 
@@ -390,7 +390,7 @@ export class MielePushListener {
 			}
 		};
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: untyped multicast-dns query packet
 		this.mdns.on('query', (query: any) => {
 			for (const q of query.questions || []) {
 				if (

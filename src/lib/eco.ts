@@ -58,6 +58,7 @@ function decodeField(
 	type: number,
 	buf: Buffer,
 	off: number,
+	// biome-ignore lint/suspicious/noExplicitAny: heterogeneous DOP2 field value
 ): { value: any; wireLength: number } {
 	if (FIXED[type] != null) {
 		const len = FIXED[type];
@@ -88,7 +89,7 @@ function decodeField(
 	if (ARRAY_ELEM[type] != null) {
 		const n = (buf[off] << 8) + buf[off + 1];
 		const el = ARRAY_ELEM[type];
-		const vals: any[] = [];
+		const vals: (boolean | number | bigint)[] = [];
 		for (let i = 0; i < n; i++) {
 			const p = off + 2 + i * el;
 			vals.push(
@@ -105,10 +106,12 @@ function decodeField(
 function decodeStruct(
 	buf: Buffer,
 	off: number,
+	// biome-ignore lint/suspicious/noExplicitAny: heterogeneous DOP2 struct fields
 ): { value: any[]; wireLength: number } {
 	const numberOfFields = buf[off + 1];
 	let p = off + 3;
 	let fieldLength = 0;
+	// biome-ignore lint/suspicious/noExplicitAny: heterogeneous DOP2 struct fields
 	const fields: any[] = [];
 	while (fields.length < numberOfFields && p < buf.length) {
 		const dataType = buf[p + 1];
@@ -128,13 +131,15 @@ function decodeStruct(
 export function parseDop2Leaf(buf: Buffer): {
 	unit: number;
 	attr: number;
+	// biome-ignore lint/suspicious/noExplicitAny: heterogeneous DOP2 leaf fields
 	fields: Record<number, any>;
 } {
 	const payloadLength = (buf[0] << 8) + buf[1];
 	const unit = (buf[2] << 8) + buf[3];
 	const attr = (buf[4] << 8) + buf[5];
 	const padding = buf.length - payloadLength - 2;
-	const payload = buf.subarray(8, buf.length - (padding > 0 ? padding : 0));
+	const payload = buf.subarray(8, buf.length - Math.max(padding, 0));
+	// biome-ignore lint/suspicious/noExplicitAny: heterogeneous DOP2 leaf fields
 	const fields: Record<number, any> = {};
 
 	if (payload.length === 0) {
@@ -157,6 +162,7 @@ export function parseDop2Leaf(buf: Buffer): {
 	return { unit, attr, fields };
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: heterogeneous DOP2 struct value
 function extractValueFromStruct(val: any): number | null {
 	if (typeof val === 'number') {
 		return val;

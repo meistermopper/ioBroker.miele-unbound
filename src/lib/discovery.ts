@@ -29,9 +29,10 @@ function parseTxt(
 export function discoverMieleDevices(
 	timeoutMs = 5000,
 	log?: (msg: string) => void,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	timerFn?: {
+		// biome-ignore lint/suspicious/noExplicitAny: compatible with both Node.js and ioBroker timer handles
 		setTimeout: (fn: () => void, ms: number) => any;
+		// biome-ignore lint/suspicious/noExplicitAny: compatible with both Node.js and ioBroker timer handles
 		clearTimeout: (id: any) => void;
 	},
 	signal?: AbortSignal,
@@ -45,10 +46,9 @@ export function discoverMieleDevices(
 			return;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: untyped CJS module multicast-dns
 		let multicastDns: any;
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			multicastDns = require('multicast-dns');
 		} catch {
 			if (log) {
@@ -76,7 +76,7 @@ export function discoverMieleDevices(
 			interfaces.push(undefined);
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: untyped multicast-dns instance list
 		const mdnsList: any[] = [];
 		const instances: Record<
 			string,

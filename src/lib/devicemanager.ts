@@ -512,6 +512,10 @@ export const ANGEBOT_JE_STATUS: Record<number, string[]> = {
 export const PROGRAMM_ARTEN = new Set([
 	1, 2, 7, 8, 12, 13, 14, 15, 16, 24, 27, 31, 45,
 ]);
+export const PROGRAMMWAHL_ARTEN = new Set([
+	1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 23, 24, 25, 27, 31, 45,
+	67, 73,
+]);
 export const PAUSE_ARTEN = new Set([1, 2, 24]);
 export const OHNE_SCHALTEN = new Set([18, 19, 20, 21, 25, 32, 33, 34]);
 export const LICHT_ARTEN = new Set([12, 13, 15, 16, 23, 27, 31, 45]);
@@ -530,6 +534,8 @@ export function artKann(
 		case 'start':
 		case 'stop':
 			return PROGRAMM_ARTEN.has(deviceType);
+		case 'selectProgram':
+			return PROGRAMMWAHL_ARTEN.has(deviceType);
 		case 'pause':
 			return PAUSE_ARTEN.has(deviceType);
 		case 'lightOn':
@@ -565,6 +571,23 @@ export const KANN_ID: Record<string, string> = {
 	pause: 'canPause',
 	stop: 'canStop',
 };
+
+export const PROGRAMMWAHL_STATUS = new Set([1, 2, 3, 4, 7]);
+
+export function kannProgrammWaehlen(z: {
+	deviceType?: number | null;
+	status?: number | null;
+	verbunden?: boolean;
+}): boolean {
+	if (!z.verbunden || !artKann('selectProgram', z.deviceType)) {
+		return false;
+	}
+	return (
+		z.status !== null &&
+		z.status !== undefined &&
+		PROGRAMMWAHL_STATUS.has(z.status)
+	);
+}
 
 export const PFADE = {
 	waschen:
@@ -655,8 +678,10 @@ export const LICHT_UMSCHALTEN = 'lightToggle';
 export const BALKEN_HTML =
 	'<div style="display:flex;align-items:center;gap:10px;width:100%;padding-top:4px">' +
 	'<div style="flex:1;height:10px;border-radius:5px;background:rgba(33,150,243,0.25);overflow:hidden">' +
+	// biome-ignore lint/suspicious/noTemplateCurlyInString: ioBroker dm-utils client-side template expression
 	'<div style="width:${Math.max(0, Math.min(100, Number(_states.v?.val) || 0))}%;height:100%;' +
 	'border-radius:5px;background:#2196f3"></div></div>' +
+	// biome-ignore lint/suspicious/noTemplateCurlyInString: ioBroker dm-utils client-side template expression
 	'<span style="min-width:3em;text-align:right;font-size:16px">${Number(_states.v?.val) || 0}\u00a0%</span></div>';
 
 export const FARBE_STOERUNG = '#e53935';
@@ -868,6 +893,37 @@ export function karte({
 		if (o?.common && 'unit' in o.common && o.common.unit) {
 			z.unit = o.common.unit;
 		}
+		if (
+			sub === 'state.programText' &&
+			steuerung &&
+			roh &&
+			hat('control.programId') &&
+			hat('control.canSelectProgram')
+		) {
+			zeilen._control_programId = {
+				type: 'state',
+				oid: voll('control.programId'),
+				foreign: true,
+				readOnly: false,
+				control: 'select',
+				xs: 12,
+				label: TEXTE.program,
+				options: roh.options,
+				noTranslation: true,
+				dependsOnStates: { c: voll('control.canSelectProgram') },
+				hidden: '!(_states.c?.val === true)',
+			};
+			const prevDep =
+				(z.dependsOnStates as Record<string, string> | undefined) || {};
+			z.dependsOnStates = {
+				...prevDep,
+				c: voll('control.canSelectProgram'),
+			};
+			const nichts = roh.leer.length
+				? ` && !${JSON.stringify(roh.leer)}.includes(_states.v?.val)`
+				: '';
+			z.hidden = `!(_states.c?.val !== true && _states.v?.val !== undefined && _states.v?.val !== null${nichts})`;
+		}
 		zeilen[`_${sub.replace(/\./g, '_')}`] = z;
 	}
 
@@ -1000,6 +1056,28 @@ export function details(
 ): DeviceDetails<string> {
 	const items: Record<string, unknown> = {};
 	const hat = (sub: string): boolean => objekte.has(`${id}.${sub}`);
+	if (hat('control.programId') && artKann('selectProgram', deviceType)) {
+		const progTab = werteTabelle('program', sprache || 'en', deviceType);
+		if (progTab && progTab.options.length > 0) {
+			const progItem: Record<string, unknown> = {
+				type: 'state',
+				oid: `${id}.control.programId`,
+				label: TEXTE.program,
+				control: 'select',
+				readOnly: false,
+				options: progTab.options,
+				noTranslation: true,
+				sm: 12,
+			};
+			if (hat('control.canSelectProgram')) {
+				progItem.dependsOnStates = {
+					c: `${id}.control.canSelectProgram`,
+				};
+				progItem.disabled = '!(_states.c?.val === true)';
+			}
+			items._control_programId = progItem;
+		}
+	}
 	for (const sub of DETAILS) {
 		const o = objekte.get(`${id}.${sub}`);
 		if (!o) {
@@ -1152,6 +1230,7 @@ export class MieleDeviceManager extends DeviceManagement {
 					sprache,
 					handler: (geraet, befehl, ctx) =>
 						this.befehl(geraet, befehl, ctx),
+					// biome-ignore lint/suspicious/noExplicitAny: dm-utils DeviceInfo generic variance
 				}) as any,
 			);
 		}

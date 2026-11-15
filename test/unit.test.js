@@ -1,26 +1,19 @@
 const {
 	TEXTE,
-	KANN_ID,
-	KNOPFSYMBOL,
-	PFADE,
 	fortschritt,
 	angebot,
-	artKann,
+	kannProgrammWaehlen,
 	titel,
 	text,
-	tooltip,
 	karte,
 	details,
 	befehlAusfuehren,
 	MieleDeviceManager,
-	ROHWERT,
-	rohAnzeige,
 } = require('../build/lib/devicemanager.js');
 const {
 	wertText,
 	werteTabelle,
 	normalizeSprache,
-	SPRACHEN,
 } = require('../build/lib/werte.js');
 const net = require('node:net');
 const {
@@ -39,21 +32,22 @@ const {
 	createClockPayload,
 } = require('../build/lib/clock.js');
 const {
-	LEAF_UNIT,
-	LEAF_ATTR,
-	ZUSTAND_AN,
-	ZUSTAND_AUS,
-	TYP_KAFFEE,
 	WECKRUNDEN_MAX,
 	benutzerwunsch,
 	festerRumpf,
 	leafAendern,
-	dop1Rumpf,
 	statusDeutung,
 	wichtigsterStatus,
-	wirkungPruefen,
 	schalten,
 } = require('../build/lib/power.js');
+const {
+	PS_SELECT_UNIT,
+	PS_SELECT_ATTR,
+	AUSWAHL_KONFIGURIERT,
+	AUSWAHL_STANDARD,
+	programmRumpf,
+	programmWaehlen,
+} = require('../build/lib/program.js');
 
 const { getSubnetTemplates } = require('../build/lib/discovery.js');
 const { expect } = require('chai');
@@ -1446,6 +1440,263 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				expect(CAN_DESC[sp], `CAN_DESC[${sp}]`).to.be.a('string').and
 					.not.be.empty;
 			}
+		});
+
+		it('should evaluate kannProgrammWaehlen accurately across statuses and device types', () => {
+			expect(
+				kannProgrammWaehlen({
+					deviceType: 7,
+					status: 3,
+					verbunden: true,
+				}),
+			).to.be.true;
+			expect(
+				kannProgrammWaehlen({
+					deviceType: 7,
+					status: 2,
+					verbunden: true,
+				}),
+			).to.be.true;
+			// Coffee machine (17), robot vacuum (23), dialog oven (67), warming drawer (25)
+			for (const dt of [17, 23, 67, 25, 3, 4, 9, 73]) {
+				expect(
+					kannProgrammWaehlen({
+						deviceType: dt,
+						status: 2,
+						verbunden: true,
+					}),
+					`deviceType ${dt}`,
+				).to.be.true;
+			}
+			expect(
+				kannProgrammWaehlen({
+					deviceType: 7,
+					status: 5,
+					verbunden: true,
+				}),
+			).to.be.false;
+			expect(
+				kannProgrammWaehlen({
+					deviceType: 19,
+					status: 2,
+					verbunden: true,
+				}),
+			).to.be.false;
+			expect(
+				kannProgrammWaehlen({
+					deviceType: 7,
+					status: 3,
+					verbunden: false,
+				}),
+			).to.be.false;
+		});
+
+		it('should render interactive program select dropdown in karte and details when allowControl is active', () => {
+			const id = '000106831213';
+			const ns = 'miele-unbound.0';
+			const obj = {
+				_id: `${ns}.${id}`,
+				type: 'device',
+				common: { name: `Geschirrspüler (${id})` },
+			};
+			const objekte = new Map([
+				[`${id}.info.connected`, { type: 'state', common: {} }],
+				[
+					`${id}.state.status`,
+					{ type: 'state', common: { role: 'value' } },
+				],
+				[
+					`${id}.state.statusText`,
+					{ type: 'state', common: { name: 'Betriebsstatus' } },
+				],
+				[
+					`${id}.state.programId`,
+					{ type: 'state', common: { role: 'value' } },
+				],
+				[
+					`${id}.state.programText`,
+					{ type: 'state', common: { name: 'Programm' } },
+				],
+				[
+					`${id}.control.programId`,
+					{ type: 'state', common: { role: 'level' } },
+				],
+				[
+					`${id}.control.canSelectProgram`,
+					{ type: 'state', common: { role: 'indicator' } },
+				],
+			]);
+
+			const k = karte({
+				ns,
+				id,
+				obj,
+				objekte,
+				deviceType: 7,
+				steuerung: true,
+				sprache: 'de',
+			});
+
+			const items = k.customInfo.schema.items;
+			expect(items._control_programId).to.exist;
+			expect(items._control_programId.control).to.equal('select');
+			expect(items._control_programId.readOnly).to.be.false;
+			expect(items._control_programId.oid).to.equal(
+				`${ns}.${id}.control.programId`,
+			);
+			expect(items._control_programId.options).to.be.an('array');
+			expect(
+				items._control_programId.options.some((o) => o.value === 201),
+			).to.be.true;
+			expect(items._state_programText.hidden).to.contain(
+				'_states.c?.val !== true',
+			);
+
+			const det = details(id, objekte, 'de', 7);
+			expect(det.schema.items._control_programId).to.exist;
+			expect(det.schema.items._control_programId.control).to.equal(
+				'select',
+			);
+			expect(det.schema.items._control_programId.readOnly).to.be.false;
+		});
+	});
+
+	describe('Program Selection via DOP2 2/1577 (PS_Select)', () => {
+		const ROUTE = '000106831213';
+		const PS_LEAF = `Devices/${ROUTE}/DOP2/${PS_SELECT_UNIT}/${PS_SELECT_ATTR}?idx1=0&idx2=0`;
+		const STATE = `Devices/${ROUTE}/State`;
+
+		it('should build valid 32-byte padded DOP2 payload for leaf 2/1577 (PS_Select)', () => {
+			const buf = programmRumpf(201, AUSWAHL_KONFIGURIERT, 0);
+			expect(buf).to.have.length(32);
+			expect(buf.readUInt16BE(0)).to.equal(24);
+			expect(buf.readUInt16BE(2)).to.equal(2);
+			expect(buf.readUInt16BE(4)).to.equal(1577);
+			expect(buf.readUInt16BE(10)).to.equal(3);
+			// Field 1: programId = 201 (0x00c9), type 7 (E16)
+			expect(buf.readUInt16BE(12)).to.equal(1);
+			expect(buf.readUInt8(14)).to.equal(7);
+			expect(buf.readUInt16BE(15)).to.equal(201);
+			// Field 2: selectionParameter = 0, type 5 (U16)
+			expect(buf.readUInt16BE(17)).to.equal(2);
+			expect(buf.readUInt8(19)).to.equal(5);
+			expect(buf.readUInt16BE(20)).to.equal(0);
+			// Field 3: selectionType = 0, type 4 (E8)
+			expect(buf.readUInt16BE(22)).to.equal(3);
+			expect(buf.readUInt8(24)).to.equal(4);
+			expect(buf.readUInt8(25)).to.equal(0);
+			// Padding with 0x20
+			expect(buf.subarray(26).toString('hex')).to.equal('20'.repeat(6));
+		});
+
+		it('should select program via DOP2 2/1577 on HTTP 204 and verify effect', async () => {
+			const anfragen = [];
+			const states = [
+				{ Status: 3, ProgramID: 200, RemoteEnable: [15, 0, 1] },
+				{ Status: 3, ProgramID: 201, RemoteEnable: [15, 0, 1] },
+			];
+			const api = {
+				getState: async () => states.shift() || states[0],
+				anfrage: async (method, resource, body) => {
+					anfragen.push({ k: `${method} ${resource}`, body });
+					return { status: 204, body: Buffer.alloc(0) };
+				},
+			};
+			const erg = await programmWaehlen(api, ROUTE, 201, {
+				deviceType: 7,
+				log: { debug() {}, info() {}, warn() {} },
+				warten: async () => {},
+			});
+			expect(erg).to.include({
+				angenommen: true,
+				weg: '1577',
+				status: 204,
+				wirkung: true,
+				programVorher: 200,
+				programNachher: 201,
+			});
+			expect(anfragen).to.have.length(1);
+			expect(anfragen[0].k).to.equal(`PUT ${PS_LEAF}`);
+			expect(anfragen[0].body.toString('hex')).to.equal(
+				programmRumpf(201, AUSWAHL_KONFIGURIERT, 0).toString('hex'),
+			);
+		});
+
+		it('should wake appliance on HTTP 500 and fallback to selectionType 1 or State JSON when needed', async () => {
+			const anfragen = [];
+			const states = [
+				{ Status: 2, ProgramID: 200, RemoteEnable: [15, 0, 1] },
+				{ Status: 3, ProgramID: 205, RemoteEnable: [15, 0, 1] },
+			];
+			const putLeafStatuses = [500, 400, 204];
+			const api = {
+				getState: async () => states.shift() || states[0],
+				anfrage: async (method, resource, body) => {
+					anfragen.push({ k: `${method} ${resource}`, body });
+					if (resource === PS_LEAF) {
+						return {
+							status: putLeafStatuses.shift() ?? 204,
+							body: Buffer.alloc(0),
+						};
+					}
+					return { status: 204, body: Buffer.alloc(0) };
+				},
+			};
+			const erg = await programmWaehlen(api, ROUTE, 205, {
+				deviceType: 7,
+				log: { debug() {}, info() {}, warn() {} },
+				warten: async () => {},
+			});
+			expect(erg).to.include({
+				angenommen: true,
+				weg: '1577+wake:default',
+				status: 204,
+				wirkung: true,
+				programNachher: 205,
+			});
+			const lastLeafPut = anfragen
+				.filter((a) => a.k === `PUT ${PS_LEAF}`)
+				.pop();
+			expect(lastLeafPut.body.toString('hex')).to.equal(
+				programmRumpf(205, AUSWAHL_STANDARD, 0).toString('hex'),
+			);
+		});
+
+		it('should fallback to PUT State ProgramID when 2/1577 returns HTTP 404', async () => {
+			const anfragen = [];
+			const states = [
+				{ Status: 2, ProgramID: 0, RemoteEnable: [15, 0, 1] },
+				{ Status: 3, ProgramID: 201, RemoteEnable: [15, 0, 1] },
+			];
+			const api = {
+				getState: async () => states.shift() || states[0],
+				anfrage: async (method, resource, body) => {
+					anfragen.push({ k: `${method} ${resource}`, body });
+					if (resource === PS_LEAF) {
+						return { status: 404, body: Buffer.alloc(0) };
+					}
+					return { status: 204, body: Buffer.alloc(0) };
+				},
+			};
+			const erg = await programmWaehlen(api, ROUTE, 201, {
+				deviceType: 7,
+				log: { debug() {}, info() {}, warn() {} },
+				warten: async () => {},
+			});
+			expect(erg).to.include({
+				angenommen: true,
+				weg: 'state',
+				status: 204,
+				wirkung: true,
+				programNachher: 201,
+			});
+			expect(anfragen.map((a) => a.k)).to.deep.equal([
+				`PUT ${PS_LEAF}`,
+				`PUT ${STATE}`,
+			]);
+			expect(JSON.parse(anfragen[1].body)).to.deep.equal({
+				ProgramID: 201,
+			});
 		});
 	});
 });

@@ -127,7 +127,7 @@ Jedes Gerät wird durch seine Seriennummer als Device im Objektbaum abgebildet:
 - **`<seriennummer>.state`**: Betriebsstatus, Programm-ID und Name, Phase, Restzeiten, Tür, Fehler.
 - **`<seriennummer>.sensors`**: Temperaturzonen, Schleuderdrehzahl, Trockenstufe, Akku, Lüfterstufe.
 - **`<seriennummer>.eco`**: Gezieltes EcoFeedback für Energie (kWh/Wh), Wasserverbrauch und Heizdauer.
-- **`<seriennummer>.control`**: Steuerbefehle (Start, Stopp, Pause, Power, Licht), falls aktiviert.
+- **`<seriennummer>.control`**: Steuerbefehle (Start, Stopp, Pause, Power, Licht sowie Programmwahl über `control.programId`), falls aktiviert.
 
 ## Rechtliche Hinweise / Disclaimer
 
@@ -138,6 +138,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Programmwahl über control.programId (DOP2-Leaf 2/1577) und Auswahlmenü im Konfig-Manager ergänzt
 
 ### 1.6.2 (2026-11-15)
 - Erkennung von MobileStart aus RemoteEnable-Array korrigiert, um Fernstart zu erlauben
@@ -166,18 +167,6 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Inkompatiblen uuid-Override für browser-sync im dev-server entfernt
 - Abhängigkeits-Overrides zur Behebung von Dependabot-Warnungen aktualisiert
 - Biome auf 2.6.4 aktualisiert und Markdown-/YAML-Dateien von der Formatierung ausgenommen
-
-[Ältere Einträge](../../CHANGELOG_OLD.md)
-
-[Ältere Einträge](../../CHANGELOG_OLD.md)
-
-[Ältere Einträge](../../CHANGELOG_OLD.md)
-
-[Ältere Einträge](../../CHANGELOG_OLD.md)
-
-[Ältere Einträge](../../CHANGELOG_OLD.md)
-
-[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 
