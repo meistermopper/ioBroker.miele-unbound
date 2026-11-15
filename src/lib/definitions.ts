@@ -1005,3 +1005,50 @@ export function tempToCelsius(raw?: unknown): number | null {
 	}
 	return Math.round((num / 100) * 10) / 10;
 }
+
+/**
+ * Parse MobileStart / RemoteControl state from appliance RemoteEnable payload.
+ *
+ * Miele appliances report RemoteEnable as:
+ * - Array: [fullRemoteControl, smartGrid, mobileStart]
+ *   - [0]: fullRemoteControl bitmask (e.g. 15 = on & remote allowed, 7 = off)
+ *   - [1]: smartGrid (e.g. 1 if smart energy active)
+ *   - [2]: mobileStart (1 = MobileStart active on appliance)
+ *   If length >= 3, index 2 is checked first (standard MobileStart), falling back to index 1.
+ *   If length === 2, index 1 is checked.
+ *   If length === 1, check if bit 0 is set or equals 15.
+ * - Object: { mobileStart?: boolean, fullRemoteControl?: boolean }
+ */
+export function parseMobileStart(remoteEnable: unknown): boolean {
+	if (!remoteEnable) {
+		return false;
+	}
+	if (Array.isArray(remoteEnable)) {
+		if (remoteEnable.length >= 3) {
+			return Boolean(remoteEnable[2] || remoteEnable[1]);
+		}
+		if (remoteEnable.length >= 2) {
+			return Boolean(remoteEnable[1]);
+		}
+		if (remoteEnable.length === 1) {
+			return remoteEnable[0] === 15 || Boolean(remoteEnable[0]);
+		}
+		return false;
+	}
+	if (typeof remoteEnable === 'object') {
+		const obj = remoteEnable as Record<string, unknown>;
+		return Boolean(
+			obj.mobileStart ??
+				obj.fullRemoteControl ??
+				obj.MobileStart ??
+				obj.FullRemoteControl,
+		);
+	}
+	if (typeof remoteEnable === 'boolean') {
+		return remoteEnable;
+	}
+	if (typeof remoteEnable === 'number') {
+		return remoteEnable > 0;
+	}
+	return false;
+}

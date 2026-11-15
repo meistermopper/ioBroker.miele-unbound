@@ -138,6 +138,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Erkennung von MobileStart aus RemoteEnable-Array korrigiert, um Fernstart zu erlauben
 
 ### 1.6.1 (2026-11-12)
 - Überflüssigen Datenpunkt state.estimatedEndtime zugunsten von estimatedEndTimeText entfernt

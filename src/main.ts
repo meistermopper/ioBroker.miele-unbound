@@ -23,6 +23,7 @@ import {
 	getProgramText,
 	getProgramTypeText,
 	getStatusText,
+	parseMobileStart,
 	sanitizeRemainingTime,
 	tempToCelsius,
 	timeToHHMM,
@@ -1000,9 +1001,10 @@ export class MieleUnbound extends utils.Adapter {
 		set('state.signalFailure', !!state.SignalFailure);
 
 		// MobileStart
-		const mobileStart = Array.isArray(state.RemoteEnable)
-			? !!state.RemoteEnable[1]
-			: false;
+		const mobileStart = parseMobileStart(state.RemoteEnable);
+		this.log.debug(
+			`[${sId}] RemoteEnable ${JSON.stringify(state.RemoteEnable)} -> mobileStart: ${mobileStart}`,
+		);
 		set('state.mobileStart', mobileStart);
 
 		// Sensors: Temperatures

@@ -66,6 +66,7 @@ const {
 	getProgramText,
 	getProgramTypeText,
 	getStatusText,
+	parseMobileStart,
 	sanitizeRemainingTime,
 	tempToCelsius,
 	timeToHHMM,
@@ -318,6 +319,37 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(tempToCelsius(4000)).to.equal(40);
 			expect(tempToCelsius(18050)).to.equal(180.5);
 			expect(tempToCelsius(-32768)).to.be.null;
+		});
+
+		it('should parse MobileStart state from RemoteEnable array and object formats', () => {
+			// Dishwasher with MobileStart enabled: [fullRemoteControl, smartGrid, mobileStart]
+			expect(parseMobileStart([15, 0, 1])).to.be.true;
+			expect(parseMobileStart([15, 1, 1])).to.be.true;
+			expect(parseMobileStart([15, 1, 0])).to.be.true;
+
+			// Inactive / standby states
+			expect(parseMobileStart([15, 0, 0])).to.be.false;
+			expect(parseMobileStart([7, 0, 0])).to.be.false;
+			expect(parseMobileStart([])).to.be.false;
+
+			// Short arrays (fallback)
+			expect(parseMobileStart([15, 1])).to.be.true;
+			expect(parseMobileStart([15, 0])).to.be.false;
+			expect(parseMobileStart([15])).to.be.true;
+			expect(parseMobileStart([7])).to.be.true;
+			expect(parseMobileStart([0])).to.be.false;
+
+			// Object format
+			expect(parseMobileStart({ mobileStart: true })).to.be.true;
+			expect(parseMobileStart({ mobileStart: false })).to.be.false;
+			expect(parseMobileStart({ fullRemoteControl: true })).to.be.true;
+			expect(parseMobileStart({ fullRemoteControl: false })).to.be.false;
+
+			// Null / undefined / invalid
+			expect(parseMobileStart(null)).to.be.false;
+			expect(parseMobileStart(undefined)).to.be.false;
+			expect(parseMobileStart(true)).to.be.true;
+			expect(parseMobileStart(false)).to.be.false;
 		});
 	});
 

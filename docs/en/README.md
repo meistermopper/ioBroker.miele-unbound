@@ -137,6 +137,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Correct MobileStart detection from RemoteEnable array to enable remote start
 
 ### 1.6.1 (2026-11-12)
 - Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
