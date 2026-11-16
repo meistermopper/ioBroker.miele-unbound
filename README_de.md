@@ -138,6 +138,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.7.1 (2026-11-16)
 - Befehls- und Lichtknöpfe auf Gerätekarten bei nicht erreichbarem Gerät ausblenden
 - control.canLightOn und control.canLightOff ergänzt und control.can* beim Stopp leeren
 - Deutsche (Heißluft plus, Automatik, Trockenstufen) und französische Texte berichtigt
@@ -160,11 +162,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Neuer Datenpunkt state.progress für den Programmfortschritt in Prozent (0..99 %)
 - Neue Datenpunkte control.canPowerOn, canPowerOff, canStart, canPause, canStop
 
-### 1.5.1 (2026-11-11)
-- Hinweis in Backup-Einstellungen ergänzt, dass Instanz für Datenübernahme laufen muss
-- mDNS-Auto-Discovery wird automatisch deaktiviert, wenn manuelle IPs vorliegen
-- Manuell eingetragene Geräte sind standardmäßig aktiv (auch wenn enabled undefiniert ist)
-- Neuen Datenpunkt state.estimatedEndtime im Format hh:mm hinzugefügt
+[Ältere Einträge](CHANGELOG_OLD.md)
 
 [Ältere Einträge](CHANGELOG_OLD.md)
 

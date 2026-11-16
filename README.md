@@ -136,7 +136,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.7.1 (2026-11-16)
 - Hide command and light buttons on Device Manager cards when appliance is offline
 - Add control.canLightOn and control.canLightOff indicators and reset control.can* on stop
 - Refine German (Heißluft plus, Automatik, drying steps) and French (Allumer, Éteindre) labels
@@ -158,12 +158,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 - Add ioBroker Device-Manager integration with live cards, status indicators, and actions
 - Add state.progress (programme progress in percent 0..99%)
 - Add control.canPowerOn, canPowerOff, canStart, canPause, canStop indicators
-
-### 1.5.1 (2026-11-11)
-- Add notice in admin backup settings that instance must be running for restore
-- Auto-disable mDNS auto-discovery when manual device IPs are configured
-- Ensure manual devices are active by default even when enabled is undefined
-- Add state.estimatedEndtime state in hh:mm format for appliances
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

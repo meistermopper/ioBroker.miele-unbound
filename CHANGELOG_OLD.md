@@ -1,4 +1,10 @@
 # Older changes
+## 1.5.1 (2026-11-11)
+- Add notice in admin backup settings that instance must be running for restore
+- Auto-disable mDNS auto-discovery when manual device IPs are configured
+- Ensure manual devices are active by default even when enabled is undefined
+- Add state.estimatedEndtime state in hh:mm format for appliances
+
 ## 1.5.0 (2026-11-11)
 - Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586
 - Add wake-up retry on HTTP 500, Dop1 support for coffee machines and status verification
