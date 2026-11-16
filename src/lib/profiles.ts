@@ -467,6 +467,10 @@ export class DeviceProfiles {
 			);
 		}
 
+		const hasCavityLight = [12, 13, 15, 16, 27, 31, 45, 67].includes(
+			deviceType,
+		);
+
 		if (isHood) {
 			states.push(
 				{
@@ -488,6 +492,16 @@ export class DeviceProfiles {
 					def: false,
 				},
 			);
+		} else if (hasCavityLight) {
+			states.push({
+				id: 'sensors.light',
+				name: { en: 'Cavity Light', de: 'Garraumbeleuchtung' },
+				role: 'sensor.light',
+				type: 'boolean',
+				read: true,
+				write: false,
+				def: false,
+			});
 		}
 
 		if (isVacuum) {

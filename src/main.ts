@@ -31,6 +31,7 @@ import {
 } from './lib/definitions.js';
 import {
 	angebot,
+	angebotLeeren,
 	artKann,
 	fortschritt,
 	KANN_ID,
@@ -194,6 +195,7 @@ export class MieleUnbound extends utils.Adapter {
 			this.log.warn(
 				'No GroupID / GroupKey configured. Please perform pairing or enter credentials in adapter settings.',
 			);
+			await this.markUnreachableDevices();
 			return;
 		}
 
@@ -203,6 +205,7 @@ export class MieleUnbound extends utils.Adapter {
 			this.log.error(
 				`Failed to initialize Miele crypto engine: ${(err as Error).message}`,
 			);
+			await this.markUnreachableDevices();
 			return;
 		}
 
@@ -214,6 +217,8 @@ export class MieleUnbound extends utils.Adapter {
 				}
 			}
 		}
+
+		await this.markUnreachableDevices();
 
 		// Option B: Automatically disable autoDiscovery when manual device IPs are configured
 		const hasManualDevices =
@@ -875,6 +880,22 @@ export class MieleUnbound extends utils.Adapter {
 					role: 'indicator',
 				},
 				{
+					id: 'canLightOn',
+					name: {
+						en: 'Switching the light on possible',
+						de: 'Licht einschalten möglich',
+					},
+					role: 'indicator',
+				},
+				{
+					id: 'canLightOff',
+					name: {
+						en: 'Switching the light off possible',
+						de: 'Licht ausschalten möglich',
+					},
+					role: 'indicator',
+				},
+				{
 					id: 'canSelectProgram',
 					name: {
 						en: 'Selecting programme possible',
@@ -1127,8 +1148,11 @@ export class MieleUnbound extends utils.Adapter {
 			set('sensors.ventilationStep', state.VentilationStep);
 		}
 
-		if (devType === 18 && state.Light !== undefined) {
-			set('sensors.light', state.Light !== 0);
+		if (artKann('lightOn', devType) && state.Light !== undefined) {
+			set(
+				'sensors.light',
+				state.Light === 1 || (state.Light as unknown) === true,
+			);
 		}
 
 		// EcoFeedback (Targeted query on Leaf 2/6195 for washing machines during active cycle or on completion)
@@ -1182,6 +1206,46 @@ export class MieleUnbound extends utils.Adapter {
 		}
 	}
 
+	/**
+	 * Resets info.connected and control.can* states to false on adapter startup
+	 * for existing device objects that are not currently connected.
+	 */
+	private async markUnreachableDevices(): Promise<void> {
+		let geraete: ioBroker.DeviceObject[] | undefined;
+		try {
+			geraete = await this.getDevicesAsync();
+		} catch (e) {
+			this.log.debug(`Device list not readable: ${(e as Error).message}`);
+			return;
+		}
+		for (const g of geraete || []) {
+			const deviceId = String(g._id).slice(this.namespace.length + 1);
+			if (!deviceId || deviceId.includes('.')) {
+				continue;
+			}
+			const nativeIp =
+				typeof g.native?.ip === 'string' ? g.native.ip : '';
+			const dev = nativeIp ? this.devices.get(nativeIp) : undefined;
+			if (dev && !dev.serial) {
+				dev.serial = deviceId;
+				this.serialToIp.set(deviceId, nativeIp);
+				if (typeof g.native?.deviceType === 'number') {
+					dev.deviceType = g.native.deviceType;
+				}
+			}
+			if (dev?.connected) {
+				continue;
+			}
+			if (await this.getObjectAsync(`${deviceId}.info.connected`)) {
+				await this.setStateChangedAsync(`${deviceId}.info.connected`, {
+					val: false,
+					ack: true,
+				});
+			}
+			await angebotLeeren(this, deviceId);
+		}
+	}
+
 	private async updateCapabilities(
 		serial: string,
 		connected?: boolean,
@@ -1210,12 +1274,18 @@ export class MieleUnbound extends utils.Adapter {
 			connected !== undefined
 				? connected
 				: Boolean(await readVal('info.connected'));
+		let lichtVal = await readVal('state.light');
+		if (lichtVal === null || lichtVal === undefined) {
+			lichtVal = await readVal('sensors.light');
+		}
+		const licht = typeof lichtVal === 'boolean' ? lichtVal : null;
 
 		const z = {
 			deviceType,
 			status,
 			mobileStart,
 			verbunden,
+			licht,
 		};
 		const activeOffers = angebot(z);
 
@@ -2452,7 +2522,20 @@ export class MieleUnbound extends utils.Adapter {
 				await this.pushListener.stop();
 				this.pushListener = undefined;
 			}
-			this.setState('info.connection', { val: false, ack: true });
+			await this.setStateAsync('info.connection', {
+				val: false,
+				ack: true,
+			});
+			for (const dev of this.devices.values()) {
+				if (!dev.serial) {
+					continue;
+				}
+				await this.setStateAsync(`${dev.serial}.info.connected`, {
+					val: false,
+					ack: true,
+				});
+				await angebotLeeren(this, dev.serial);
+			}
 			this.log.info('Cleaned up miele-unbound adapter on unload');
 			callback();
 		} catch {

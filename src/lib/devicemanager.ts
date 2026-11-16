@@ -35,7 +35,7 @@ export const TEXTE = {
 		ru: 'Вкл.',
 		pt: 'Ligar',
 		nl: 'Aan',
-		fr: 'Marche',
+		fr: 'Allumer',
 		it: 'Accendi',
 		es: 'Encender',
 		pl: 'Włącz',
@@ -48,7 +48,7 @@ export const TEXTE = {
 		ru: 'Выкл.',
 		pt: 'Desligar',
 		nl: 'Uit',
-		fr: 'Arrêt',
+		fr: 'Éteindre',
 		it: 'Spegni',
 		es: 'Apagar',
 		pl: 'Wyłącz',
@@ -495,6 +495,8 @@ export const ZUSTANDSBEFEHLE = [
 	'stop',
 ];
 
+export const NICHT_VERBUNDEN = 255;
+
 export const ANGEBOT_JE_STATUS: Record<number, string[]> = {
 	1: ['powerOn'],
 	2: ['start', 'powerOff'],
@@ -518,7 +520,7 @@ export const PROGRAMMWAHL_ARTEN = new Set([
 ]);
 export const PAUSE_ARTEN = new Set([1, 2, 24]);
 export const OHNE_SCHALTEN = new Set([18, 19, 20, 21, 25, 32, 33, 34]);
-export const LICHT_ARTEN = new Set([12, 13, 15, 16, 23, 27, 31, 45]);
+export const LICHT_ARTEN = new Set([12, 13, 15, 16, 18, 23, 27, 31, 45, 67]);
 
 export function artKann(
 	befehl: string,
@@ -551,17 +553,22 @@ export function angebot(z: {
 	status?: number | null;
 	mobileStart?: boolean;
 	verbunden?: boolean;
+	licht?: boolean | null;
 }): string[] {
-	if (!z.verbunden) {
+	if (!z.verbunden || z.status === NICHT_VERBUNDEN) {
 		return [];
 	}
 	const je =
 		(z.status !== null && z.status !== undefined
 			? ANGEBOT_JE_STATUS[z.status]
 			: []) || [];
-	return ZUSTANDSBEFEHLE.filter((b) => je.includes(b))
+	const aus = ZUSTANDSBEFEHLE.filter((b) => je.includes(b))
 		.filter((b) => artKann(b, z.deviceType))
 		.filter((b) => b !== 'start' || Boolean(z.mobileStart));
+	if (artKann('lightOn', z.deviceType)) {
+		aus.push(z.licht === true ? 'lightOff' : 'lightOn');
+	}
+	return aus;
 }
 
 export const KANN_ID: Record<string, string> = {
@@ -570,7 +577,32 @@ export const KANN_ID: Record<string, string> = {
 	start: 'canStart',
 	pause: 'canPause',
 	stop: 'canStop',
+	lightOn: 'canLightOn',
+	lightOff: 'canLightOff',
 };
+
+export async function angebotLeeren(
+	adapter: Pick<
+		utils.AdapterInstance,
+		'getObjectAsync' | 'setStateAsync' | 'setStateChangedAsync'
+	>,
+	deviceId: string,
+): Promise<void> {
+	const allCan = [...Object.values(KANN_ID), 'canSelectProgram'];
+	for (const sub of allCan) {
+		const id = `${deviceId}.control.${sub}`;
+		if (await adapter.getObjectAsync(id)) {
+			if (typeof adapter.setStateChangedAsync === 'function') {
+				await adapter.setStateChangedAsync(id, {
+					val: false,
+					ack: true,
+				});
+			} else {
+				await adapter.setStateAsync(id, { val: false, ack: true });
+			}
+		}
+	}
+}
 
 export const PROGRAMMWAHL_STATUS = new Set([1, 2, 3, 4, 7]);
 
@@ -654,11 +686,15 @@ export function tooltip(
 	switch (befehl) {
 		case 'lightOn':
 			return TEXTE[
-				deviceType === 23 ? 'tipLightOnHood' : 'tipLightOnOven'
+				deviceType === 18 || deviceType === 23
+					? 'tipLightOnHood'
+					: 'tipLightOnOven'
 			];
 		case 'lightOff':
 			return TEXTE[
-				deviceType === 23 ? 'tipLightOffHood' : 'tipLightOffOven'
+				deviceType === 18 || deviceType === 23
+					? 'tipLightOffHood'
+					: 'tipLightOffOven'
 			];
 		default: {
 			const key =
@@ -994,12 +1030,42 @@ export function karte({
 			: hat('sensors.light')
 				? 'sensors.light'
 				: null;
-		if (
+		const lichtDa =
 			artKann('lightOn', deviceType) &&
-			lichtSub &&
+			Boolean(lichtSub) &&
 			hat('control.lightOn') &&
-			hat('control.lightOff')
+			hat('control.lightOff');
+		if (
+			lichtDa &&
+			hat(`control.${KANN_ID.lightOn}`) &&
+			hat(`control.${KANN_ID.lightOff}`)
 		) {
+			for (const [b, zeigt] of [
+				['lightOn', 'lightOff'],
+				['lightOff', 'lightOn'],
+			] as const) {
+				const a: Record<string, unknown> = {
+					id: b,
+					icon: KNOPFSYMBOL[zeigt],
+					description: tooltip(b, deviceType),
+					timeout: WARTEZEIT_MS + 10000,
+				};
+				if (handler) {
+					a.handler = (geraet: string, ctx: ActionContext) =>
+						handler(geraet, b, ctx);
+				}
+				aktionen.push(a);
+				anzeigen.push({
+					id: `cmd_${b}`,
+					icon: KNOPFSYMBOL[zeigt],
+					text: TEXTE[zeigt],
+					tooltip: tooltip(b, deviceType),
+					actionId: b,
+					order: 30,
+					value: { stateId: voll(`control.${KANN_ID[b]}`) },
+				});
+			}
+		} else if (lichtDa && lichtSub) {
 			const a: Record<string, unknown> = {
 				id: LICHT_UMSCHALTEN,
 				icon: KNOPFSYMBOL.lightOff,

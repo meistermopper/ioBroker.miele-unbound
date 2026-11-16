@@ -137,6 +137,9 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Hide command and light buttons on Device Manager cards when appliance is offline
+- Add control.canLightOn and control.canLightOff indicators and reset control.can* on stop
+- Refine German (Heißluft plus, Automatik, drying steps) and French (Allumer, Éteindre) labels
 
 ### 1.7.0 (2026-11-15)
 - Add remote program selection via control.programId (DOP2 leaf 2/1577) and Device Manager dropdown

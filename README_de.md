@@ -138,6 +138,9 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- Befehls- und Lichtknöpfe auf Gerätekarten bei nicht erreichbarem Gerät ausblenden
+- control.canLightOn und control.canLightOff ergänzt und control.can* beim Stopp leeren
+- Deutsche (Heißluft plus, Automatik, Trockenstufen) und französische Texte berichtigt
 
 ### 1.7.0 (2026-11-15)
 - Programmwahl über control.programId (DOP2-Leaf 2/1577) und Auswahlmenü im Konfig-Manager ergänzt

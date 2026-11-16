@@ -2,6 +2,7 @@ const {
 	TEXTE,
 	fortschritt,
 	angebot,
+	angebotLeeren,
 	kannProgrammWaehlen,
 	titel,
 	text,
@@ -262,6 +263,9 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(getProgramTypeText(2, 'en')).to.equal('Automatic program');
 			expect(getDryingStepText(0, 'de')).to.equal('Extratrocken');
 			expect(getDryingStepText(2, 'en')).to.equal('Normal');
+			expect(getDryingStepText(4, 'de')).to.equal('Handbügelfeucht 1');
+			expect(getDryingStepText(6, 'de')).to.equal('Maschinenbügelfeucht');
+			expect(getDryingStepText(7, 'de')).to.equal('Glätten');
 		});
 
 		it('should lookup programs and phases per device type', () => {
@@ -269,10 +273,15 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(getProgramText(1, 91, 'de')).to.equal('Maschine reinigen');
 			expect(getProgramText(1, 146, 'en')).to.equal('QuickPowerWash');
 			expect(getProgramText(7, 200, 'de')).to.equal('ECO');
+			expect(getProgramText(7, 202, 'de')).to.equal('Automatik');
 			expect(getProgramText(7, 203, 'de')).to.equal('ComfortWash');
 			expect(getProgramText(7, 204, 'de')).to.equal('PowerWash');
 			expect(getProgramText(7, 205, 'de')).to.equal('Intensiv 75°C');
 			expect(getProgramText(7, 0, 'de')).to.equal('Aus');
+			expect(getProgramText(12, 13, 'de')).to.equal('Heißluft plus');
+			expect(getProgramText(12, 6, 'de')).to.equal('Eco-Heißluft');
+			expect(TEXTE.powerOn.fr).to.equal('Allumer');
+			expect(TEXTE.powerOff.fr).to.equal('Éteindre');
 			expect(getProgramPhaseText(1, 3, 'de')).to.equal('Hauptwäsche');
 			expect(getProgramPhaseText(1, 6, 'en')).to.equal('Spin');
 
@@ -1119,7 +1128,36 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 					mobileStart: true,
 					verbunden: true,
 				}),
-			).to.deep.equal(['stop']);
+			).to.deep.equal(['stop', 'lightOn']);
+			expect(
+				angebot({
+					deviceType: 12,
+					status: 5,
+					mobileStart: true,
+					verbunden: true,
+					licht: true,
+				}),
+			).to.deep.equal(['stop', 'lightOff']);
+
+			// Disconnected or status 255: no buttons at all (neither powerOn nor light)
+			expect(
+				angebot({
+					deviceType: 12,
+					status: 1,
+					mobileStart: false,
+					verbunden: false,
+					licht: true,
+				}),
+			).to.deep.equal([]);
+			expect(
+				angebot({
+					deviceType: 12,
+					status: 255,
+					mobileStart: false,
+					verbunden: true,
+					licht: true,
+				}),
+			).to.deep.equal([]);
 
 			// Fridge (19) and Hob (25) have no powerOn/powerOff commands
 			expect(
@@ -1148,6 +1186,32 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 					verbunden: true,
 				}),
 			).to.deep.equal(['powerOff']);
+		});
+
+		it('should clear all control.can* states via angebotLeeren', async () => {
+			const updated = {};
+			const adapter = {
+				getObjectAsync: async (id) => ({ _id: id }),
+				setStateChangedAsync: async (id, val) => {
+					updated[id] = val;
+				},
+			};
+			await angebotLeeren(adapter, '000123456789');
+			for (const s of [
+				'canPowerOn',
+				'canPowerOff',
+				'canStart',
+				'canPause',
+				'canStop',
+				'canLightOn',
+				'canLightOff',
+				'canSelectProgram',
+			]) {
+				expect(updated[`000123456789.control.${s}`]).to.deep.equal({
+					val: false,
+					ack: true,
+				});
+			}
 		});
 
 		it('should build interactive device card with indicators and actions', () => {
@@ -1198,7 +1262,7 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			);
 		});
 
-		it('should create light toggle action and indicator for oven/hood', () => {
+		it('should create canLightOn/canLightOff actions and indicators for oven/hood (with fallback to lightToggle)', () => {
 			const id = '000987654321';
 			const ns = 'miele-unbound.0';
 			const obj = {
@@ -1206,7 +1270,7 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				type: 'device',
 				common: { name: `Oven (${id})` },
 			};
-			const objekte = new Map([
+			const baseObjekte = [
 				[`${id}.info.connected`, { type: 'state', common: {} }],
 				[`${id}.sensors.light`, { type: 'state', common: {} }],
 				[`${id}.control.powerOn`, { type: 'state', common: {} }],
@@ -1219,20 +1283,48 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 				[`${id}.control.canPowerOff`, { type: 'state', common: {} }],
 				[`${id}.control.canStart`, { type: 'state', common: {} }],
 				[`${id}.control.canStop`, { type: 'state', common: {} }],
-			]);
+			];
 
-			const k = karte({
+			// With canLightOn / canLightOff
+			const mitCanLight = new Map([
+				...baseObjekte,
+				[`${id}.control.canLightOn`, { type: 'state', common: {} }],
+				[`${id}.control.canLightOff`, { type: 'state', common: {} }],
+			]);
+			const kNeu = karte({
 				ns,
 				id,
 				obj,
-				objekte,
+				objekte: mitCanLight,
+				deviceType: 12,
+				steuerung: true,
+			});
+			const ein = kNeu.indicators.find((i) => i.actionId === 'lightOn');
+			const aus = kNeu.indicators.find((i) => i.actionId === 'lightOff');
+			expect(ein).to.exist;
+			expect(ein.value).to.deep.equal({
+				stateId: `${ns}.${id}.control.canLightOn`,
+			});
+			expect(ein.text.de).to.equal('Licht aus');
+			expect(aus).to.exist;
+			expect(aus.value).to.deep.equal({
+				stateId: `${ns}.${id}.control.canLightOff`,
+			});
+			expect(aus.text.de).to.equal('Licht an');
+
+			// Fallback without canLightOn / canLightOff
+			const kAlt = karte({
+				ns,
+				id,
+				obj,
+				objekte: new Map(baseObjekte),
 				deviceType: 12,
 				steuerung: true,
 			});
 
-			const lightAct = k.actions.find((a) => a.id === 'lightToggle');
+			const lightAct = kAlt.actions.find((a) => a.id === 'lightToggle');
 			expect(lightAct).to.exist;
-			const lightInd = k.indicators.find(
+			const lightInd = kAlt.indicators.find(
 				(i) => i.actionId === 'lightToggle',
 			);
 			expect(lightInd).to.exist;
