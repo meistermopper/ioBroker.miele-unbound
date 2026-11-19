@@ -61,7 +61,7 @@
 	"timeServerBind": "Bind-Adresse (leer = alle Schnittstellen)",
 	"timeServerBind_help": "Leer lassen für alle Schnittstellen oder eine lokale IP-Adresse eingeben.",
 	"timeServerPort": "Zeitdienst-Port (TCP)",
-	"timeServerPort_help": "Port, auf dem der Dienst lauscht (Vorgabe: 8780). Für Ports unter 1024 Port 80 am Router oder Docker umleiten.",
-	"timeServerText": "Miele-Geräte holen die Uhrzeit per HTTP von ntp.mcs2.miele.com auf Port 80 (GET /V2/NTP/). Geräte per Router Ziel-NAT (Port 80 -> dieser Port) oder DNS-Umschreibung umleiten. Details siehe README.",
-	"timeServer_help": "Miele-Geräte holen ihre Uhrzeit per HTTP, nicht per NTP. Standardmäßig aus; Umleitung erforderlich (siehe README)."
+	"timeServerPort_help": "Port, auf dem der Dienst lauscht (Vorgabe: 8780). Da Miele-Geräte fest auf Port 80 anfragen, muss Port 80 auf diesen Port umgeleitet werden (iptables / Docker / Reverse Proxy).",
+	"timeServerText": "⚠️ WICHTIG: Eine DNS-Umleitung (z. B. in Pi-hole oder AdGuard Home) biegt nur die IP-Adresse um, nicht den Port! Da Miele-Geräte fest auf Port 80 (GET http://ntp.mcs2.miele.com/V2/NTP/) anfragen, muss Port 80 auf dem ioBroker-Host zusätzlich auf diesen Zeitdienst-Port (z. B. 8780) umgeleitet werden (per iptables, Docker -p 80:8780 oder Reverse Proxy). ➡️ Hier klicken für die Schritt-für-Schritt-Anleitung im README",
+	"timeServer_help": "Miele-Geräte holen ihre Uhrzeit per HTTP, nicht per NTP. Standardmäßig aus; DNS- und Port-80-Umleitung erforderlich (siehe README)."
 }

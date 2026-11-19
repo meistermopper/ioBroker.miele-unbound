@@ -61,7 +61,7 @@
 	"timeServerBind": "Dirección de enlace (vacío = todas)",
 	"timeServerBind_help": "Dejar vacío para escuchar en todas las interfaces de red.",
 	"timeServerPort": "Puerto del servidor de hora (TCP)",
-	"timeServerPort_help": "Puerto de escucha (predeterminado: 8780). Para puertos inferiores a 1024, redirigir el puerto 80.",
-	"timeServerText": "Los aparatos Miele obtienen la hora vía HTTP desde ntp.mcs2.miele.com:80. Redirija los aparatos mediante NAT o DNS.",
-	"timeServer_help": "Los aparatos Miele consultan la hora por HTTP, no por NTP. Desactivado por defecto; se requiere redirección."
+	"timeServerPort_help": "Puerto de escucha (predeterminado: 8780). Como los aparatos Miele consultan el puerto 80, debe redirigirse el puerto 80 a este puerto (iptables / Docker / proxy inverso).",
+	"timeServerText": "⚠️ IMPORTANTE: Un registro DNS (Pi-hole / AdGuard Home) solo redirige la dirección IP, ¡no el puerto! Como los aparatos Miele consultan siempre el puerto 80 (GET http://ntp.mcs2.miele.com/V2/NTP/), el puerto 80 en el host ioBroker también debe redirigirse a este puerto (p. ej. 8780) mediante iptables, Docker (-p 80:8780) o proxy inverso. ➡️ Haga clic aquí para ver la guía paso a paso en el README",
+	"timeServer_help": "Los aparatos Miele consultan la hora por HTTP, no por NTP. Desactivado por defecto; requiere redirección DNS y del puerto 80."
 }

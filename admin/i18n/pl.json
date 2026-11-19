@@ -61,7 +61,7 @@
 	"timeServerBind": "Adres powiązania (pusty = wszystkie)",
 	"timeServerBind_help": "Pozostaw puste, aby nasłuchiwać na wszystkich interfejsach sieciowych.",
 	"timeServerPort": "Port serwera czasu (TCP)",
-	"timeServerPort_help": "Port nasłuchiwania usługi (domyślnie: 8780). Przekieruj port 80 przez router lub Docker.",
-	"timeServerText": "Urządzenia Miele pobierają czas przez HTTP z ntp.mcs2.miele.com:80. Przekieruj przez NAT lub DNS.",
-	"timeServer_help": "Urządzenia Miele pobierają czas przez HTTP, a nie NTP. Domyślnie wyłączone; wymagane przekierowanie."
+	"timeServerPort_help": "Port nasłuchiwania usługi (domyślnie: 8780). Ponieważ urządzenia Miele odpytują port 80, przekieruj port 80 na ten port (iptables / Docker / reverse proxy).",
+	"timeServerText": "⚠️ WAŻNE: Przekierowanie DNS (np. w Pi-hole lub AdGuard Home) zmienia tylko adres IP, a nie port! Ponieważ urządzenia Miele zawsze pytają port 80 (GET http://ntp.mcs2.miele.com/V2/NTP/), port 80 na hoście ioBroker musi być dodatkowo przekierowany na ten port (np. 8780) przez iptables, Docker (-p 80:8780) lub reverse proxy. ➡️ Kliknij tutaj, aby otworzyć instrukcję krok po kroku w README",
+	"timeServer_help": "Urządzenia Miele pobierają czas przez HTTP, a nie NTP. Domyślnie wyłączone; wymagane przekierowanie DNS i portu 80."
 }

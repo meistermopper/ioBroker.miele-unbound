@@ -61,7 +61,7 @@
 	"timeServerBind": "绑定地址（留空表示所有网卡）",
 	"timeServerBind_help": "留空以监听所有网络接口，或输入单一本地 IP。",
 	"timeServerPort": "时间服务端口 (TCP)",
-	"timeServerPort_help": "监听端口（默认：8780）。若使用小于 1024 的端口，请通过路由器或 Docker 转发端口 80。",
-	"timeServerText": "Miele 电器通过 HTTP 访问 ntp.mcs2.miele.com:80 获取时间。请通过目标 NAT 或 DNS 重定向。详见 README。",
-	"timeServer_help": "Miele 电器通过 HTTP 而非 NTP 查询时间。默认关闭；必须设置重定向（见 README）。"
+	"timeServerPort_help": "监听端口（默认：8780）。由于 Miele 电器固定请求端口 80，必须将端口 80 转发到此端口（iptables / Docker / 反向代理）。",
+	"timeServerText": "⚠️ 重要提示：DNS 重写（如 Pi-hole 或 AdGuard Home）仅重定向 IP 地址，不改变端口！由于 Miele 电器固定请求端口 80 (GET http://ntp.mcs2.miele.com/V2/NTP/)，还必须通过 iptables、Docker (-p 80:8780) 或反向代理将 ioBroker 主机上的端口 80 转发到此时间服务端口（如 8780）。➡️ 点击此处查看 README 中的分步指南",
+	"timeServer_help": "Miele 电器通过 HTTP 而非 NTP 查询时间。默认关闭；必须设置 DNS 与端口 80 重定向（见 README）。"
 }

@@ -61,7 +61,7 @@
 	"timeServerBind": "Bind-adres (leeg = alle interfaces)",
 	"timeServerBind_help": "Leeg laten om op alle netwerkinterfaces te luisteren.",
 	"timeServerPort": "Tijdserverpoort (TCP)",
-	"timeServerPort_help": "Poort waarop deze service luistert (standaard: 8780). Poort 80 omleiden via router of Docker.",
-	"timeServerText": "Miele-apparaten halen tijd via HTTP van ntp.mcs2.miele.com:80. Leid apparaten om via NAT of DNS.",
-	"timeServer_help": "Miele-apparaten vragen tijd op via HTTP, niet via NTP. Standaard uit; omleiding vereist."
+	"timeServerPort_help": "Poort waarop deze service luistert (standaard: 8780). Omdat Miele-apparaten vast poort 80 gebruiken, moet poort 80 naar deze poort worden omgeleid (iptables / Docker / reverse proxy).",
+	"timeServerText": "⚠️ BELANGRIJK: Een DNS-omleiding (bijv. in Pi-hole of AdGuard Home) leidt alleen het IP-adres om, niet de poort! Omdat Miele-apparaten vast op poort 80 aanvragen (GET http://ntp.mcs2.miele.com/V2/NTP/), moet poort 80 op de ioBroker-host ook naar deze poort (bijv. 8780) worden doorgestuurd via iptables, Docker (-p 80:8780) of reverse proxy. ➡️ Klik hier voor de stapsgewijze handleiding in de README",
+	"timeServer_help": "Miele-apparaten vragen tijd op via HTTP, niet via NTP. Standaard uit; DNS- en poort 80-omleiding vereist."
 }
