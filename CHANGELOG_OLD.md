@@ -1,4 +1,11 @@
 # Older changes
+## 1.6.1 (2026-11-12)
+- Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
+- Device Manager cards render status, programme, phase, type and drying step in system language
+- Raw states (status, programId, etc.) use localized option tables in ioBroker system language
+- Import Home Assistant translations with corrections for missing languages
+- Add descriptions (common.desc) in all 11 languages for control.can* and state.progress
+
 ## 1.6.0 (2026-11-12)
 - Add ioBroker Device-Manager integration with live cards, status indicators, and actions
 - Add state.progress (programme progress in percent 0..99%)

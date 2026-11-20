@@ -131,6 +131,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.7.3 (2026-11-20)
 - DOP2-Typ 33 (AStruct) für Listen von Strukturen unterstützt
 - Gerätekontext 2/1585 ausgewertet (Lebenszähler, letzter Spülgang, Dosierbehälter)
 - Zyklus-Verbrauchsberechnung für Geschirrspüler via Zähler-Delta
@@ -151,12 +153,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### 1.6.2 (2026-11-15)
 - Erkennung von MobileStart aus RemoteEnable-Array korrigiert, um Fernstart zu erlauben
 
-### 1.6.1 (2026-11-12)
-- Überflüssigen Datenpunkt state.estimatedEndtime zugunsten von estimatedEndTimeText entfernt
-- Gerätekarten im Geräte-Manager zeigen Status, Programm, Phase, Programmart in Systemsprache
-- Rohwerte (state.status, programId etc.) nutzen Wertetabellen in der ioBroker-Systemsprache
-- Home-Assistant-Übersetzungen und Korrekturen für fehlende Sprachen integriert
-- Mehrsprachige Beschreibungen (common.desc) in allen 11 Sprachen für control.can* und progress
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

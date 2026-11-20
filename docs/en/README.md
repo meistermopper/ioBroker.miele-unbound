@@ -129,7 +129,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.7.3 (2026-11-20)
 - Support DOP2 type 33 (AStruct) list of structures
 - Evaluate device context leaf 2/1585 (lifetime counters, last cycle, dos containers)
 - Compute cycle consumption for dishwashers via counter delta
@@ -149,13 +149,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ### 1.6.2 (2026-11-15)
 - Correct MobileStart detection from RemoteEnable array to enable remote start
-
-### 1.6.1 (2026-11-12)
-- Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
-- Device Manager cards render status, programme, phase, type and drying step in system language
-- Raw states (status, programId, etc.) use localized option tables in ioBroker system language
-- Import Home Assistant translations with corrections for missing languages
-- Add descriptions (common.desc) in all 11 languages for control.can* and state.progress
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](../../CHANGELOG_OLD.md).
 
