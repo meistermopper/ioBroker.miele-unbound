@@ -37,6 +37,8 @@ if (fs.existsSync(enReadmeSrc)) {
 	content = content.replace(/\]\(LICENSE\)/g, '](../../LICENSE)');
 	// Replace link to admin folder with relative link to root
 	content = content.replace(/\]\(admin\//g, '](../../admin/');
+	// Replace link to docs/en/ with local relative link
+	content = content.replace(/\]\(docs\/en\//g, '](');
 	fs.writeFileSync(enReadmeDst, content, 'utf8');
 	console.log('Synchronized README.md (en) successfully.');
 } else {
@@ -59,6 +61,8 @@ if (fs.existsSync(deReadmeSrc)) {
 	content = content.replace(/\]\(LICENSE\)/g, '](../../LICENSE)');
 	// Replace link to admin folder with relative link to root
 	content = content.replace(/\]\(admin\//g, '](../../admin/');
+	// Replace link to docs/de/ with local relative link
+	content = content.replace(/\]\(docs\/de\//g, '](');
 	fs.writeFileSync(deReadmeDst, content, 'utf8');
 	console.log('Synchronized README_de.md (de) successfully.');
 } else {
