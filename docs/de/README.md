@@ -131,6 +131,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.7.2 (2026-11-20)
 - Ausführliche Anleitung für Zeitdienst (Pi-hole/Port 80) und README-Link im Admin ergänzt
 
 ### 1.7.1 (2026-11-16)
@@ -151,10 +153,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 - Home-Assistant-Übersetzungen und Korrekturen für fehlende Sprachen integriert
 - Mehrsprachige Beschreibungen (common.desc) in allen 11 Sprachen für control.can* und progress
 
-### 1.6.0 (2026-11-12)
-- Integration des ioBroker Geräte-Managers mit Live-Karten, Statusanzeigen und Aktionen
-- Neuer Datenpunkt state.progress für den Programmfortschritt in Prozent (0..99 %)
-- Neue Datenpunkte control.canPowerOn, canPowerOff, canStart, canPause, canStop
+[Ältere Einträge](../../CHANGELOG_OLD.md)
 
 [Ältere Einträge](../../CHANGELOG_OLD.md)
 

@@ -1,4 +1,9 @@
 # Older changes
+## 1.6.0 (2026-11-12)
+- Add ioBroker Device-Manager integration with live cards, status indicators, and actions
+- Add state.progress (programme progress in percent 0..99%)
+- Add control.canPowerOn, canPowerOff, canStart, canPause, canStop indicators
+
 ## 1.5.1 (2026-11-11)
 - Add notice in admin backup settings that instance must be running for restore
 - Auto-disable mDNS auto-discovery when manual device IPs are configured

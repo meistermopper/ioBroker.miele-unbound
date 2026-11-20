@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.7.1",
+		"version": "1.7.2",
 		"news": {
+			"1.7.2": {
+				"en": "Add detailed time server DNS/port-80 setup guide and clickable README link in Admin UI",
+				"de": "Admin-UI mit ausführlicher Timeserver-DNS/Port-80-Setupanleitung und README",
+				"ru": "Добавьте подробное руководство по настройке сервера времени DNS/Port-80 и интерактивную ссылку README в пользовательском интерфейсе администратора",
+				"pt": "Adicione o guia detalhado do servidor de horário DNS/Port-80 e o link README na Admin UI",
+				"nl": "Voeg een gedetailleerde installatiehandleiding voor de DNS-/Port-80 van de tijdserver en een klikbare README-link toe in de beheerdersinterface",
+				"fr": "Ajoutez un guide de configuration détaillé du DNS et du port 80 et un lien README dans l'interface",
+				"it": "Aggiungi una guida dettagliata al time server DNS/Port-80 e un link README in Admin UI",
+				"es": "Añada una guía detallada de configuración del DNS/Port-80 del servidor horario y el enlace README en la UI de administrador",
+				"pl": "Dodaj szczegółowy przewodnik konfiguracji serwera czasu DNS/Port-80 i klikalny link README w interfejsie administratora",
+				"uk": "Додайте детальний посібник з налаштування DNS/Port-80 сервера часу та посилання README, яке можна натиснути, у інтерфейсі адміністратора",
+				"zh-cn": "在管理员界面中添加详细的时间服务器 DNS/Port-80 设置指南和可点击的自述文件链接"
+			},
 			"1.7.1": {
 				"en": "Hide command and light buttons on Device Manager cards when appliance is offline\nAdd control.canLightOn and control.canLightOff indicators and reset control.can* on stop\nRefine German (Heißluft plus, Automatik, drying steps) and French (Allumer, Éteindre) labels",
 				"de": "Befehl- und Leuchttasten auf den Karten ausblenden, wenn Gerät offline ist\nFügt die Anzeigen Control.CanLighton und Control.CanLightOff hinzu und Reset Control.Can* on Stop\nLabels auf Deutsch (Heißluft plus, Automatik, Trocknen) und Französisch (Allumer, Éteindre) verfeinern",
@@ -80,19 +93,6 @@
 				"pl": "Dodaj powiadomienie w ustawieniach kopii zapasowej administratora, że instancja musi być uruchomiona w celu przywrócenia\nAutomatyczne wyłączanie automatycznego wykrywania mDNS po skonfigurowaniu ręcznych adresów IP urządzeń\nUpewnij się, że urządzenia ręczne są domyślnie aktywne, nawet jeśli włączona opcja nie jest zdefiniowana\nDodaj stan State.EstimatedEndTime w formacie hh:mm dla urządzeń",
 				"uk": "Додайте повідомлення в налаштуваннях резервного копіювання адміністратора, що екземпляр повинен бути запущений для відновлення\nАвтоматичне вимкнення автоматичного виявлення mDNS при налаштуванні IP-адрес пристрою вручну\nПереконайтеся, що ручні пристрої активні за замовчуванням, навіть якщо увімкнено невизначено\nДодати стан State.estimatedEndTime у форматі hh: mm для приладів",
 				"zh-cn": "在管理员备份设置中添加通知，指出必须运行实例才能恢复\n配置手动设备 IP 时自动禁用 mDNS 自动发现\n即使未定义启用，也要确保手动设备在默认情况下处于活动状态\n以 hh: mm 格式为设备添加 state.estimatedEndTime 状态"
-			},
-			"1.5.0": {
-				"en": "Implement powerOn/powerOff like official Miele app using DOP2 leaf 2/1586\nAdd wake-up retry on HTTP 500, Dop1 support for coffee machines and status verification\nRemove uuid override breaking browser-sync in dev-server\nUpdate dependency overrides to resolve Dependabot security alerts\nUpdate Biome to 2.6.4 and exclude Markdown/YAML files from Biome formatting",
-				"de": "PowerOn/PowerOff wie die offizielle Miele-App mit DOP2 Leaf 2/1586\nWeckruf auf HTTP 500, Dop1-Unterstützung für Kaffeemaschinen und Statusüberprüfung\nUUID entfernen, die Browser-Sync im Dev-Server zerstört\nAktualisieren Sie Dependabot-Sicherheitswarnungen\nAktualisiere Biome auf 2.6.4 und schließe Markdown/YAML aus",
-				"ru": "Реализуйте включение/выключение питания, как в официальном приложении Miele, используя DOP2 leaf 2/1586\nДобавьте повторную попытку пробуждения по протоколу HTTP 500, поддержку Dop1 для кофемашин и проверку статуса\nУдалить переопределение uuid, нарушающее синхронизацию браузера на сервере разработки\nОбновите переопределения зависимостей для устранения предупреждений безопасности Dependabot\nОбновите Biome до 2.6.4 и исключите файлы Markdown/YAML из форматирования Biome",
-				"pt": "Use o PowerOn/PowerOff como o app oficial da Miele usando DOP2 leaf 2/1586\nAdicione reativação em HTTP 500, suporte Dop1 para cafeteiras e verificação de status\nRemova o uuid e interrompe a sincronização no dev-server\nAtualize substituições para resolver alertas de segurança\nAtualize o Biome para 2.6.4 e exclua arquivos Markdown/YAML da formatação",
-				"nl": "Implementeer PowerOn/PowerOff zoals de officiële Miele-app met DOP2 leaf 2/1586\nVoeg een nieuwe wekpoging toe op HTTP 500, Dop1-ondersteuning voor koffiemachines en statusverificatie\nVerwijder de uuid override die de browsersynchronisatie verbreekt in de dev-server\nAfhankelijkheidsoverschrijvingen bijwerken om de beveiligingswaarschuwingen van Dependabot op te lossen\nBiome updaten naar 2.6.4 en Markdown/YAML-bestanden uitsluiten van de Biome-opmaak",
-				"fr": "Utilisez PowerOn/PowerOff comme l'appli Miele officielle avec DOP2 leaf 2/1586\nRéessayez le réveil sur HTTP 500, support Dop1 pour les machines à café et vérifiez le statut\nSupprimer UUID Override pour synchroniser le navigateur\nRésolvez les alertes de sécurité de Dependabot à jour\nPassez à la 2.6.4 et excluez les fichiers Markdown/YAML du formatage de Biome",
-				"it": "Implementa PowerOn/PowerOff come app Miele ufficiale con DOP2 leaf 2/1586\nAggiungi riavvio su HTTP 500, supporto Dop1 per macchine da caffè e verifica dello stato\nRimuovi l'override uuid che blocca il browser-sync\nAggiorna le dipendenze per risolvere gli avvisi di sicurezza\nAggiorna Biome a 2.6.4 ed escluda i file Markdown/YAML dal formato Biome",
-				"es": "Implemente PowerOn/PowerOff como la aplicación oficial de Miele con DOP2 Leaf 2/1586\nAñada reintento de activación en HTTP 500, soporte Dop1 para cafeteras y verificación de estado\nEliminar uuid anular la sincronización del navegador en dev-server\nActualice las anulaciones de dependencia para resolver las alertas\nActualice Biome a 2.6.4 y excluya los archivos Markdown/YAML del formato Biome",
-				"pl": "Zaimplementuj Poweron/PowerOff jak oficjalna aplikacja Miele za pomocą listu DOP2 2/1586\nDodaj ponowną próbę budzenia na HTTP 500, obsługę Dop1 dla ekspresów do kawy i weryfikację stanu\nUsuń nadpisanie uuid łamanie synchronizacji przeglądarki w serwisie dev-server\nAktualizuj nadpisania zależności, aby rozwiązać alerty bezpieczeństwa Dependabot\nZaktualizuj Biome do wersji 2.6.4 i wyklucz pliki Markdown/YAML z formatowania Biome",
-				"uk": "Реалізуйте PowerOn/PowerOff, як офіційний додаток Miele, використовуючи лист DOP2 2/1586\nДодайте повторну спробу пробудження на HTTP 500, підтримку Dop1 для кавоварки та перевірку стану\nВидаліть перевизначення uuid, що порушує синхронізацію браузера на dev-server\nОновіть перевизначення залежностей, щоб вирішити сповіщення про безпеку Dependabot\nОновіть Biome до 2.6.4 та виключіть файли Markdown/YAML із форматування Biome",
-				"zh-cn": "使用 DOP2 leaf 2/1586 像官方 Miele 应用程序一样实现 Poweron/PowerOff\n在 HTTP 500 上添加唤醒重试、对咖啡机的 Dop1 支持和状态验证\n移除开发服务器中断浏览器同步的 uuid 覆盖\n更新依赖项覆盖以解决 Dependabot 安全警报\n将 Biome 更新到 2.6.4 并从 Biome 格式中排除 Markdown/YAML 文件"
 			}
 		},
 		"titleLang": {
