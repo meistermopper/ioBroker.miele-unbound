@@ -131,6 +131,11 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- DOP2-Typ 33 (AStruct) für Listen von Strukturen unterstützt
+- Gerätekontext 2/1585 ausgewertet (Lebenszähler, letzter Spülgang, Dosierbehälter)
+- Zyklus-Verbrauchsberechnung für Geschirrspüler via Zähler-Delta
+- Antriebsenergie ergänzt und Vorgaben für Leaf 2/6195 präzisiert
+- Alle 11 ioBroker-Sprachen für Text-Datenpunkte samt offiziellen polnischen Namen
 
 ### 1.7.2 (2026-11-20)
 - Ausführliche Anleitung für Zeitdienst (Pi-hole/Port 80) und README-Link im Admin ergänzt

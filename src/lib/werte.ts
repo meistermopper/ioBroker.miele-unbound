@@ -1,5 +1,10 @@
 import {
 	DRYING_STEPS,
+	getDryingStepText,
+	getProgramPhaseText,
+	getProgramText,
+	getProgramTypeText,
+	getStatusText,
 	PHASES,
 	PROGRAM_TYPES,
 	PROGRAMS,
@@ -8,7 +13,7 @@ import {
 	STATUS_MAP,
 } from './definitions.js';
 import { BY_TYPE, lookup, TABLES } from './enums.js';
-import { ERGAENZUNG, KORREKTUR } from './werte_eigen.js';
+import { ERGAENZUNG, KORREKTUR, PROGRAMME } from './werte_eigen.js';
 import { HA } from './werte_ha.js';
 
 export const SPRACHEN = [
@@ -59,14 +64,55 @@ export function normalizeSprache(sp?: string | null): string {
 	return 'en';
 }
 
-function fremd(art: WertArt, sp: string, schluessel: string): string | null {
+function fremd(
+	art: WertArt,
+	sp: string,
+	schluessel: string,
+	tabelle?: string,
+): string | null {
 	const aus = (
 		q: Record<string, Record<string, Record<string, string>>> | undefined,
 	): string | null => q?.[sp]?.[art]?.[schluessel] || null;
 	if (art === 'program') {
-		return aus(HA);
+		return (
+			aus(HA) ||
+			(tabelle ? PROGRAMME[sp]?.[tabelle]?.[schluessel] : null) ||
+			null
+		);
 	}
 	return aus(KORREKTUR) || aus(HA) || aus(ERGAENZUNG);
+}
+
+/**
+ * Returns a localized text for a raw code in any of the 11 supported languages,
+ * with fallback to German/English definitions.
+ */
+export function datenpunktText(
+	art: WertArt,
+	sp: string,
+	deviceType: number | null,
+	code: number,
+): string {
+	const lang = normalizeSprache(sp);
+	if (lang === 'de' || lang === 'en') {
+		switch (art) {
+			case 'status':
+				return getStatusText(code, lang);
+			case 'programType':
+				return getProgramTypeText(code, lang);
+			case 'dryingStep':
+				return getDryingStepText(code, lang);
+			case 'phase':
+				return getProgramPhaseText(deviceType ?? 1, code, lang);
+			case 'program':
+				return getProgramText(deviceType ?? 1, code, lang);
+		}
+	}
+	const uebersetzt = wertText(art, lang, deviceType, code);
+	if (uebersetzt !== null) {
+		return uebersetzt;
+	}
+	return datenpunktText(art, 'en', deviceType, code);
 }
 
 function textDe(art: WertArt, dt: number | null, code: number): string | null {
@@ -143,7 +189,7 @@ export function wertText(
 		return t ?? lesbar(schluessel);
 	}
 	if (lang !== 'en') {
-		const t = fremd(art, lang, schluessel);
+		const t = fremd(art, lang, schluessel, tabelle);
 		if (t) {
 			return t;
 		}

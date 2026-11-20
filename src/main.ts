@@ -18,11 +18,6 @@ import {
 } from './lib/cloud.js';
 import { MieleCrypto } from './lib/crypto.js';
 import {
-	getDryingStepText,
-	getProgramPhaseText,
-	getProgramText,
-	getProgramTypeText,
-	getStatusText,
 	parseMobileStart,
 	sanitizeRemainingTime,
 	tempToCelsius,
@@ -39,7 +34,12 @@ import {
 	MieleDeviceManager,
 } from './lib/devicemanager.js';
 import { MieleDiscovery } from './lib/discovery.js';
-import { MieleEco } from './lib/eco.js';
+import {
+	type LifetimeCounterSnapshot,
+	MieleEco,
+	protokollZeileKontext,
+	verbrauchAusZaehlern,
+} from './lib/eco.js';
 import { type PowerSwitchResult, schalten } from './lib/power.js';
 import { CAN_DESC, DeviceProfiles } from './lib/profiles.js';
 import { type ProgramSelectResult, programmWaehlen } from './lib/program.js';
@@ -58,7 +58,12 @@ import type {
 	MieleTimeSyncResponse,
 	StateDefinition,
 } from './lib/types.js';
-import { werteTabelle } from './lib/werte.js';
+import {
+	datenpunktText,
+	normalizeSprache,
+	type SupportedLanguage,
+	werteTabelle,
+} from './lib/werte.js';
 
 interface ManagedDevice extends SchedulableDevice {
 	nextPoll?: number;
@@ -76,6 +81,11 @@ interface ManagedDevice extends SchedulableDevice {
 	knownProfile: boolean;
 	disconnectedSince?: number;
 	lastStateTs?: number;
+	contextRejections?: number;
+	lastContextQueryTs?: number;
+	contextCounters?: LifetimeCounterSnapshot;
+	contextStartCounters?: LifetimeCounterSnapshot;
+	cycleRunning?: boolean;
 }
 
 const CONTROL_OPCODES: Record<string, number> = {
@@ -673,14 +683,17 @@ export class MieleUnbound extends utils.Adapter {
 		dev.name = dev.model || dev.name;
 
 		const cfg = this.cfg;
-		const lang = cfg.language || 'de';
+		const lang = normalizeSprache(
+			cfg.language || 'de',
+		) as SupportedLanguage;
+		const baseLang: 'de' | 'en' = lang === 'de' ? 'de' : 'en';
 		const profile = DeviceProfiles.getProfile(dev.deviceType, lang);
 
 		// Create Device Object
 		await this.setObjectNotExistsAsync(serial, {
 			type: 'device',
 			common: {
-				name: `${profile.category[lang] || profile.category.de} (${dev.model || serial})`,
+				name: `${profile.category[baseLang] || profile.category.de} (${dev.model || serial})`,
 				role: 'sensor',
 			},
 			native: {
@@ -757,7 +770,7 @@ export class MieleUnbound extends utils.Adapter {
 				name: 'Category',
 				role: 'text',
 				type: 'string',
-				val: profile.category[lang] || profile.category.de,
+				val: profile.category[baseLang] || profile.category.de,
 			},
 			{
 				id: 'moduleType',
@@ -1014,7 +1027,10 @@ export class MieleUnbound extends utils.Adapter {
 			status === 3 || status === 4 || status === 5 || status === 6;
 
 		set('state.status', status);
-		set('state.statusText', getStatusText(status, lang));
+		set(
+			'state.statusText',
+			datenpunktText('status', lang, devType, status),
+		);
 		set(
 			'state.inUse',
 			status === 3 || status === 4 || status === 5 || status === 6,
@@ -1023,11 +1039,14 @@ export class MieleUnbound extends utils.Adapter {
 		// Programs & Phases
 		const pType = state.ProgramType ?? 0;
 		set('state.programType', pType);
-		set('state.programTypeText', getProgramTypeText(pType, lang));
+		set(
+			'state.programTypeText',
+			datenpunktText('programType', lang, devType, pType),
+		);
 
 		const pId = state.ProgramID ?? 0;
 		set('state.programId', pId);
-		set('state.programText', getProgramText(devType, pId, lang));
+		set('state.programText', datenpunktText('program', lang, devType, pId));
 		if (cfg.allowControl && artKann('selectProgram', devType)) {
 			set('control.programId', pId);
 		}
@@ -1036,7 +1055,7 @@ export class MieleUnbound extends utils.Adapter {
 		set('state.programPhase', phase);
 		set(
 			'state.programPhaseText',
-			getProgramPhaseText(devType, phase, lang),
+			datenpunktText('phase', lang, devType, phase),
 		);
 
 		// Times
@@ -1136,7 +1155,7 @@ export class MieleUnbound extends utils.Adapter {
 			set('sensors.dryingStep', state.DryingStep);
 			set(
 				'sensors.dryingStepText',
-				getDryingStepText(state.DryingStep, lang),
+				datenpunktText('dryingStep', lang, devType, state.DryingStep),
 			);
 		}
 
@@ -1190,6 +1209,9 @@ export class MieleUnbound extends utils.Adapter {
 								eco.heatingDurationSec,
 							);
 						}
+						if (eco.driveEnergyWh !== undefined) {
+							set('eco.driveEnergyWh', eco.driveEnergyWh);
+						}
 					}
 				} catch (ecoErr) {
 					this.log.debug(
@@ -1197,6 +1219,11 @@ export class MieleUnbound extends utils.Adapter {
 					);
 				}
 			}
+		}
+
+		// Device Context 2/1585 (GLOBAL_DeviceContext) – queried independently of 2/6195
+		if (cfg.ecoFeedback && dev.api) {
+			await this.pollDeviceContext(dev, status);
 		}
 
 		await Promise.all(updates);
@@ -1314,18 +1341,269 @@ export class MieleUnbound extends utils.Adapter {
 		}
 	}
 
+	private async pollDeviceContext(
+		dev: ManagedDevice,
+		status: number,
+	): Promise<void> {
+		if (!dev.serial || !dev.api) {
+			return;
+		}
+		const maxRejections = 3;
+		if ((dev.contextRejections || 0) >= maxRejections) {
+			return;
+		}
+		const isCycleRunning = status === 5 || status === 6;
+		const justStarted = isCycleRunning && !dev.cycleRunning;
+		const justEnded = !isCycleRunning && Boolean(dev.cycleRunning);
+		dev.cycleRunning = isCycleRunning;
+
+		const forceQuery = justStarted || justEnded || !dev.lastContextQueryTs;
+		if (
+			!forceQuery &&
+			(!dev.active || Date.now() - (dev.lastContextQueryTs || 0) < 60000)
+		) {
+			return;
+		}
+		dev.lastContextQueryTs = Date.now();
+
+		try {
+			const res = await dev.api.readDop2(
+				dev.route || '0',
+				2,
+				1585,
+				0,
+				0,
+				3000,
+			);
+			if (res.status !== 200 || !res.body || res.body.length <= 8) {
+				if (res.status === 404 || res.status === 501) {
+					dev.contextRejections = (dev.contextRejections || 0) + 1;
+				}
+				this.log.debug(
+					`Context 2/1585 HTTP ${res.status} (${dev.contextRejections || 0}/${maxRejections})`,
+				);
+				return;
+			}
+			dev.contextRejections = 0;
+			const ctx = MieleEco.parseLeaf2_1585(res.body);
+			this.log.debug(
+				`Context 2/1585 HTTP 200 - ${protokollZeileKontext(ctx)}`,
+			);
+			if (!ctx.hatAttribute) {
+				return;
+			}
+
+			const sId = dev.serial;
+			const baseLang: 'de' | 'en' =
+				this.cfg.language === 'de' ? 'de' : 'en';
+			let ecoChannelEnsured = false;
+			const ensureEcoChannel = async (): Promise<void> => {
+				if (ecoChannelEnsured) {
+					return;
+				}
+				await this.setObjectNotExistsAsync(`${sId}.eco`, {
+					type: 'channel',
+					common: { name: 'ECO' },
+					native: {},
+				});
+				ecoChannelEnsured = true;
+			};
+			const writeDynamicEco = async (
+				sub: string,
+				name: { en: string; de: string },
+				role: string,
+				type: 'number' | 'string',
+				unit: string | undefined,
+				def: number | string,
+				val: number | string,
+			): Promise<void> => {
+				await ensureEcoChannel();
+				await this.setObjectNotExistsAsync(`${sId}.eco.${sub}`, {
+					type: 'state',
+					common: {
+						name: name[baseLang] || name.de,
+						role,
+						type,
+						...(unit ? { unit } : {}),
+						read: true,
+						write: false,
+						def,
+					},
+					native: {},
+				});
+				await this.setStateAsync(`${sId}.eco.${sub}`, {
+					val,
+					ack: true,
+				});
+			};
+
+			if (ctx.energieGesamtWh !== null) {
+				await writeDynamicEco(
+					'totalEnergyWh',
+					{
+						en: 'Total energy consumption (lifetime counter)',
+						de: 'Gesamtenergieverbrauch (Lebenszähler)',
+					},
+					'value.power.consumption',
+					'number',
+					'Wh',
+					0,
+					ctx.energieGesamtWh,
+				);
+				await writeDynamicEco(
+					'totalEnergyKWh',
+					{
+						en: 'Total energy consumption (kWh)',
+						de: 'Gesamtenergieverbrauch (kWh)',
+					},
+					'value.power.consumption',
+					'number',
+					'kWh',
+					0,
+					Math.round(ctx.energieGesamtWh) / 1000,
+				);
+			}
+			if (ctx.wasserGesamtL !== null) {
+				await writeDynamicEco(
+					'totalWater',
+					{
+						en: 'Total water consumption (lifetime counter)',
+						de: 'Gesamtwasserverbrauch (Lebenszähler)',
+					},
+					'value',
+					'number',
+					'l',
+					0,
+					ctx.wasserGesamtL,
+				);
+			}
+			if (ctx.energieLetzteWh !== null) {
+				await writeDynamicEco(
+					'lastEnergyWh',
+					{
+						en: 'Energy consumption of last programme',
+						de: 'Energieverbrauch letztes Programm',
+					},
+					'value.power.consumption',
+					'number',
+					'Wh',
+					0,
+					ctx.energieLetzteWh,
+				);
+			}
+			if (ctx.wasserLetzteL !== null) {
+				await writeDynamicEco(
+					'lastWater',
+					{
+						en: 'Water consumption of last programme',
+						de: 'Wasserverbrauch letztes Programm',
+					},
+					'value',
+					'number',
+					'l',
+					0,
+					ctx.wasserLetzteL,
+				);
+			}
+			if (ctx.dosierbehaelter !== null) {
+				await writeDynamicEco(
+					'dosContainersJson',
+					{
+						en: 'TwinDos / AutoDos containers (JSON)',
+						de: 'TwinDos / AutoDos Dosierbehälter (JSON)',
+					},
+					'json',
+					'string',
+					undefined,
+					'[]',
+					JSON.stringify(ctx.dosierbehaelter),
+				);
+			}
+
+			if (ctx.energieGesamtWh !== null || ctx.wasserGesamtL !== null) {
+				const snapshot: LifetimeCounterSnapshot = {
+					energieWh: ctx.energieGesamtWh,
+					wasserL: ctx.wasserGesamtL,
+					zeit: Date.now(),
+				};
+				dev.contextCounters = snapshot;
+				if (
+					justStarted ||
+					(isCycleRunning && !dev.contextStartCounters)
+				) {
+					dev.contextStartCounters = snapshot;
+				}
+				if (justEnded && dev.contextStartCounters) {
+					const diff = verbrauchAusZaehlern(
+						dev.contextStartCounters,
+						snapshot,
+					);
+					dev.contextStartCounters = undefined;
+					const has2_6195 =
+						dev.deviceType === 1 || dev.deviceType === 24;
+					if (diff && !has2_6195) {
+						if (diff.energieWh !== null) {
+							await writeDynamicEco(
+								'energyWh',
+								{
+									en: 'EcoFeedback Energy (Wh)',
+									de: 'EcoFeedback Energie (Wh)',
+								},
+								'value',
+								'number',
+								'Wh',
+								0,
+								diff.energieWh,
+							);
+							await writeDynamicEco(
+								'energy',
+								{
+									en: 'EcoFeedback Energy Consumption',
+									de: 'EcoFeedback Energieverbrauch',
+								},
+								'value.power.consumption',
+								'number',
+								'kWh',
+								0,
+								Math.round(diff.energieWh) / 1000,
+							);
+						}
+						if (diff.wasserL !== null) {
+							await writeDynamicEco(
+								'water',
+								{
+									en: 'EcoFeedback Water Consumption',
+									de: 'EcoFeedback Wasserverbrauch',
+								},
+								'value',
+								'number',
+								'l',
+								0,
+								diff.wasserL,
+							);
+						}
+					}
+				}
+			}
+		} catch (err) {
+			this.log.debug(
+				`Context 2/1585 read failed: ${(err as Error).message}`,
+			);
+		}
+	}
+
 	private async ensureStateObject(
 		serial: string,
 		def: StateDefinition,
 	): Promise<void> {
 		const fullId = `${serial}.${def.id}`;
 		const cfg = this.cfg;
-		const lang = cfg.language || 'de';
+		const baseLang: 'de' | 'en' = cfg.language === 'de' ? 'de' : 'en';
 
 		await this.setObjectNotExistsAsync(fullId, {
 			type: 'state',
 			common: {
-				name: def.name[lang] || def.name.de,
+				name: def.name[baseLang] || def.name.de,
 				...(def.desc ? { desc: def.desc } : {}),
 				role: def.role,
 				type: def.type,
@@ -1337,6 +1615,11 @@ export class MieleUnbound extends utils.Adapter {
 			},
 			native: {},
 		});
+		if (def.states && typeof this.extendObjectAsync === 'function') {
+			await this.extendObjectAsync(fullId, {
+				common: { states: def.states },
+			}).catch(() => {});
+		}
 	}
 
 	private async completeCommand(

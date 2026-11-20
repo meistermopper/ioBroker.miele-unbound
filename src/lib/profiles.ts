@@ -10,6 +10,7 @@ import {
 	STATUS_MAP,
 } from './definitions.js';
 import type { DeviceProfile, StateDefinition } from './types.js';
+import { type SupportedLanguage, type WertArt, werteTabelle } from './werte.js';
 
 export const PROGRESS_DESC = {
 	de: 'Fortschritt des laufenden Programms in Prozent: verstrichene Zeit geteilt durch verstrichene plus Restzeit. 0, wenn kein Programm läuft.',
@@ -54,34 +55,44 @@ export class DeviceProfiles {
 
 	public static getProfile(
 		deviceType: number,
-		lang: 'de' | 'en' = 'de',
+		lang: SupportedLanguage = 'de',
 	): DeviceProfile {
+		const baseLang: 'de' | 'en' = lang === 'de' ? 'de' : 'en';
 		const category = DEVICE_CATEGORIES[deviceType] || {
 			en: getDeviceCategory(deviceType, 'en'),
 			de: getDeviceCategory(deviceType, 'de'),
 		};
 
+		const buildStatesMap = (
+			art: WertArt,
+			fallback: Record<number, { en: string; de: string }> | undefined,
+		): Record<number, string> | undefined => {
+			if (lang !== 'de' && lang !== 'en') {
+				const tab = werteTabelle(art, lang, deviceType);
+				if (tab && tab.options.length > 0) {
+					return Object.fromEntries(
+						tab.options.map((o) => [o.value, o.label]),
+					);
+				}
+			}
+			if (!fallback) {
+				return undefined;
+			}
+			return Object.fromEntries(
+				Object.entries(fallback).map(([k, v]) => [
+					k,
+					v[baseLang] || v.de,
+				]),
+			);
+		};
+
 		const progDt = resolveProgramDeviceType(deviceType);
 		const progMap = PROGRAMS[progDt];
-		const programStates: Record<number, string> | undefined = progMap
-			? Object.fromEntries(
-					Object.entries(progMap).map(([k, v]) => [
-						k,
-						v[lang] || v.de,
-					]),
-				)
-			: undefined;
+		const programStates = buildStatesMap('program', progMap);
 
 		const phaseDt = resolvePhaseDeviceType(deviceType);
 		const phaseMap = PHASES[phaseDt];
-		const phaseStates: Record<number, string> | undefined = phaseMap
-			? Object.fromEntries(
-					Object.entries(phaseMap).map(([k, v]) => [
-						k,
-						v[lang] || v.de,
-					]),
-				)
-			: undefined;
+		const phaseStates = buildStatesMap('phase', phaseMap);
 
 		const states: StateDefinition[] = [];
 
@@ -98,12 +109,7 @@ export class DeviceProfiles {
 				read: true,
 				write: false,
 				def: 1,
-				states: Object.fromEntries(
-					Object.entries(STATUS_MAP).map(([k, v]) => [
-						k,
-						v[lang] || v.de,
-					]),
-				),
+				states: buildStatesMap('status', STATUS_MAP),
 			},
 			{
 				id: 'state.statusText',
@@ -141,12 +147,7 @@ export class DeviceProfiles {
 				read: true,
 				write: false,
 				def: 0,
-				states: Object.fromEntries(
-					Object.entries(PROGRAM_TYPES).map(([k, v]) => [
-						k,
-						v[lang] || v.de,
-					]),
-				),
+				states: buildStatesMap('programType', PROGRAM_TYPES),
 			},
 			{
 				id: 'state.programTypeText',
@@ -448,12 +449,7 @@ export class DeviceProfiles {
 					read: true,
 					write: false,
 					def: 0,
-					states: Object.fromEntries(
-						Object.entries(DRYING_STEPS).map(([k, v]) => [
-							k,
-							v[lang] || v.de,
-						]),
-					),
+					states: buildStatesMap('dryingStep', DRYING_STEPS),
 				},
 				{
 					id: 'sensors.dryingStepText',
@@ -585,8 +581,8 @@ export class DeviceProfiles {
 					{
 						id: 'eco.heatingEnergyWh',
 						name: {
-							en: 'Heating Rod Energy (Wh)',
-							de: 'Heizstab-Energie (Wh)',
+							en: 'Heating energy (setpoint)',
+							de: 'Heizenergie (Vorgabe)',
 						},
 						role: 'value',
 						type: 'number',
@@ -598,12 +594,25 @@ export class DeviceProfiles {
 					{
 						id: 'eco.heatingDurationSec',
 						name: {
-							en: 'Heating Duration (Seconds)',
-							de: 'Heizdauer (Sekunden)',
+							en: 'Heating time (setpoint)',
+							de: 'Heizzeit (Vorgabe)',
 						},
 						role: 'value',
 						type: 'number',
 						unit: 's',
+						read: true,
+						write: false,
+						def: 0,
+					},
+					{
+						id: 'eco.driveEnergyWh',
+						name: {
+							en: 'Drive energy',
+							de: 'Antriebsenergie',
+						},
+						role: 'value',
+						type: 'number',
+						unit: 'Wh',
 						read: true,
 						write: false,
 						def: 0,

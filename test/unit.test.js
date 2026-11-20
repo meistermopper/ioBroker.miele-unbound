@@ -15,7 +15,17 @@ const {
 	wertText,
 	werteTabelle,
 	normalizeSprache,
+	SPRACHEN,
+	datenpunktText,
 } = require('../build/lib/werte.js');
+const {
+	decodeField,
+	parseDop2Leaf,
+	reinerWert,
+	protokollZeileKontext,
+	verbrauchAusZaehlern,
+	MieleEco,
+} = require('../build/lib/eco.js');
 const net = require('node:net');
 const {
 	MieleTimeServer,
@@ -1789,6 +1799,441 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(JSON.parse(anfragen[1].body)).to.deep.equal({
 				ProgramID: 201,
 			});
+		});
+	});
+
+	describe('DOP2 Type 33 (AStruct - List of Structures)', () => {
+		const u8 = (v) => Buffer.from([v & 0xff]);
+		const u16 = (v) => {
+			const b = Buffer.alloc(2);
+			b.writeUInt16BE(v);
+			return b;
+		};
+		const feld = (id, typ, wert) => Buffer.concat([u16(id), u8(typ), wert]);
+		const struktur = (felder) =>
+			Buffer.concat([u16(felder.length), ...felder]);
+		const liste = (elemente) =>
+			Buffer.concat([
+				u16(elemente.length),
+				...elemente.map((f) => struktur(f)),
+			]);
+		const annotated = (wert, maske = 8) =>
+			struktur([
+				feld(1, 2, u8(maske)),
+				feld(2, 2, u8(wert)),
+				feld(3, 2, u8(0)),
+			]);
+		function leaf(unit, attr, felder) {
+			const rumpf = Buffer.concat(felder);
+			const kopf = Buffer.concat([
+				u16(0),
+				u16(unit),
+				u16(attr),
+				u16(0),
+				u16(0),
+				u8(0),
+				u8(felder.length),
+			]);
+			const buf = Buffer.concat([kopf, rumpf]);
+			buf.writeUInt16BE(buf.length - 2, 0);
+			return buf;
+		}
+
+		it('should decode a list of structures with field IDs (Type 33)', () => {
+			const buf = leaf(2, 1585, [
+				feld(
+					7,
+					33,
+					liste([
+						[
+							feld(2, 2, u8(13)),
+							feld(3, 5, u16(400)),
+							feld(6, 16, annotated(72)),
+						],
+						[
+							feld(2, 2, u8(1)),
+							feld(3, 5, u16(14000)),
+							feld(6, 16, annotated(100)),
+						],
+					]),
+				),
+			]);
+			const { typedFields } = parseDop2Leaf(buf);
+			expect(typedFields[7].type).to.equal(33);
+			expect(typedFields[7].value).to.have.length(2);
+			const [a, b] = typedFields[7].value;
+			expect(a.map((e) => e.id)).to.deep.equal([2, 3, 6]);
+			expect(a[1].value).to.equal(400);
+			expect(b[1].value).to.equal(14000);
+			expect(reinerWert(typedFields[7].value)).to.deep.equal([
+				[13, 400, [8, 72, 0]],
+				[1, 14000, [8, 100, 0]],
+			]);
+		});
+
+		it('should correctly decode fields following a Type 33 list without offset corruption', () => {
+			const buf = leaf(2, 17, [
+				feld(1, 2, u8(5)),
+				feld(
+					2,
+					33,
+					liste([
+						[feld(1, 5, u16(0x1234))],
+						[],
+						[feld(1, 5, u16(7)), feld(2, 1, u8(1))],
+					]),
+				),
+				feld(3, 5, u16(4711)),
+			]);
+			const { typedFields } = parseDop2Leaf(buf);
+			expect(typedFields[1].value).to.equal(5);
+			expect(typedFields[2].value).to.have.length(3);
+			expect(typedFields[2].value[1]).to.deep.equal([]);
+			expect(typedFields[2].value[2][1]).to.deep.include({
+				id: 2,
+				value: true,
+			});
+			expect(typedFields[3].value).to.equal(4711);
+		});
+
+		it('should accept an empty list (0 entries)', () => {
+			const buf = leaf(2, 131, [feld(1, 33, u16(0)), feld(2, 2, u8(9))]);
+			const { typedFields } = parseDop2Leaf(buf);
+			expect(typedFields[1].value).to.deep.equal([]);
+			expect(typedFields[2].value).to.equal(9);
+		});
+
+		it('should throw on truncated Type 33 list', () => {
+			const full = leaf(2, 1, [
+				feld(1, 33, liste([[feld(1, 5, u16(1))]])),
+			]);
+			const truncated = full.subarray(0, full.length - 3);
+			expect(() => decodeField(33, truncated, 15)).to.throw(/Truncated/);
+		});
+
+		it('should handle nested structures inside Type 33 elements', () => {
+			const inner = struktur([feld(1, 2, u8(1)), feld(2, 2, u8(2))]);
+			const buf = leaf(2, 1585, [
+				feld(9, 33, liste([[feld(4, 16, inner)]])),
+			]);
+			const { typedFields } = parseDop2Leaf(buf);
+			expect(reinerWert(typedFields[9].value)).to.deep.equal([[[1, 2]]]);
+		});
+	});
+
+	describe('Device Context 2/1585 (GLOBAL_DeviceContext)', () => {
+		const u8 = (v) => Buffer.from([v & 0xff]);
+		const u16 = (v) => {
+			const b = Buffer.alloc(2);
+			b.writeUInt16BE(v);
+			return b;
+		};
+		const u32 = (v) => {
+			const b = Buffer.alloc(4);
+			b.writeUInt32BE(v);
+			return b;
+		};
+		const feld = (id, typ, wert) => Buffer.concat([u16(id), u8(typ), wert]);
+		const struktur = (felder) =>
+			Buffer.concat([u16(felder.length), ...felder]);
+		const liste = (elemente) =>
+			Buffer.concat([
+				u16(elemente.length),
+				...elemente.map((f) => struktur(f)),
+			]);
+		const generic = (wert, einheitTyp = 0, maske = 8) =>
+			struktur([
+				feld(1, 2, u8(maske)),
+				feld(2, 8, u32(0)),
+				feld(3, 8, u32(0)),
+				feld(4, 8, u32(wert)),
+				feld(5, 8, u32(0)),
+				feld(6, 7, u16(einheitTyp)),
+			]);
+		const annotated = (wert, maske = 8) =>
+			struktur([
+				feld(1, 2, u8(maske)),
+				feld(2, 2, u8(wert)),
+				feld(3, 2, u8(0)),
+			]);
+		function leaf(unit, attr, felder) {
+			const rumpf = Buffer.concat(felder);
+			const kopf = Buffer.concat([
+				u16(0),
+				u16(unit),
+				u16(attr),
+				u16(0),
+				u16(0),
+				u8(0),
+				u8(felder.length),
+			]);
+			const buf = Buffer.concat([kopf, rumpf]);
+			buf.writeUInt16BE(buf.length - 2, 0);
+			return buf;
+		}
+
+		function kontextLeaf({
+			letzteWh = null,
+			letzteTyp = 0,
+			gesamtWh = 206600,
+			gesamtTyp = 121,
+			wasserTyp = 44,
+		} = {}) {
+			const attribute = struktur([
+				feld(1, 4, u8(2)), // doorState: closed
+				feld(
+					3,
+					16,
+					generic(letzteWh || 0, letzteTyp, letzteWh ? 8 : 0),
+				),
+				feld(4, 16, generic(0, 0, 0)),
+				feld(5, 16, generic(gesamtWh, gesamtTyp)),
+				feld(6, 16, generic(2789, wasserTyp)),
+				feld(
+					7,
+					33,
+					liste([
+						[
+							feld(2, 2, u8(13)),
+							feld(3, 5, u16(400)),
+							feld(5, 5, u16(65)),
+							feld(6, 16, annotated(3)),
+						],
+					]),
+				),
+				feld(29, 16, generic(0, 0, 0)),
+			]);
+			return leaf(2, 1585, [
+				feld(1, 16, struktur([feld(1, 4, u8(5))])),
+				feld(6, 16, attribute),
+			]);
+		}
+
+		it('should decode lifetime counters with unit types and leave empty shells as null', () => {
+			const ctx = MieleEco.parseLeaf2_1585(kontextLeaf());
+			expect(ctx.hatAttribute).to.be.true;
+			expect(ctx.energieGesamtWh).to.equal(206600);
+			expect(ctx.wasserGesamtL).to.equal(2789);
+			expect(ctx.energieLetzteWh).to.be.null;
+			expect(ctx.wasserLetzteL).to.be.null;
+			expect(ctx.tuer).to.equal(2);
+			expect(ctx.dosierbehaelter).to.deep.equal([
+				{ groesseMl: 400, dosierungMl: 65, fuellstandProzent: 3 },
+			]);
+		});
+
+		it('should convert kWh (unit type 45) to Wh and reject unknown unit types', () => {
+			const ctxKwh = MieleEco.parseLeaf2_1585(
+				kontextLeaf({ gesamtWh: 207, gesamtTyp: 45 }),
+			);
+			expect(ctxKwh.energieGesamtWh).to.equal(207000);
+
+			const ctxUnknown = MieleEco.parseLeaf2_1585(
+				kontextLeaf({ gesamtTyp: 99 }),
+			);
+			expect(ctxUnknown.energieGesamtWh).to.be.null;
+
+			const ctxNoWaterUnit = MieleEco.parseLeaf2_1585(
+				kontextLeaf({ wasserTyp: 0 }),
+			);
+			expect(ctxNoWaterUnit.wasserGesamtL).to.be.null;
+		});
+
+		it('should extract last programme energy only when it carries a valid unit type', () => {
+			const ctxWithUnit = MieleEco.parseLeaf2_1585(
+				kontextLeaf({ letzteWh: 950, letzteTyp: 121 }),
+			);
+			expect(ctxWithUnit.energieLetzteWh).to.equal(950);
+
+			const ctxWithoutUnit = MieleEco.parseLeaf2_1585(
+				kontextLeaf({ letzteWh: 950, letzteTyp: 0 }),
+			);
+			expect(ctxWithoutUnit.energieLetzteWh).to.be.null;
+		});
+
+		it('should format diagnostic log line correctly via protokollZeileKontext', () => {
+			const ctx = MieleEco.parseLeaf2_1585(kontextLeaf());
+			const line = protokollZeileKontext(ctx);
+			expect(line).to.contain('totalEnergy=206600 Wh');
+			expect(line).to.contain('6.5:206600/t121');
+			expect(line).to.contain('containers=1 (3 %)');
+
+			const emptyLine = protokollZeileKontext({
+				hatAttribute: false,
+				tuer: null,
+				energieLetzteWh: null,
+				wasserLetzteL: null,
+				energieGesamtWh: null,
+				wasserGesamtL: null,
+				dosierbehaelter: null,
+				roh: {},
+			});
+			expect(emptyLine).to.equal('no device attributes (field 6)');
+		});
+
+		it('should compute cycle consumption delta via verbrauchAusZaehlern', () => {
+			const start = { energieWh: 206000, wasserL: 2770 };
+			const ende = { energieWh: 206950, wasserL: 2785 };
+			const diff = verbrauchAusZaehlern(start, ende);
+			expect(diff).to.deep.equal({ energieWh: 950, wasserL: 15 });
+
+			// Missing start or ende
+			expect(verbrauchAusZaehlern(null, ende)).to.be.null;
+			expect(verbrauchAusZaehlern(start, null)).to.be.null;
+
+			// Decreasing counters (e.g. meter reset or invalid reading)
+			expect(
+				verbrauchAusZaehlern(
+					{ energieWh: 500, wasserL: 20 },
+					{ energieWh: 400, wasserL: 10 },
+				),
+			).to.be.null;
+		});
+	});
+
+	describe('Leaf 2/6195 Refinements (Process Data)', () => {
+		const u8 = (v) => Buffer.from([v & 0xff]);
+		const u16 = (v) => {
+			const b = Buffer.alloc(2);
+			b.writeUInt16BE(v);
+			return b;
+		};
+		const u32 = (v) => {
+			const b = Buffer.alloc(4);
+			b.writeUInt32BE(v);
+			return b;
+		};
+		const feld = (id, typ, wert) => Buffer.concat([u16(id), u8(typ), wert]);
+		const struktur = (felder) =>
+			Buffer.concat([u16(felder.length), ...felder]);
+		const generic = (wert) =>
+			struktur([
+				feld(1, 2, u8(8)),
+				feld(2, 8, u32(0)),
+				feld(3, 8, u32(0)),
+				feld(4, 8, u32(wert)),
+				feld(5, 8, u32(0)),
+				feld(6, 7, u16(0)),
+			]);
+		function leaf(unit, attr, felder) {
+			const rumpf = Buffer.concat(felder);
+			const kopf = Buffer.concat([
+				u16(0),
+				u16(unit),
+				u16(attr),
+				u16(0),
+				u16(0),
+				u8(0),
+				u8(felder.length),
+			]);
+			const buf = Buffer.concat([kopf, rumpf]);
+			buf.writeUInt16BE(buf.length - 2, 0);
+			return buf;
+		}
+
+		it('should extract drive energy (F16), heating energy (F25), heating duration (F26), and water (F21)', () => {
+			const buf = leaf(2, 6195, [
+				feld(16, 16, generic(120)), // F16 drive energy Wh
+				feld(21, 16, generic(2400)), // F21 water pulses / 200 = 12 l
+				feld(25, 16, generic(850)), // F25 heating energy Wh
+				feld(26, 16, generic(3600)), // F26 heating duration sec
+			]);
+			const eco = MieleEco.parseLeaf2_6195(buf);
+			expect(eco.driveEnergyWh).to.equal(120);
+			expect(eco.heatingEnergyWh).to.equal(850);
+			expect(eco.energyWh).to.equal(850);
+			expect(eco.energyKWh).to.equal(0.85);
+			expect(eco.heatingDurationSec).to.equal(3600);
+			expect(eco.waterImpulses).to.equal(2400);
+			expect(eco.waterLiters).to.equal(12);
+		});
+	});
+
+	describe('11-Language Text Resolution & Verbatim Polish Programme Names', () => {
+		it('should include all 11 ioBroker languages in SPRACHEN', () => {
+			expect(SPRACHEN).to.deep.equal([
+				'en',
+				'de',
+				'ru',
+				'pt',
+				'nl',
+				'fr',
+				'it',
+				'es',
+				'pl',
+				'uk',
+				'zh-cn',
+			]);
+		});
+
+		it('should resolve status text across multiple languages with fallback to en', () => {
+			// Status 5 = Running / In Betrieb
+			expect(datenpunktText('status', 'de', 1, 5)).to.equal('In Betrieb');
+			expect(datenpunktText('status', 'en', 1, 5)).to.equal('Running');
+			expect(datenpunktText('status', 'pl', 1, 5)).to.equal('Pracuje');
+			expect(datenpunktText('status', 'fr', 1, 5)).to.equal(
+				'En utilisation',
+			);
+			expect(datenpunktText('status', 'es', 1, 5)).to.equal('En uso');
+			expect(datenpunktText('status', 'it', 1, 5)).to.equal(
+				'In funzione',
+			);
+			expect(datenpunktText('status', 'nl', 1, 5)).to.equal('In gebruik');
+		});
+
+		it('should resolve official Polish programme names verbatim from Miele manual', () => {
+			// Washing Machine (type 1)
+			// 1 = Cottons / Bawełna
+			expect(datenpunktText('program', 'pl', 1, 1)).to.equal('Bawełna');
+			// 3 = Delicates / Tkaniny delikatne
+			expect(datenpunktText('program', 'pl', 1, 3)).to.equal(
+				'Tkaniny delikatne',
+			);
+			// 4 = Silks / Tkaniny bardzo delikatne
+			expect(datenpunktText('program', 'pl', 1, 4)).to.equal(
+				'Tkaniny bardzo delikatne',
+			);
+			// 8 = Woollens / Wełna
+			expect(datenpunktText('program', 'pl', 1, 8)).to.equal('Wełna');
+			// 122 = Express 20
+			expect(datenpunktText('program', 'pl', 1, 122)).to.equal(
+				'Express 20',
+			);
+			// 146 = QuickPowerWash
+			expect(datenpunktText('program', 'pl', 1, 146)).to.equal(
+				'QuickPowerWash',
+			);
+
+			// Tumble Dryer (type 2)
+			// 2 = Cottons / Bawełna
+			expect(datenpunktText('program', 'pl', 2, 2)).to.equal('Bawełna');
+			// 8 = Express
+			expect(datenpunktText('program', 'pl', 2, 8)).to.equal('Express');
+		});
+
+		it('should build device profiles with dynamic state maps for non-de/en languages', () => {
+			const profilePl = DeviceProfiles.getProfile(1, 'pl');
+			const statusState = profilePl.states.find(
+				(s) => s.id === 'state.status',
+			);
+			expect(statusState).to.exist;
+			expect(statusState.states).to.be.an('object');
+			expect(statusState.states['5']).to.equal('Pracuje');
+
+			const progState = profilePl.states.find(
+				(s) => s.id === 'state.programId',
+			);
+			expect(progState).to.exist;
+			expect(progState.states).to.be.an('object');
+			expect(progState.states['1']).to.equal('Bawełna');
+
+			// Check that driveEnergyWh state is present in profile
+			const driveState = profilePl.states.find(
+				(s) => s.id === 'eco.driveEnergyWh',
+			);
+			expect(driveState).to.exist;
+			expect(driveState.unit).to.equal('Wh');
+			expect(driveState.type).to.equal('number');
 		});
 	});
 });

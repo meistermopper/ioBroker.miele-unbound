@@ -11,7 +11,18 @@ export interface AdapterConfig {
 	ecoFeedback: boolean;
 	allowControl: boolean;
 	autoDiscovery: boolean;
-	language: 'de' | 'en';
+	language:
+		| 'de'
+		| 'en'
+		| 'ru'
+		| 'pt'
+		| 'nl'
+		| 'fr'
+		| 'it'
+		| 'es'
+		| 'pl'
+		| 'uk'
+		| 'zh-cn';
 	enablePush?: boolean;
 	pushPort?: number;
 	timeServer?: boolean;

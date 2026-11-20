@@ -130,6 +130,11 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Support DOP2 type 33 (AStruct) list of structures
+- Evaluate device context leaf 2/1585 (lifetime counters, last cycle, dos containers)
+- Compute cycle consumption for dishwashers via counter delta
+- Add drive energy state and refine setpoint descriptions for leaf 2/6195
+- Support all 11 ioBroker admin languages for text states with verbatim Polish names
 
 ### 1.7.2 (2026-11-20)
 - Add detailed time server DNS/port-80 setup guide and clickable README link in Admin UI
