@@ -129,7 +129,7 @@ This is an **unofficial, community-developed** project and is **not affiliated w
 The adapter utilizes local communication protocols reverse-engineered by the open-source community. Usage is at your own risk. The software is distributed under the MIT license without warranty of any kind.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.7.4 (2026-11-21)
 - Decrypt DOP2 response payloads with AES-CBC using X-Signature in readDop2
 - Reset context rejection counter on cycle start to prevent permanent lockouts
 
@@ -150,9 +150,6 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ### 1.7.0 (2026-11-15)
 - Add remote program selection via control.programId (DOP2 leaf 2/1577) and Device Manager dropdown
-
-### 1.6.2 (2026-11-15)
-- Correct MobileStart detection from RemoteEnable array to enable remote start
 
 Older changelog entries can be found in [CHANGELOG_OLD.md](CHANGELOG_OLD.md).
 

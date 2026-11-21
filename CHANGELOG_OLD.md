@@ -1,4 +1,7 @@
 # Older changes
+## 1.6.2 (2026-11-15)
+- Correct MobileStart detection from RemoteEnable array to enable remote start
+
 ## 1.6.1 (2026-11-12)
 - Remove redundant state.estimatedEndtime in favor of state.estimatedEndTimeText
 - Device Manager cards render status, programme, phase, type and drying step in system language

@@ -131,6 +131,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+
+### 1.7.4 (2026-11-21)
 - DOP2-Antworten mit AES-CBC via X-Signature in readDop2 entschlüsselt
 - Kontext-Fehlerzähler bei Programmstart zurückgesetzt (Lockout-Schutz)
 
@@ -152,8 +154,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ### 1.7.0 (2026-11-15)
 - Programmwahl über control.programId (DOP2-Leaf 2/1577) und Auswahlmenü im Konfig-Manager ergänzt
 
-### 1.6.2 (2026-11-15)
-- Erkennung von MobileStart aus RemoteEnable-Array korrigiert, um Fernstart zu erlauben
+[Ältere Einträge](CHANGELOG_OLD.md)
 
 [Ältere Einträge](CHANGELOG_OLD.md)
 

@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "miele-unbound",
-		"version": "1.7.3",
+		"version": "1.7.4",
 		"news": {
+			"1.7.4": {
+				"en": "Decrypt DOP2 response payloads with AES-CBC using X-Signature in readDop2\nReset context rejection counter on cycle start to prevent permanent lockouts",
+				"de": "DOP2-Antwortdaten mit AES-CBC mit X-Signature in ReadDOP2 entschlüsseln\nSetzt den Zähler für Kontextabweichungen zu Zyklusbeginn zurück",
+				"ru": "Расшифруйте полезные данные ответа DOP2 с помощью AES-CBC с помощью X-Signature в ReadDOP2\nСбросьте счетчик отклонения контекста при запуске цикла, чтобы предотвратить постоянные блокировки",
+				"pt": "Decodifique cargas de resposta DOP2 com AES-CBC usando X-Signature em ReadDOP2\nRedefina o contador de rejeição de contexto para evitar bloqueios permanentes",
+				"nl": "Decodeer DOP2-responslayloads met AES-CBC met behulp van X-Signature in ReadDoP2\nStel de contextafwijzingsteller opnieuw in bij het begin van de cyclus om permanente uitsluitingen te voorkomen",
+				"fr": "Déchiffrez les réponses DOP2 avec AES-CBC avec X-Signature et ReadDOP2\nRéinitialiser le compteur de contexte au début du cycle pour éviter les blocages permanents",
+				"it": "Decifra i payload di risposta DOP2 con AES-CBC usando X-Signature in ReadDo2\nReimposta il contatore contestuale a inizio ciclo per evitare blocchi permanenti",
+				"es": "Descifra las cargas de respuesta DOP2 con AES-CBC mediante X Signature en ReadDoP2\nRestablecer el contador de rechazos al iniciar el ciclo para evitar bloqueos permanentes",
+				"pl": "Odszyfruj ładunki odpowiedzi DOP2 za pomocą AES-CBC przy użyciu podpisu X w ReadDOP2\nZresetuj licznik odrzucenia kontekstu podczas rozpoczęcia cyklu, aby zapobiec trwałym blokadom",
+				"uk": "Розшифруйте корисні навантаження відповіді DOP2 за допомогою AES-CBC за допомогою X-Signature у ReadDOP2\nСкинути лічильник відхилення контексту при запуску циклу, щоб запобігти постійним блокуванням",
+				"zh-cn": "在 ReaddOP2 中使用 X-Signature 使用 AES-CBC 解密 DOP2 响应有效载荷\n循环启动时重置上下文拒绝计数器以防止永久封锁"
+			},
 			"1.7.3": {
 				"en": "Support DOP2 type 33 (AStruct) list of structures\nEvaluate device context leaf 2/1585 (lifetime counters, last cycle, dos containers)\nCompute cycle consumption for dishwashers via counter delta\nAdd drive energy state and refine setpoint descriptions for leaf 2/6195\nSupport all 11 ioBroker admin languages for text states with verbatim Polish names",
 				"de": "Unterstützt DP2-Strukturliste Typ 3 (AStruct)\nGerätekontext auswerten Leaf 2/1585 (Lebenszähler, letzter Zyklus, DOS-Container)\nZyklusverbrauch für Spülmaschinen über Counter Delta\nAntriebsenergie hinzufügen und Sollwerte für Leaf 2/6195 verfeinern\nUnterstützt alle 11 ioBroker-Adminsprachen für Textstaaten mit polnischem Namen",
@@ -80,19 +93,6 @@
 				"pl": "Usuń nadmiarowy State.EstimatedEndTime na korzyść State.EstimatedEndTimeText\nKarty Menedżera urządzeń renderują stan, program, fazę, typ i etap suszenia w języku systemowym\nSurowe stany (status, programID itp.) używają zlokalizowanych tabel opcji w języku systemowym ioBroker\nImportuj tłumaczenia Home Assistant z poprawkami dla brakujących języków\nDodaj opisy (common.desc) we wszystkich 11 językach dla control.can* i state.progress",
 				"uk": "Видаліть зайвий State.EstimatedEndTime на користь State.EstimatedEndTimeText\nКартки диспетчера пристроїв відображають статус, програму, фазу, тип та етап сушіння системною мовою\nНеоброблені стани (статус, ідентифікатор програми тощо) використовують локалізовані таблиці параметрів на мові системи IObroker\nІмпорт перекладів Home Assistant з виправленнями для відсутніх мов\nДодайте описи (common.desc) усіма 11 мовами для control.can* та state.progress",
 				"zh-cn": "移除多余的 State.estimatedEndTime 转而使用 State.estimatedEndTimeText\n设备管理器卡以系统语言显示状态、程序、阶段、类型和干燥步骤\n原始状态（状态、程序 ID 等）使用 IOBroker 系统语言中的本地化选项表\n导入家庭助理翻译，并对缺失语言进行更正\n以所有 11 种语言为 control.can* 和 state.progress 添加描述（common.desc）"
-			},
-			"1.6.0": {
-				"en": "Add ioBroker Device-Manager integration with live cards, status indicators, and actions\nAdd state.progress (programme progress in percent 0..99%)\nAdd control.canPowerOn, canPowerOff, canStart, canPause, canStop indicators",
-				"de": "ioBroker Device-Manager mit Live-Karten, Statusanzeigen und Aktionen hinzufügen\nState.progress hinzufügen (Programmfortschritt in% 0,99%)\nAdd Control. Anzeigen CanPowerOn, CanPowerOff, CanStart, CanPause, CanStop",
-				"ru": "Добавьте интеграцию IOBroker Device-Manager с живыми картами, индикаторами состояния и действиями\nДобавить состояние и прогресс (ход выполнения программы в процентах 0,99%)\nДобавить управление. Может включать, выключать, запускать, приостанавливать, может останавливать индикаторы",
-				"pt": "Adicione o IOBroker Device-Manager a cartões ativos, indicadores de status e ações\nAdicione state.progress (progresso do programa em 0,99%)\nAdicionar controle. Indicadores CanPowerOn, CanPowerOff, CanStart, CanPause",
-				"nl": "Voeg IOBroker Device-Manager-integratie toe met live-kaarten, statusindicatoren en acties\nVoeg state.progress toe (voortgang van het programma in procenten 0.99%)\nControle toevoegen. Kan de lampjes inschakelen, kan uitschakelen, CANstart, CANpauze, CANstop",
-				"fr": "Intégrer IObroker Device-Manager aux live cards, aux indicateurs d'état et aux actions\nAjouter state.progress (progression du programme en % 0,99 %)\nAjouter un contrôle. Indicateurs CanPowerOn, CanPowerOff, CanStart, CanPause, CanStop",
-				"it": "Aggiungere IOBroker Device-Manager con carte live, indicatori di stato e azioni\nAggiungere state.progress (percentuale del programma 0,99%)\nAggiungi CTRL. CanPowerOn, CanStart, CanPause, CanStop",
-				"es": "Añada la integración de ioBroker DeviceManager con tarjetas, indicadores de estado y acciones\nAñada state.progress (progreso del programa en% 0,99%)\nAñadir control. Indicadores CanPower, Can Apagar, Can Start, Can Pause",
-				"pl": "Dodaj integrację ioBroker Device-Manager z kartami na żywo, wskaźnikami stanu i akcjami\nDodaj state.progress (postęp programu w procentach 0,99%)\nDodaj wskaźniki Control.canPowerOn, CanPowerOff, CanStart, CanPause, CanStop",
-				"uk": "Додайте інтеграцію IObroker Device-Manager з живими картками, індикаторами статусу та діями\nДодати стан прогресу (прогрес програми у відсотках 0..99%)\nДодайте контроль.Індикатори CanPower On, CanPowerOff, CanStart, CanPause, CanStop",
-				"zh-cn": "添加包含实时卡片、状态指示器和操作的 IOBroker 设备管理器集成\n添加 state.progress（程序进度百分比 0.99%）\n添加控制。可以开机、可以关机、可以启动、可以暂停、可以停止指示灯"
 			}
 		},
 		"titleLang": {
