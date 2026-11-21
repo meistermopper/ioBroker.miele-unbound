@@ -130,6 +130,8 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Decrypt DOP2 response payloads with AES-CBC using X-Signature in readDop2
+- Reset context rejection counter on cycle start to prevent permanent lockouts
 
 ### 1.7.3 (2026-11-20)
 - Support DOP2 type 33 (AStruct) list of structures

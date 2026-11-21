@@ -1348,14 +1348,19 @@ export class MieleUnbound extends utils.Adapter {
 		if (!dev.serial || !dev.api) {
 			return;
 		}
-		const maxRejections = 3;
-		if ((dev.contextRejections || 0) >= maxRejections) {
-			return;
-		}
 		const isCycleRunning = status === 5 || status === 6;
 		const justStarted = isCycleRunning && !dev.cycleRunning;
 		const justEnded = !isCycleRunning && Boolean(dev.cycleRunning);
 		dev.cycleRunning = isCycleRunning;
+
+		if (justStarted) {
+			dev.contextRejections = 0;
+		}
+
+		const maxRejections = 3;
+		if ((dev.contextRejections || 0) >= maxRejections) {
+			return;
+		}
 
 		const forceQuery = justStarted || justEnded || !dev.lastContextQueryTs;
 		if (

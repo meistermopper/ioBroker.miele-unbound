@@ -26,6 +26,7 @@ const {
 	verbrauchAusZaehlern,
 	MieleEco,
 } = require('../build/lib/eco.js');
+const { MieleDeviceApi } = require('../build/lib/api.js');
 const net = require('node:net');
 const {
 	MieleTimeServer,
@@ -2234,6 +2235,47 @@ describe('ioBroker.miele-unbound Unit Tests', () => {
 			expect(driveState).to.exist;
 			expect(driveState.unit).to.equal('Wh');
 			expect(driveState.type).to.equal('number');
+		});
+	});
+
+	describe('MieleDeviceApi readDop2 Decryption', () => {
+		let server;
+		let port;
+		const mc = new MieleCrypto(testGroupId, testGroupKey);
+
+		before((done) => {
+			const http = require('node:http');
+			server = http.createServer((_req, res) => {
+				const plainLeaf = Buffer.from(
+					'DOP2_DECRYPTED_TEST_PAYLOAD_1234',
+				);
+				const padded = MieleCrypto.padResponseBody(plainLeaf);
+				const sigHex =
+					'0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+				const cipher = mc.encryptBody(padded, sigHex);
+				res.writeHead(200, {
+					'Content-Type': 'application/octet-stream',
+					'X-Signature': `${testGroupId}:${sigHex}`,
+				});
+				res.end(cipher);
+			});
+			server.listen(0, '127.0.0.1', () => {
+				port = server.address().port;
+				done();
+			});
+		});
+
+		after((done) => {
+			server.close(done);
+		});
+
+		it('should decrypt DOP2 response body using X-Signature', async () => {
+			const api = new MieleDeviceApi(`127.0.0.1:${port}`, mc);
+			const res = await api.readDop2('0', 2, 1585);
+			expect(res.status).to.equal(200);
+			expect(res.body.toString('utf8')).to.contain(
+				'DOP2_DECRYPTED_TEST_PAYLOAD',
+			);
 		});
 	});
 });

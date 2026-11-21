@@ -80,10 +80,11 @@ export class MieleDeviceApi {
 				headers['Content-Length'] = String(sendBuf.length);
 			}
 
+			const [hostName, portStr] = this.host.split(':');
 			const req = http.request(
 				{
-					host: this.host,
-					port: 80,
+					host: hostName,
+					port: portStr ? Number(portStr) : 80,
 					method,
 					path: `/${cleanResource}`,
 					headers,
@@ -217,7 +218,7 @@ export class MieleDeviceApi {
 		return this.get<MieleStateResponse>(`Devices/${route}/State`);
 	}
 
-	public readDop2(
+	public async readDop2(
 		route: string,
 		unit: number,
 		attr: number,
@@ -225,12 +226,34 @@ export class MieleDeviceApi {
 		idx2 = 0,
 		timeoutMs?: number,
 	): Promise<DeviceResponse> {
-		return this.request(
+		const res = await this.request(
 			'GET',
 			`Devices/${route}/DOP2/${unit}/${attr}?idx1=${idx1}&idx2=${idx2}`,
 			null,
 			timeoutMs,
 		);
+		let body = res.body || Buffer.alloc(0);
+		const xsig = res.headers?.['x-signature'];
+		if (
+			xsig &&
+			typeof xsig === 'string' &&
+			body.length > 0 &&
+			body.length % 16 === 0
+		) {
+			try {
+				const sigHex = xsig.includes(':')
+					? xsig.split(':')[1].trim()
+					: xsig.trim();
+				body = this.mc.decryptResponse(sigHex, body);
+			} catch {
+				/* ignore decryption error, fallback to raw body */
+			}
+		}
+		return {
+			status: res.status,
+			headers: res.headers,
+			body,
+		};
 	}
 
 	public async anfrage(

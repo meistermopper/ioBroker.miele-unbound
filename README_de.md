@@ -131,6 +131,8 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- DOP2-Antworten mit AES-CBC via X-Signature in readDop2 entschlüsselt
+- Kontext-Fehlerzähler bei Programmstart zurückgesetzt (Lockout-Schutz)
 
 ### 1.7.3 (2026-11-20)
 - DOP2-Typ 33 (AStruct) für Listen von Strukturen unterstützt
