@@ -130,6 +130,7 @@ The adapter utilizes local communication protocols reverse-engineered by the ope
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Bump node-forge override to ^1.4.3 to resolve Dependabot security alerts
 
 ### 1.7.4 (2026-11-21)
 - Decrypt DOP2 response payloads with AES-CBC using X-Signature in readDop2

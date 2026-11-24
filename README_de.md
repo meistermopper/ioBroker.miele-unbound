@@ -131,6 +131,7 @@ Der Adapter nutzt ein durch Reverse Engineering offengelegtes lokales Protokoll.
 ## Changelog
 
 ### **WORK IN PROGRESS**
+- node-forge-Override auf ^1.4.3 aktualisiert (Dependabot-Sicherheitswarnungen)
 
 ### 1.7.4 (2026-11-21)
 - DOP2-Antworten mit AES-CBC via X-Signature in readDop2 entschlüsselt
